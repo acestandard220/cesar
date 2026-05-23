@@ -30,6 +30,8 @@ namespace cesar{
 		case ShaderID::CullInstances:  return L"Meshlet/CullInstances.hlsl";
 		case ShaderID::DrawMeshlet:    return L"Meshlet/DrawMeshlets.hlsl";
 		case ShaderID::GenerateMipMap: return L"Other/generate_mipmap.hlsl";
+		case ShaderID::VizSubMeshBounds_MS: return L"Meshlet/VizBounds.hlsl";
+		case ShaderID::VizSubMeshBounds_PS: return L"Meshlet/VizBounds.hlsl";
 		}
 	}
 
@@ -55,6 +57,10 @@ namespace cesar{
 			return L"BuildCullMeshletArgs";
 		case ShaderID::CullMeshlets:
 			return L"CullMeshlets";
+		case ShaderID::VizSubMeshBounds_MS:
+			return L"VizSubMeshBounds_MS";
+		case ShaderID::VizSubMeshBounds_PS:
+			return L"VizSubMeshBounds_PS";
 		default:
 			return L"InvalidMain";
 		}
@@ -93,6 +99,7 @@ namespace cesar{
 				target_profile = std::format(L"{}{}", GetShaderTypeTargetProfilePrefix(ShaderType::Vertex), GetShaderModelTargetProfileSuffix(shader_model));
 				break;
 			}
+			case ShaderID::VizSubMeshBounds_PS:
 		    case ShaderID::GBufferPixel:
 			{
 				target_profile = std::format(L"{}{}", GetShaderTypeTargetProfilePrefix(ShaderType::Pixel), GetShaderModelTargetProfileSuffix(shader_model));
@@ -108,6 +115,7 @@ namespace cesar{
 				target_profile = std::format(L"{}{}", GetShaderTypeTargetProfilePrefix(ShaderType::Compute), GetShaderModelTargetProfileSuffix(shader_model));
 				break;
 			}
+			case ShaderID::VizSubMeshBounds_MS:
 			case ShaderID::DrawMeshlet:
 		    case ShaderID::Mesh:
 			{

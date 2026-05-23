@@ -12,6 +12,7 @@ namespace cesar {
 		
 		gbuffer_pass    = std::make_unique<GBufferPass>(render_context, width, height);
 		scene_cull_pass = std::make_unique<SceneCullPass>(render_context);
+		visualizer = std::make_unique<Visualizer>(render_context, width, height);
 
 		GPUContext* gpu_context = render_context->GetGPUContext();
 		frame_data_buffer = gpu_context->CreateConstantBuffer<FrameData>("Frame Constant Buffer");
@@ -79,6 +80,7 @@ namespace cesar {
 
 		scene_cull_pass->AddPass(rg, element_count, submesh_count, meshlet_count);
 		gbuffer_pass->AddPass(rg);
+		visualizer->AddPass(render_graph, scene);
 
 		
 		using namespace render_graph;

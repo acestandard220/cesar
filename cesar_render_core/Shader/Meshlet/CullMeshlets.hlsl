@@ -42,7 +42,7 @@ void CullMeshlets(uint3 gid : SV_GroupID, uint gtid : SV_GroupThreadID)
 
             MeshletCandidate candidate;
             candidate.meshlet_idx = submesh.meshlet_start + i;
-            candidate.submesh_idx = submesh_idx;
+            candidate.submesh_candidate_idx = gid.x;
             
             meshlet_candidate[index] = candidate;
         }

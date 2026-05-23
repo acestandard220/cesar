@@ -60,7 +60,7 @@ struct MeshInstance
 struct MeshletCandidate
 {
     uint meshlet_idx;
-    uint submesh_idx;
+    uint submesh_candidate_idx;
 };
 struct SubMeshCandidate
 {

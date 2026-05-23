@@ -26,6 +26,9 @@ namespace cesar
 
 			BufferReadOnly meshlet_candidates_idx;
 			BufferReadOnly submeshes_idx;
+			BufferReadOnly submesh_candidates_idx;
+			BufferReadOnly mesh_instances_idx;
+			BufferReadOnly submesh_instances_idx;
 
 			BufferReadOnly execute_buffer;
 			render_graph::BufferID frame_constants;
@@ -65,6 +68,10 @@ namespace cesar
 				data.meshlet_candidates_idx = builder.ReadBuffer(RG_NAME(MeshletCandidateBuffer), ReadAccessType::AllShader, {});
 				data.submeshes_idx = builder.ReadBuffer(RG_NAME(SubMeshDataBuffer), ReadAccessType::AllShader, {});
 
+				data.submesh_candidates_idx = builder.ReadBuffer(RG_NAME(SubMeshCandidatesBuffer), ReadAccessType::AllShader, {});
+				data.mesh_instances_idx = builder.ReadBuffer(RG_NAME(MeshInstanceBuffer), ReadAccessType::AllShader, {});
+				data.submesh_instances_idx = builder.ReadBuffer(RG_NAME(SubmeshInstanceBuffer), ReadAccessType::AllShader, {});
+
 				data.execute_buffer = builder.ReadBuffer(RG_NAME(DrawMeshletExecuteArgsBuffer), ReadAccessType::NonPixelShader, {});
 				data.frame_constants = render_graph.GetBufferID(RG_NAME(FrameConstants));
 
@@ -81,13 +88,21 @@ namespace cesar
 
 					Uint32 meshlet_candidates_idx;
 					Uint32 submeshes_idx;
+
+					Uint32 submesh_candidates_idx;
+					Uint32 mesh_instances_idx;
+					Uint32 submesh_instances_idx;
+
 				}constants = {
 					.meshlets_idx           = context.GetBufferReadOnlyIndex(data.meshlets_idx),
 					.vertices_idx           = context.GetBufferReadOnlyIndex(data.vertices_idx),
 					.meshlet_vertices_idx   = context.GetBufferReadOnlyIndex(data.meshlet_vertices_idx),
 					.meshlet_triangles_idx  = context.GetBufferReadOnlyIndex(data.meshlet_triangles_idx),
 					.meshlet_candidates_idx = context.GetBufferReadOnlyIndex(data.meshlet_candidates_idx),
-					.submeshes_idx          = context.GetBufferReadOnlyIndex(data.submeshes_idx)
+					.submeshes_idx          = context.GetBufferReadOnlyIndex(data.submeshes_idx),
+					.submesh_candidates_idx = context.GetBufferReadOnlyIndex(data.submesh_candidates_idx),
+					.mesh_instances_idx     = context.GetBufferReadOnlyIndex(data.mesh_instances_idx),
+					.submesh_instances_idx  = context.GetBufferReadOnlyIndex(data.submesh_instances_idx)
 				};
 
 				CommandList* cmd_list = &context.GetCommandList();

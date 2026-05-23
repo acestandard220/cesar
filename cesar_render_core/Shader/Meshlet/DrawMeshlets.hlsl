@@ -17,6 +17,9 @@ struct Constants
     
     uint meshlet_candidates_idx;
     uint submeshes_idx;
+    uint submesh_candidates_idx;
+    uint mesh_instances_idx;
+    uint submesh_instances_idx;
 };
 
 ConstantBuffer<Constants> constant : register(b1);
@@ -32,7 +35,7 @@ uint3 GetTriangle(Meshlet meshlet, SubMeshData submesh, uint i)
     return t_out;
 }
 
-VertexOut GetVertex(Meshlet meshlet, SubMeshData submesh, uint i,uint id)
+VertexOut GetVertex(Meshlet meshlet, SubMeshData submesh, SubmeshInstance submesh_instance, uint i, uint id)
 {
     StructuredBuffer<Vertex>          vertices         = ResourceDescriptorHeap[constant.vertices_idx];
     StructuredBuffer<uint>            meshlet_vertices = ResourceDescriptorHeap[constant.meshlet_vertices_idx];
@@ -40,7 +43,8 @@ VertexOut GetVertex(Meshlet meshlet, SubMeshData submesh, uint i,uint id)
     Vertex v = vertices[submesh.vertex_start + meshlet_vertices[submesh.meshlet_vertice_start + meshlet.vertex_start + i]];
 
     VertexOut v_out;
-    v_out.position = mul(frame_constants.view_projection, float4(v.position, 1.0f));
+    float4 position = mul(float4(v.position, 1.0f), submesh_instance.model_matrix);
+    v_out.position = mul(frame_constants.view_projection, position);
     v_out.normal = GetMeshletColor(id);
     return v_out;
 }
@@ -49,19 +53,27 @@ VertexOut GetVertex(Meshlet meshlet, SubMeshData submesh, uint i,uint id)
 [outputtopology("triangle")]
 void DrawMeshlet(uint3 gid : SV_GroupID, uint gtid : SV_GroupThreadID, out vertices VertexOut output_vertices[MAX_VERTICES], out indices uint3 output_indices[MAX_PRIMITIVES])
 {
-    StructuredBuffer<Meshlet>          meshlets          = ResourceDescriptorHeap[constant.meshlets_idx];
-    StructuredBuffer<MeshletCandidate> meshlet_candidate = ResourceDescriptorHeap[constant.meshlet_candidates_idx];
-    StructuredBuffer<SubMeshData>      submeshes         = ResourceDescriptorHeap[constant.submeshes_idx];
+    StructuredBuffer<Meshlet>          meshlets           = ResourceDescriptorHeap[constant.meshlets_idx];
+    StructuredBuffer<MeshletCandidate> meshlet_candidate  = ResourceDescriptorHeap[constant.meshlet_candidates_idx];
+    StructuredBuffer<SubMeshData>      submeshes          = ResourceDescriptorHeap[constant.submeshes_idx];
+    StructuredBuffer<SubMeshCandidate> submesh_candidates = ResourceDescriptorHeap[constant.submesh_candidates_idx];
+    StructuredBuffer<MeshInstance>     mesh_instances     = ResourceDescriptorHeap[constant.mesh_instances_idx];
+    StructuredBuffer<SubmeshInstance>  submesh_instances  = ResourceDescriptorHeap[constant.submesh_instances_idx];
     
     MeshletCandidate candidate = meshlet_candidate[gid.x];
+    SubMeshCandidate submesh_candidate = submesh_candidates[candidate.submesh_candidate_idx];
+
     Meshlet          meshlet   = meshlets[candidate.meshlet_idx]; 
-    SubMeshData     submesh    = submeshes[candidate.submesh_idx];
+    MeshInstance mesh_instance = mesh_instances[submesh_candidate.instance_idx];
+
+    SubMeshData submesh = submeshes[mesh_instance.submesh_data_start + submesh_candidate.submesh_idx];
+    SubmeshInstance submesh_instance = submesh_instances[mesh_instance.submesh_instance_start + submesh_candidate.submesh_idx];
     
     SetMeshOutputCounts(meshlet.vertex_count, meshlet.triangle_count);
     
     for (int i = gtid; i < meshlet.vertex_count; i += THREADS_X)
     {    
-        output_vertices[i] = GetVertex(meshlet, submesh, i, candidate.meshlet_idx);
+        output_vertices[i] = GetVertex(meshlet, submesh, submesh_instance, i, candidate.meshlet_idx);
     }
     
     for (int j = gtid; j < meshlet.triangle_count; j += THREADS_X)

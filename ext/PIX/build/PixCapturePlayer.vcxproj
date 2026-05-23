@@ -1,0 +1,408 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="18.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <PreferredToolArchitecture>x86</PreferredToolArchitecture>
+  </PropertyGroup>
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|win32">
+      <Configuration>Debug</Configuration>
+      <Platform>win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|win32">
+      <Configuration>Release</Configuration>
+      <Platform>win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="MinSizeRel|win32">
+      <Configuration>MinSizeRel</Configuration>
+      <Platform>win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="RelWithDebInfo|win32">
+      <Configuration>RelWithDebInfo</Configuration>
+      <Platform>win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{847ED1D2-2B47-3A3E-83E9-ED341A51D7DA}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <WindowsTargetPlatformVersion>10.0.26100.0</WindowsTargetPlatformVersion>
+    <Platform>win32</Platform>
+    <ProjectName>PixCapturePlayer</ProjectName>
+    <VCProjectUpgraderObjectName>NoUpgrade</VCProjectUpgraderObjectName>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v145</PlatformToolset>
+    <UseDebugLibraries>true</UseDebugLibraries>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v145</PlatformToolset>
+    <UseDebugLibraries>false</UseDebugLibraries>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v145</PlatformToolset>
+    <UseDebugLibraries>false</UseDebugLibraries>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v145</PlatformToolset>
+    <UseDebugLibraries>false</UseDebugLibraries>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>10.0.20506.1</_ProjectFileVersion>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|win32'">D:\Project\cesar\cesar\ext\PIX\build\Debug\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|win32'">PixCapturePlayer.dir\Debug\</IntDir>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug|win32'">cesar</TargetName>
+    <TargetExt Condition="'$(Configuration)|$(Platform)'=='Debug|win32'">.exe</TargetExt>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Debug|win32'">true</LinkIncremental>
+    <GenerateManifest Condition="'$(Configuration)|$(Platform)'=='Debug|win32'">true</GenerateManifest>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|win32'">D:\Project\cesar\cesar\ext\PIX\build\Release\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|win32'">PixCapturePlayer.dir\Release\</IntDir>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|win32'">cesar</TargetName>
+    <TargetExt Condition="'$(Configuration)|$(Platform)'=='Release|win32'">.exe</TargetExt>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release|win32'">false</LinkIncremental>
+    <GenerateManifest Condition="'$(Configuration)|$(Platform)'=='Release|win32'">true</GenerateManifest>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|win32'">D:\Project\cesar\cesar\ext\PIX\build\MinSizeRel\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|win32'">PixCapturePlayer.dir\MinSizeRel\</IntDir>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|win32'">cesar</TargetName>
+    <TargetExt Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|win32'">.exe</TargetExt>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|win32'">false</LinkIncremental>
+    <GenerateManifest Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|win32'">true</GenerateManifest>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|win32'">D:\Project\cesar\cesar\ext\PIX\build\RelWithDebInfo\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|win32'">PixCapturePlayer.dir\RelWithDebInfo\</IntDir>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|win32'">cesar</TargetName>
+    <TargetExt Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|win32'">.exe</TargetExt>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|win32'">true</LinkIncremental>
+    <GenerateManifest Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|win32'">true</GenerateManifest>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|win32'">
+    <ClCompile>
+      <AdditionalOptions>%(AdditionalOptions) -bigobj</AdditionalOptions>
+      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <CallingConvention></CallingConvention>
+      <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <FloatingPointModel></FloatingPointModel>
+      <ForceConformanceInForLoopScope></ForceConformanceInForLoopScope>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+      <MinimalRebuild></MinimalRebuild>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <Optimization></Optimization>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <RemoveUnreferencedCodeData></RemoveUnreferencedCodeData>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <SupportJustMyCode></SupportJustMyCode>
+      <TreatWChar_tAsBuiltInType></TreatWChar_tAsBuiltInType>
+      <UseFullPaths>false</UseFullPaths>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;-RESOURCES_BIN_PATH="D:/Project/cesar/cesar/ext/PIX/resources.bin";CMAKE_INTDIR="Debug"</PreprocessorDefinitions>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <ScanSourceForModuleDependencies>false</ScanSourceForModuleDependencies>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_DEBUG;_WINDOWS;-RESOURCES_BIN_PATH=\"D:/Project/cesar/cesar/ext/PIX/resources.bin\";CMAKE_INTDIR=\"Debug\"</PreprocessorDefinitions>
+    </ResourceCompile>
+    <Midl>
+      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+    <Link>
+      <AdditionalDependencies>d3d12.lib;dxgi.lib;d3dcompiler.lib;dxguid.lib;cabinet.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalOptions>%(AdditionalOptions) /machine:X86</AdditionalOptions>
+      <DataExecutionPrevention></DataExecutionPrevention>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <ImageHasSafeExceptionHandlers></ImageHasSafeExceptionHandlers>
+      <ImportLibrary>D:/Project/cesar/cesar/ext/PIX/build/Debug/cesar.lib</ImportLibrary>
+      <LinkErrorReporting></LinkErrorReporting>
+      <ProgramDataBaseFile>D:/Project/cesar/cesar/ext/PIX/build/Debug/cesar.pdb</ProgramDataBaseFile>
+      <RandomizedBaseAddress></RandomizedBaseAddress>
+      <StackReserveSize>10000000</StackReserveSize>
+      <SubSystem>Windows</SubSystem>
+    </Link>
+    <ProjectReference>
+      <LinkLibraryDependencies>false</LinkLibraryDependencies>
+    </ProjectReference>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|win32'">
+    <ClCompile>
+      <AdditionalOptions>%(AdditionalOptions) -bigobj</AdditionalOptions>
+      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <CallingConvention></CallingConvention>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <FloatingPointModel></FloatingPointModel>
+      <ForceConformanceInForLoopScope></ForceConformanceInForLoopScope>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+      <MinimalRebuild></MinimalRebuild>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <Optimization>MaxSpeed</Optimization>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <RemoveUnreferencedCodeData></RemoveUnreferencedCodeData>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <SupportJustMyCode></SupportJustMyCode>
+      <TreatWChar_tAsBuiltInType></TreatWChar_tAsBuiltInType>
+      <UseFullPaths>false</UseFullPaths>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;-RESOURCES_BIN_PATH="D:/Project/cesar/cesar/ext/PIX/resources.bin";CMAKE_INTDIR="Release"</PreprocessorDefinitions>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <DebugInformationFormat>
+      </DebugInformationFormat>
+      <ScanSourceForModuleDependencies>false</ScanSourceForModuleDependencies>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;-RESOURCES_BIN_PATH=\"D:/Project/cesar/cesar/ext/PIX/resources.bin\";CMAKE_INTDIR=\"Release\"</PreprocessorDefinitions>
+    </ResourceCompile>
+    <Midl>
+      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+    <Link>
+      <AdditionalDependencies>d3d12.lib;dxgi.lib;d3dcompiler.lib;dxguid.lib;cabinet.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalOptions>%(AdditionalOptions) /machine:X86</AdditionalOptions>
+      <DataExecutionPrevention></DataExecutionPrevention>
+      <GenerateDebugInformation>false</GenerateDebugInformation>
+      <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <ImageHasSafeExceptionHandlers></ImageHasSafeExceptionHandlers>
+      <ImportLibrary>D:/Project/cesar/cesar/ext/PIX/build/Release/cesar.lib</ImportLibrary>
+      <LinkErrorReporting></LinkErrorReporting>
+      <ProgramDataBaseFile>D:/Project/cesar/cesar/ext/PIX/build/Release/cesar.pdb</ProgramDataBaseFile>
+      <RandomizedBaseAddress></RandomizedBaseAddress>
+      <StackReserveSize>10000000</StackReserveSize>
+      <SubSystem>Windows</SubSystem>
+    </Link>
+    <ProjectReference>
+      <LinkLibraryDependencies>false</LinkLibraryDependencies>
+    </ProjectReference>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|win32'">
+    <ClCompile>
+      <AdditionalOptions>%(AdditionalOptions) -bigobj</AdditionalOptions>
+      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <CallingConvention></CallingConvention>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <FloatingPointModel></FloatingPointModel>
+      <ForceConformanceInForLoopScope></ForceConformanceInForLoopScope>
+      <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+      <MinimalRebuild></MinimalRebuild>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <Optimization>MinSpace</Optimization>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <RemoveUnreferencedCodeData></RemoveUnreferencedCodeData>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <SupportJustMyCode></SupportJustMyCode>
+      <TreatWChar_tAsBuiltInType></TreatWChar_tAsBuiltInType>
+      <UseFullPaths>false</UseFullPaths>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;-RESOURCES_BIN_PATH="D:/Project/cesar/cesar/ext/PIX/resources.bin";CMAKE_INTDIR="MinSizeRel"</PreprocessorDefinitions>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <DebugInformationFormat>
+      </DebugInformationFormat>
+      <ScanSourceForModuleDependencies>false</ScanSourceForModuleDependencies>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;-RESOURCES_BIN_PATH=\"D:/Project/cesar/cesar/ext/PIX/resources.bin\";CMAKE_INTDIR=\"MinSizeRel\"</PreprocessorDefinitions>
+    </ResourceCompile>
+    <Midl>
+      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+    <Link>
+      <AdditionalDependencies>d3d12.lib;dxgi.lib;d3dcompiler.lib;dxguid.lib;cabinet.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalOptions>%(AdditionalOptions) /machine:X86</AdditionalOptions>
+      <DataExecutionPrevention></DataExecutionPrevention>
+      <GenerateDebugInformation>false</GenerateDebugInformation>
+      <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <ImageHasSafeExceptionHandlers></ImageHasSafeExceptionHandlers>
+      <ImportLibrary>D:/Project/cesar/cesar/ext/PIX/build/MinSizeRel/cesar.lib</ImportLibrary>
+      <LinkErrorReporting></LinkErrorReporting>
+      <ProgramDataBaseFile>D:/Project/cesar/cesar/ext/PIX/build/MinSizeRel/cesar.pdb</ProgramDataBaseFile>
+      <RandomizedBaseAddress></RandomizedBaseAddress>
+      <StackReserveSize>10000000</StackReserveSize>
+      <SubSystem>Windows</SubSystem>
+    </Link>
+    <ProjectReference>
+      <LinkLibraryDependencies>false</LinkLibraryDependencies>
+    </ProjectReference>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|win32'">
+    <ClCompile>
+      <AdditionalOptions>%(AdditionalOptions) -bigobj</AdditionalOptions>
+      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <CallingConvention></CallingConvention>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <FloatingPointModel></FloatingPointModel>
+      <ForceConformanceInForLoopScope></ForceConformanceInForLoopScope>
+      <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+      <MinimalRebuild></MinimalRebuild>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <Optimization>MaxSpeed</Optimization>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <RemoveUnreferencedCodeData></RemoveUnreferencedCodeData>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <SupportJustMyCode></SupportJustMyCode>
+      <TreatWChar_tAsBuiltInType></TreatWChar_tAsBuiltInType>
+      <UseFullPaths>false</UseFullPaths>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;-RESOURCES_BIN_PATH="D:/Project/cesar/cesar/ext/PIX/resources.bin";CMAKE_INTDIR="RelWithDebInfo"</PreprocessorDefinitions>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <ScanSourceForModuleDependencies>false</ScanSourceForModuleDependencies>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;-RESOURCES_BIN_PATH=\"D:/Project/cesar/cesar/ext/PIX/resources.bin\";CMAKE_INTDIR=\"RelWithDebInfo\"</PreprocessorDefinitions>
+    </ResourceCompile>
+    <Midl>
+      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+    <Link>
+      <AdditionalDependencies>d3d12.lib;dxgi.lib;d3dcompiler.lib;dxguid.lib;cabinet.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalOptions>%(AdditionalOptions) /machine:X86</AdditionalOptions>
+      <DataExecutionPrevention></DataExecutionPrevention>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <ImageHasSafeExceptionHandlers></ImageHasSafeExceptionHandlers>
+      <ImportLibrary>D:/Project/cesar/cesar/ext/PIX/build/RelWithDebInfo/cesar.lib</ImportLibrary>
+      <LinkErrorReporting></LinkErrorReporting>
+      <ProgramDataBaseFile>D:/Project/cesar/cesar/ext/PIX/build/RelWithDebInfo/cesar.pdb</ProgramDataBaseFile>
+      <RandomizedBaseAddress></RandomizedBaseAddress>
+      <StackReserveSize>10000000</StackReserveSize>
+      <SubSystem>Windows</SubSystem>
+    </Link>
+    <ProjectReference>
+      <LinkLibraryDependencies>false</LinkLibraryDependencies>
+    </ProjectReference>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <CustomBuild Include="D:\Project\cesar\cesar\ext\PIX\CMakeLists.txt">
+      <UseUtf8Encoding>Always</UseUtf8Encoding>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|win32'">Building Custom Rule D:/Project/cesar/cesar/ext/PIX/CMakeLists.txt</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|win32'">setlocal
+D:\Tools\CMake\bin\cmake.exe -SD:/Project/cesar/cesar/ext/PIX -BD:/Project/cesar/cesar/ext/PIX/build --check-stamp-file D:/Project/cesar/cesar/ext/PIX/build/CMakeFiles/generate.stamp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|win32'">D:\Project\cesar\cesar\ext\PIX\build\CMakeFiles\4.3.1\CMakeCCompiler.cmake;D:\Project\cesar\cesar\ext\PIX\build\CMakeFiles\4.3.1\CMakeCXXCompiler.cmake;D:\Project\cesar\cesar\ext\PIX\build\CMakeFiles\4.3.1\CMakeRCCompiler.cmake;D:\Project\cesar\cesar\ext\PIX\build\CMakeFiles\4.3.1\CMakeSystem.cmake;D:\Tools\CMake\share\cmake-4.3\Modules\CMakeCInformation.cmake;D:\Tools\CMake\share\cmake-4.3\Modules\CMakeCXXInformation.cmake;D:\Tools\CMake\share\cmake-4.3\Modules\CMakeCommonLanguageInclude.cmake;D:\Tools\CMake\share\cmake-4.3\Modules\CMakeGenericSystem.cmake;D:\Tools\CMake\share\cmake-4.3\Modules\CMakeInitializeConfigs.cmake;D:\Tools\CMake\share\cmake-4.3\Modules\CMakeLanguageInformation.cmake;D:\Tools\CMake\share\cmake-4.3\Modules\CMakeRCInformation.cmake;D:\Tools\CMake\share\cmake-4.3\Modules\CMakeSystemSpecificInformation.cmake;D:\Tools\CMake\share\cmake-4.3\Modules\CMakeSystemSpecificInitialize.cmake;D:\Tools\CMake\share\cmake-4.3\Modules\Compiler\CMakeCommonCompilerMacros.cmake;D:\Tools\CMake\share\cmake-4.3\Modules\Compiler\MSVC-C.cmake;D:\Tools\CMake\share\cmake-4.3\Modules\Compiler\MSVC-CXX.cmake;D:\Tools\CMake\share\cmake-4.3\Modules\Compiler\MSVC.cmake;D:\Tools\CMake\share\cmake-4.3\Modules\Internal\CMakeCLinkerInformation.cmake;D:\Tools\CMake\share\cmake-4.3\Modules\Internal\CMakeCXXLinkerInformation.cmake;D:\Tools\CMake\share\cmake-4.3\Modules\Internal\CMakeCommonLinkerInformation.cmake;D:\Tools\CMake\share\cmake-4.3\Modules\Linker\MSVC-C.cmake;D:\Tools\CMake\share\cmake-4.3\Modules\Linker\MSVC-CXX.cmake;D:\Tools\CMake\share\cmake-4.3\Modules\Linker\MSVC.cmake;D:\Tools\CMake\share\cmake-4.3\Modules\Platform\Linker\Windows-MSVC-C.cmake;D:\Tools\CMake\share\cmake-4.3\Modules\Platform\Linker\Windows-MSVC-CXX.cmake;D:\Tools\CMake\share\cmake-4.3\Modules\Platform\Linker\Windows-MSVC.cmake;D:\Tools\CMake\share\cmake-4.3\Modules\Platform\Windows-Initialize.cmake;D:\Tools\CMake\share\cmake-4.3\Modules\Platform\Windows-MSVC-C.cmake;D:\Tools\CMake\share\cmake-4.3\Modules\Platform\Windows-MSVC-CXX.cmake;D:\Tools\CMake\share\cmake-4.3\Modules\Platform\Windows-MSVC.cmake;D:\Tools\CMake\share\cmake-4.3\Modules\Platform\Windows.cmake;D:\Tools\CMake\share\cmake-4.3\Modules\Platform\WindowsPaths.cmake;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|win32'">D:\Project\cesar\cesar\ext\PIX\build\CMakeFiles\generate.stamp</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='Debug|win32'">false</LinkObjects>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|win32'">Building Custom Rule D:/Project/cesar/cesar/ext/PIX/CMakeLists.txt</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|win32'">setlocal
+D:\Tools\CMake\bin\cmake.exe -SD:/Project/cesar/cesar/ext/PIX -BD:/Project/cesar/cesar/ext/PIX/build --check-stamp-file D:/Project/cesar/cesar/ext/PIX/build/CMakeFiles/generate.stamp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|win32'">D:\Project\cesar\cesar\ext\PIX\build\CMakeFiles\4.3.1\CMakeCCompiler.cmake;D:\Project\cesar\cesar\ext\PIX\build\CMakeFiles\4.3.1\CMakeCXXCompiler.cmake;D:\Project\cesar\cesar\ext\PIX\build\CMakeFiles\4.3.1\CMakeRCCompiler.cmake;D:\Project\cesar\cesar\ext\PIX\build\CMakeFiles\4.3.1\CMakeSystem.cmake;D:\Tools\CMake\share\cmake-4.3\Modules\CMakeCInformation.cmake;D:\Tools\CMake\share\cmake-4.3\Modules\CMakeCXXInformation.cmake;D:\Tools\CMake\share\cmake-4.3\Modules\CMakeCommonLanguageInclude.cmake;D:\Tools\CMake\share\cmake-4.3\Modules\CMakeGenericSystem.cmake;D:\Tools\CMake\share\cmake-4.3\Modules\CMakeInitializeConfigs.cmake;D:\Tools\CMake\share\cmake-4.3\Modules\CMakeLanguageInformation.cmake;D:\Tools\CMake\share\cmake-4.3\Modules\CMakeRCInformation.cmake;D:\Tools\CMake\share\cmake-4.3\Modules\CMakeSystemSpecificInformation.cmake;D:\Tools\CMake\share\cmake-4.3\Modules\CMakeSystemSpecificInitialize.cmake;D:\Tools\CMake\share\cmake-4.3\Modules\Compiler\CMakeCommonCompilerMacros.cmake;D:\Tools\CMake\share\cmake-4.3\Modules\Compiler\MSVC-C.cmake;D:\Tools\CMake\share\cmake-4.3\Modules\Compiler\MSVC-CXX.cmake;D:\Tools\CMake\share\cmake-4.3\Modules\Compiler\MSVC.cmake;D:\Tools\CMake\share\cmake-4.3\Modules\Internal\CMakeCLinkerInformation.cmake;D:\Tools\CMake\share\cmake-4.3\Modules\Internal\CMakeCXXLinkerInformation.cmake;D:\Tools\CMake\share\cmake-4.3\Modules\Internal\CMakeCommonLinkerInformation.cmake;D:\Tools\CMake\share\cmake-4.3\Modules\Linker\MSVC-C.cmake;D:\Tools\CMake\share\cmake-4.3\Modules\Linker\MSVC-CXX.cmake;D:\Tools\CMake\share\cmake-4.3\Modules\Linker\MSVC.cmake;D:\Tools\CMake\share\cmake-4.3\Modules\Platform\Linker\Windows-MSVC-C.cmake;D:\Tools\CMake\share\cmake-4.3\Modules\Platform\Linker\Windows-MSVC-CXX.cmake;D:\Tools\CMake\share\cmake-4.3\Modules\Platform\Linker\Windows-MSVC.cmake;D:\Tools\CMake\share\cmake-4.3\Modules\Platform\Windows-Initialize.cmake;D:\Tools\CMake\share\cmake-4.3\Modules\Platform\Windows-MSVC-C.cmake;D:\Tools\CMake\share\cmake-4.3\Modules\Platform\Windows-MSVC-CXX.cmake;D:\Tools\CMake\share\cmake-4.3\Modules\Platform\Windows-MSVC.cmake;D:\Tools\CMake\share\cmake-4.3\Modules\Platform\Windows.cmake;D:\Tools\CMake\share\cmake-4.3\Modules\Platform\WindowsPaths.cmake;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|win32'">D:\Project\cesar\cesar\ext\PIX\build\CMakeFiles\generate.stamp</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='Release|win32'">false</LinkObjects>
+      <Message Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|win32'">Building Custom Rule D:/Project/cesar/cesar/ext/PIX/CMakeLists.txt</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|win32'">setlocal
+D:\Tools\CMake\bin\cmake.exe -SD:/Project/cesar/cesar/ext/PIX -BD:/Project/cesar/cesar/ext/PIX/build --check-stamp-file D:/Project/cesar/cesar/ext/PIX/build/CMakeFiles/generate.stamp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|win32'">D:\Project\cesar\cesar\ext\PIX\build\CMakeFiles\4.3.1\CMakeCCompiler.cmake;D:\Project\cesar\cesar\ext\PIX\build\CMakeFiles\4.3.1\CMakeCXXCompiler.cmake;D:\Project\cesar\cesar\ext\PIX\build\CMakeFiles\4.3.1\CMakeRCCompiler.cmake;D:\Project\cesar\cesar\ext\PIX\build\CMakeFiles\4.3.1\CMakeSystem.cmake;D:\Tools\CMake\share\cmake-4.3\Modules\CMakeCInformation.cmake;D:\Tools\CMake\share\cmake-4.3\Modules\CMakeCXXInformation.cmake;D:\Tools\CMake\share\cmake-4.3\Modules\CMakeCommonLanguageInclude.cmake;D:\Tools\CMake\share\cmake-4.3\Modules\CMakeGenericSystem.cmake;D:\Tools\CMake\share\cmake-4.3\Modules\CMakeInitializeConfigs.cmake;D:\Tools\CMake\share\cmake-4.3\Modules\CMakeLanguageInformation.cmake;D:\Tools\CMake\share\cmake-4.3\Modules\CMakeRCInformation.cmake;D:\Tools\CMake\share\cmake-4.3\Modules\CMakeSystemSpecificInformation.cmake;D:\Tools\CMake\share\cmake-4.3\Modules\CMakeSystemSpecificInitialize.cmake;D:\Tools\CMake\share\cmake-4.3\Modules\Compiler\CMakeCommonCompilerMacros.cmake;D:\Tools\CMake\share\cmake-4.3\Modules\Compiler\MSVC-C.cmake;D:\Tools\CMake\share\cmake-4.3\Modules\Compiler\MSVC-CXX.cmake;D:\Tools\CMake\share\cmake-4.3\Modules\Compiler\MSVC.cmake;D:\Tools\CMake\share\cmake-4.3\Modules\Internal\CMakeCLinkerInformation.cmake;D:\Tools\CMake\share\cmake-4.3\Modules\Internal\CMakeCXXLinkerInformation.cmake;D:\Tools\CMake\share\cmake-4.3\Modules\Internal\CMakeCommonLinkerInformation.cmake;D:\Tools\CMake\share\cmake-4.3\Modules\Linker\MSVC-C.cmake;D:\Tools\CMake\share\cmake-4.3\Modules\Linker\MSVC-CXX.cmake;D:\Tools\CMake\share\cmake-4.3\Modules\Linker\MSVC.cmake;D:\Tools\CMake\share\cmake-4.3\Modules\Platform\Linker\Windows-MSVC-C.cmake;D:\Tools\CMake\share\cmake-4.3\Modules\Platform\Linker\Windows-MSVC-CXX.cmake;D:\Tools\CMake\share\cmake-4.3\Modules\Platform\Linker\Windows-MSVC.cmake;D:\Tools\CMake\share\cmake-4.3\Modules\Platform\Windows-Initialize.cmake;D:\Tools\CMake\share\cmake-4.3\Modules\Platform\Windows-MSVC-C.cmake;D:\Tools\CMake\share\cmake-4.3\Modules\Platform\Windows-MSVC-CXX.cmake;D:\Tools\CMake\share\cmake-4.3\Modules\Platform\Windows-MSVC.cmake;D:\Tools\CMake\share\cmake-4.3\Modules\Platform\Windows.cmake;D:\Tools\CMake\share\cmake-4.3\Modules\Platform\WindowsPaths.cmake;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|win32'">D:\Project\cesar\cesar\ext\PIX\build\CMakeFiles\generate.stamp</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|win32'">false</LinkObjects>
+      <Message Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|win32'">Building Custom Rule D:/Project/cesar/cesar/ext/PIX/CMakeLists.txt</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|win32'">setlocal
+D:\Tools\CMake\bin\cmake.exe -SD:/Project/cesar/cesar/ext/PIX -BD:/Project/cesar/cesar/ext/PIX/build --check-stamp-file D:/Project/cesar/cesar/ext/PIX/build/CMakeFiles/generate.stamp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|win32'">D:\Project\cesar\cesar\ext\PIX\build\CMakeFiles\4.3.1\CMakeCCompiler.cmake;D:\Project\cesar\cesar\ext\PIX\build\CMakeFiles\4.3.1\CMakeCXXCompiler.cmake;D:\Project\cesar\cesar\ext\PIX\build\CMakeFiles\4.3.1\CMakeRCCompiler.cmake;D:\Project\cesar\cesar\ext\PIX\build\CMakeFiles\4.3.1\CMakeSystem.cmake;D:\Tools\CMake\share\cmake-4.3\Modules\CMakeCInformation.cmake;D:\Tools\CMake\share\cmake-4.3\Modules\CMakeCXXInformation.cmake;D:\Tools\CMake\share\cmake-4.3\Modules\CMakeCommonLanguageInclude.cmake;D:\Tools\CMake\share\cmake-4.3\Modules\CMakeGenericSystem.cmake;D:\Tools\CMake\share\cmake-4.3\Modules\CMakeInitializeConfigs.cmake;D:\Tools\CMake\share\cmake-4.3\Modules\CMakeLanguageInformation.cmake;D:\Tools\CMake\share\cmake-4.3\Modules\CMakeRCInformation.cmake;D:\Tools\CMake\share\cmake-4.3\Modules\CMakeSystemSpecificInformation.cmake;D:\Tools\CMake\share\cmake-4.3\Modules\CMakeSystemSpecificInitialize.cmake;D:\Tools\CMake\share\cmake-4.3\Modules\Compiler\CMakeCommonCompilerMacros.cmake;D:\Tools\CMake\share\cmake-4.3\Modules\Compiler\MSVC-C.cmake;D:\Tools\CMake\share\cmake-4.3\Modules\Compiler\MSVC-CXX.cmake;D:\Tools\CMake\share\cmake-4.3\Modules\Compiler\MSVC.cmake;D:\Tools\CMake\share\cmake-4.3\Modules\Internal\CMakeCLinkerInformation.cmake;D:\Tools\CMake\share\cmake-4.3\Modules\Internal\CMakeCXXLinkerInformation.cmake;D:\Tools\CMake\share\cmake-4.3\Modules\Internal\CMakeCommonLinkerInformation.cmake;D:\Tools\CMake\share\cmake-4.3\Modules\Linker\MSVC-C.cmake;D:\Tools\CMake\share\cmake-4.3\Modules\Linker\MSVC-CXX.cmake;D:\Tools\CMake\share\cmake-4.3\Modules\Linker\MSVC.cmake;D:\Tools\CMake\share\cmake-4.3\Modules\Platform\Linker\Windows-MSVC-C.cmake;D:\Tools\CMake\share\cmake-4.3\Modules\Platform\Linker\Windows-MSVC-CXX.cmake;D:\Tools\CMake\share\cmake-4.3\Modules\Platform\Linker\Windows-MSVC.cmake;D:\Tools\CMake\share\cmake-4.3\Modules\Platform\Windows-Initialize.cmake;D:\Tools\CMake\share\cmake-4.3\Modules\Platform\Windows-MSVC-C.cmake;D:\Tools\CMake\share\cmake-4.3\Modules\Platform\Windows-MSVC-CXX.cmake;D:\Tools\CMake\share\cmake-4.3\Modules\Platform\Windows-MSVC.cmake;D:\Tools\CMake\share\cmake-4.3\Modules\Platform\Windows.cmake;D:\Tools\CMake\share\cmake-4.3\Modules\Platform\WindowsPaths.cmake;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|win32'">D:\Project\cesar\cesar\ext\PIX\build\CMakeFiles\generate.stamp</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|win32'">false</LinkObjects>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="D:\Project\cesar\cesar\ext\PIX\Main.cpp" />
+    <ClCompile Include="D:\Project\cesar\cesar\ext\PIX\pch.cpp" />
+    <ClCompile Include="D:\Project\cesar\cesar\ext\PIX\CapturedAssets.cpp" />
+    <ClInclude Include="D:\Project\cesar\cesar\ext\PIX\Helpers.h" />
+    <ClCompile Include="D:\Project\cesar\cesar\ext\PIX\RenderFrame.cpp" />
+    <ClCompile Include="D:\Project\cesar\cesar\ext\PIX\Win32Application.cpp" />
+    <ClCompile Include="D:\Project\cesar\cesar\ext\PIX\ResourceReader.cpp" />
+    <ClCompile Include="D:\Project\cesar\cesar\ext\PIX\UploadBuffers.cpp" />
+    <ClCompile Include="D:\Project\cesar\cesar\ext\PIX\FrameResources.cpp" />
+    <ClCompile Include="D:\Project\cesar\cesar\ext\PIX\CreatePSOs.cpp" />
+    <ClInclude Include="D:\Project\cesar\cesar\ext\PIX\ResourceModifications.h" />
+    <ClCompile Include="D:\Project\cesar\cesar\ext\PIX\CreateAndInitResources_000.cpp" />
+    <ClCompile Include="D:\Project\cesar\cesar\ext\PIX\CommandLists_000.cpp" />
+    <ClCompile Include="D:\Project\cesar\cesar\ext\PIX\RenderFrameWorker_000.cpp" />
+    <ClCompile Include="D:\Project\cesar\cesar\ext\PIX\ShaderTableReconstruction_000.cpp" />
+    <ClCompile Include="D:\Project\cesar\cesar\ext\PIX\AccelStructureRecreation_000.cpp" />
+    <ClCompile Include="D:\Project\cesar\cesar\ext\PIX\RaytracingInstanceDescs_000.cpp" />
+    <ClCompile Include="D:\Project\cesar\cesar\ext\PIX\Descriptors_000.cpp" />
+    <ClCompile Include="D:\Project\cesar\cesar\ext\PIX\ModifyDescriptors_000.cpp" />
+    <ClCompile Include="D:\Project\cesar\cesar\ext\PIX\ResourceModifications_000.cpp" />
+    <ClCompile Include="D:\Project\cesar\cesar\ext\PIX\FrameResources_000.cpp" />
+  </ItemGroup>
+  <ItemGroup />
+  <ItemGroup>
+    <ProjectReference Include="D:\Project\cesar\cesar\ext\PIX\build\ZERO_CHECK.vcxproj">
+      <Project>{A8D0CDA4-D01E-3BF7-943D-A5795162F7AF}</Project>
+      <Name>ZERO_CHECK</Name>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

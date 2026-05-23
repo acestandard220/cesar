@@ -1,0 +1,23 @@
+<Solution>
+  <Configurations>
+    <BuildType Name="Debug" />
+    <BuildType Name="Profile" />
+    <BuildType Name="Release" />
+    <Platform Name="x64" />
+    <Platform Name="x86" />
+  </Configurations>
+  <Project Path="cesar/cesar.vcxproj" Id="39f3d05a-bbdc-4fef-8f9c-fb63b8081ad1" />
+  <Project Path="cesar_asset/cesar_asset.vcxproj" Id="80531092-8c1c-40bf-b5a6-9b53661f82f5">
+    <BuildType Solution="Profile|x86" Project="Release" />
+  </Project>
+  <Project Path="cesar_core/cesar_core.vcxproj" Id="74aab9b4-e846-4e17-abdd-7b8523809d42" />
+  <Project Path="cesar_render/cesar_render.vcxproj" Id="3273e5a1-22c3-459d-b128-138156ce18bc">
+    <BuildType Solution="Profile|x86" Project="Release" />
+  </Project>
+  <Project Path="cesar_render_core/cesar_render_core.vcxproj" Id="19f71a92-1707-4f97-b36e-ed45ec007a34">
+    <BuildType Solution="Profile|x86" Project="Release" />
+  </Project>
+  <Project Path="cesar_scene/cesar_scene.vcxproj" Id="7fe0077a-a9a9-47c9-a715-30743d22cb2b">
+    <BuildType Solution="Profile|x86" Project="Release" />
+  </Project>
+</Solution>

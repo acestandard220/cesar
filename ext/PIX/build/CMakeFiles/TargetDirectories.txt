@@ -1,0 +1,4 @@
+D:/Project/cesar/cesar/ext/PIX/build/CMakeFiles/PixCapturePlayer.dir
+D:/Project/cesar/cesar/ext/PIX/build/CMakeFiles/INSTALL.dir
+D:/Project/cesar/cesar/ext/PIX/build/CMakeFiles/ALL_BUILD.dir
+D:/Project/cesar/cesar/ext/PIX/build/CMakeFiles/ZERO_CHECK.dir

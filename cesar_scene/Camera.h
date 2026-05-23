@@ -1,0 +1,80 @@
+#pragma once
+#include "../cesar_core/cesar_core.h"
+
+#include <SimpleMath/SimpleMath.h>
+#include <DirectXCollision.h>
+
+using namespace DirectX;
+using namespace SimpleMath;
+
+namespace cesar
+{
+	struct __declspec(dllexport) CameraParameters
+	{
+		Float near_plane;
+		Float far_plane;
+		
+		Float fov;
+
+		Vector3 position;
+		Vector3 look_at;
+	};
+
+	class __declspec(dllexport) Camera
+	{
+	public:
+		Camera() = default;
+		explicit Camera(CameraParameters const&);
+
+		Matrix View() const;
+		Matrix Projection() const;
+		Matrix ViewProjection() const;
+		BoundingFrustum Frustum() const;
+
+		Vector3 Position() const
+		{
+			return position;
+		}
+		Quaternion Orientation() const
+		{
+			return orientation;
+		}
+		Vector3 Forward() const;
+
+		Float Near() const;
+		Float Far() const;
+		Float Fov() const;
+		Float AspectRatio() const;
+
+		void SetPosition(Vector3 const& pos);
+		void SetOrientation(Quaternion const& q);
+		void SetNearAndFar(Float n, Float f);
+		void SetAspectRatio(Float ar);
+		void SetFov(Float fov);
+
+		void Zoom(Int32 increment);
+		void OnResize(Uint32 w, Uint32 h);
+		void Update(Float dt);
+		void Enable(Bool _enabled) { enabled = _enabled; }
+		Bool IsChanged() const { return changed; }
+
+	private:
+		Matrix view_matrix;
+		Matrix projection_matrix;
+
+		Vector3 position;
+		Vector3 velocity;
+		Quaternion orientation;
+		Vector3 look_vector;
+
+		Float fov;
+		Float aspect_ratio;
+		Float near_plane, far_plane;
+		Bool  enabled;
+		Bool  changed;
+
+	private:
+		void SetProjectionMatrix(Float fov, Float aspect, Float zn, Float zf);
+	};
+
+}

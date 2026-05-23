@@ -1,0 +1,61 @@
+# PBR Material - Sample
+
+newmtl Wood_PBR
+
+# ----------------------------
+# Base shading (legacy MTL)
+# ----------------------------
+Ka 1.000 1.000 1.000        # ambient reflectivity
+Kd 1.000 1.000 1.000        # diffuse color (base tint)
+Ks 1.000 1.000 1.000        # specular color
+Ns 64.0                     # specular exponent (glossiness proxy)
+d 1.0                       # opacity (1 = opaque)
+Tr 0.0                      # transparency (inverse of d, legacy)
+
+illum 2                     # 2 = specular + diffuse
+
+# ----------------------------
+# PBR extensions (common convention)
+# ----------------------------
+
+# Base Color (Albedo)
+map_Kd "D:/Project/cesar/cesar/resources/Default Materials/LEWY 9.png"
+
+# Normal Map (tangent space)
+map_Bump -bm 1.0 "D:/Project/cesar/cesar/resources/Default Materials/LEWY 9.png"
+# or alternative:
+# bump "D:/Project/cesar/cesar/resources/Default Materials/LEWY 9.png"
+
+# Roughness map (non-standard but widely used)
+map_Pr "D:/Project/cesar/cesar/resources/Default Materials/LEWY 9.png"
+
+# Metallic map (non-standard)
+map_Pm "D:/Project/cesar/cesar/resources/Default Materials/LEWY 9.png"
+
+# Ambient Occlusion
+map_Ao "D:/Project/cesar/cesar/resources/Default Materials/LEWY 9.png"
+
+# Specular map (legacy fallback / sometimes ignored in metallic-roughness workflow)
+map_Ks "D:/Project/cesar/cesar/resources/Default Materials/LEWY 9.png"
+
+# Height / Displacement
+map_disp "D:/Project/cesar/cesar/resources/Default Materials/LEWY 9.png"
+
+# Emissive map
+map_Ke "D:/Project/cesar/cesar/resources/Default Materials/LEWY 9.png"
+
+# ----------------------------
+# Optional PBR packing convention
+# ----------------------------
+# Some pipelines pack:
+# R = AO
+# G = Roughness
+# B = Metallic
+map_PRM "D:/Project/cesar/cesar/resources/Default Materials/LEWY 9.png"
+
+# ----------------------------
+# UV scaling / offsets (optional)
+# ----------------------------
+# These are not always supported everywhere
+# but commonly parsed in engines
+map_Bump -s 1 1 "D:/Project/cesar/cesar/resources/Default Materials/LEWY 9.png"

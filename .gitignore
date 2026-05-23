@@ -361,3 +361,19 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+
+# 3D models
+*.glb
+*.gltf
+*.fbx
+*.obj
+*.mtl
+*.blend
+*.dae
+*.stl
+*.ply
+*.abc
+*.usdz
+*.usd
+*.usda
+*.usdc

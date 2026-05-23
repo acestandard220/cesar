@@ -51,10 +51,14 @@ namespace cesar
 
 		if (gInput.GetKey(Key::MouseRight))
 		{
+			Float sensitivity = 0.2f;
+			if (gInput.GetKey(Key::Shift)) sensitivity *= 1.50f;
+			if (gInput.GetKey(Key::Control))  sensitivity *= 0.5f;
+
 			Float dx = gInput.GetMouseDeltaX();
 			Float dy = gInput.GetMouseDeltaY();
-			Quaternion pitch_quat = Quaternion::CreateFromYawPitchRoll(0, dy * dt * 0.25f, 0);
-			Quaternion yaw_quat = Quaternion::CreateFromYawPitchRoll(dx * dt * 0.25f, 0, 0);
+			Quaternion pitch_quat = Quaternion::CreateFromYawPitchRoll(0, dy * sensitivity * 0.25f, 0);
+			Quaternion yaw_quat = Quaternion::CreateFromYawPitchRoll(dx * sensitivity * 0.25f, 0, 0);
 			orientation = pitch_quat * orientation * yaw_quat;
 			changed = true;
 		}

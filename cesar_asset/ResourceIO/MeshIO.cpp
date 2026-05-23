@@ -61,7 +61,11 @@ namespace cesar {
             submesh.meshlet_start += global_meshlet_start;
             submesh.meshlet_vertice_start += global_meshlet_vertex_start;
             submesh.meshlet_triangle_start += global_meshlet_triangle_start;
+
+            mesh_resource->meshlet_count += submesh.meshlet_count;
         }
+
+        mesh_resource->meshlet_start = global_meshlet_start;
 
         MemoryBlock<SubMeshData> submesh_data_block = submesh_data_allocator->Allocate(submesh_data.size());
         MemoryBlock<Vertex>      vertex_block       = vertex_allocator->Allocate(vertices.size());
@@ -200,8 +204,14 @@ namespace cesar {
                     meshlet_triangles[meshlet_triangle_count + j * 3 + 2] = opt_triangles[opt_meshlet.triangle_offset + j * 3 + 2];
                 }
 
-                meshlet.center = { 0.0f, 0.0f, 0.0f };
-                meshlet.radius = 1.0f;
+                meshopt_Bounds opt_bounds = meshopt_computeMeshletBounds(&meshlet_vertices[meshlet_vertex_count + opt_meshlet.vertex_offset], 
+                    &opt_triangles[opt_meshlet.triangle_offset], opt_meshlet.triangle_count, &submesh_vertices.data()->position.x,
+                    submesh_vertices.size(), CESAR_SIZEOF(Vertex));
+
+                meshlet.center.x = opt_bounds.center[0];
+                meshlet.center.y = opt_bounds.center[1];
+                meshlet.center.z = opt_bounds.center[2];
+                meshlet.radius   = opt_bounds.radius;
 
                 //relative to submesh
                 meshlet.vertex_count = opt_meshlet.vertex_count;
@@ -336,7 +346,7 @@ namespace cesar {
                         indices.push_back((Uint32)(vertex_offset + i));
                 }
 
-                submesh.bounding_sphere     = sm_bounding_sphere;
+                //submesh.bounding_sphere     = sm_bounding_sphere;
                 submesh_name[submesh_index] = std::format("{}_{}", mesh.name, primitive_index++);
                 mtl[submesh_index]          = 0;
 
@@ -522,7 +532,7 @@ namespace cesar {
             submesh.vertex_start = vertices.size();
             submesh.index_start = indices.size();
                         
-            submesh.bounding_sphere = {};
+            submesh.bounding_box = {};
 
             for (int v = 0; v < mesh->mNumVertices; v++) {
                 Vertex vertex = {};
@@ -533,7 +543,13 @@ namespace cesar {
                     vertex.position.z = mesh->mVertices[v].z;
                 }
 
+                submesh.bounding_box.max.x = std::max(submesh.bounding_box.max.x, vertex.position.x);
+                submesh.bounding_box.max.y = std::max(submesh.bounding_box.max.y, vertex.position.y);
+                submesh.bounding_box.max.z = std::max(submesh.bounding_box.max.z, vertex.position.z);
 
+                submesh.bounding_box.min.x = std::min(submesh.bounding_box.min.x, vertex.position.x);
+                submesh.bounding_box.min.y = std::min(submesh.bounding_box.min.y, vertex.position.y);
+                submesh.bounding_box.min.z = std::min(submesh.bounding_box.min.z, vertex.position.z);
 
                 if (mesh->HasNormals())
                 {
@@ -580,8 +596,6 @@ namespace cesar {
                     vertex.tangent.y = mesh->mTangents[v].y;
                     vertex.tangent.z = mesh->mTangents[v].z;
                     vertex.tangent.w = handedness;
-
-
                 }
 
                 vertices.push_back(vertex);

@@ -92,8 +92,8 @@ struct SubMeshData
     uint meshlet_vertice_start;
     uint meshlet_triangle_start;
 
-    BoundingSphere bounding_sphere;
-    uint pad02[4];
+    BoundingBox bounding_box;
+    uint pad02[2];
 };
 
 

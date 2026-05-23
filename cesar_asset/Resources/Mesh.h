@@ -43,6 +43,7 @@ namespace cesar {
 		Uint32 meshlet_idx;
 		Uint32 submesh_idx;
 	};
+
 	struct Meshlet {
 		Vector3 center;
 		Float   radius;

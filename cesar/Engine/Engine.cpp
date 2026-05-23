@@ -16,7 +16,7 @@ namespace cesar
 		//Possible Cross Depp.
 		scene = std::make_shared<Scene>(window, resource_cache.get());
 		scene->AddMeshEntity("Z:\\Models\\Bistro\\Bistro_v5_2\\BistroInt.glb");
-		//scene->AddMeshEntity("C:\\Users\\AMISH\\Pictures\\Documents\\Untitled.obj");
+		scene->AddMeshEntity("Z:\\Models\\cube.gltf");
 
 		renderer = std::make_unique<Renderer>(window, render_context.get(),scene.get());
 

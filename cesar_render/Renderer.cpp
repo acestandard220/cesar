@@ -1,4 +1,5 @@
 #include "Renderer.h"
+#include "../cesar_core/Event/Input.h"
 
 namespace cesar {
 
@@ -71,13 +72,13 @@ namespace cesar {
 
 		render_graph::RenderGraph& rg = render_graph;
 
-		const Uint32 element_count = mesh_instance_buffer->GetDesc().size / mesh_instance_buffer->GetDesc().stride;
-		const Uint32 submesh_count = submeshdata_buffer->GetDesc().size / submeshdata_buffer->GetDesc().stride;
-		const Uint32 meshlet_count = meshlet_buffer->GetDesc().size / meshlet_buffer->GetDesc().stride;
+		//This is not ideal
+		const Uint32 element_count = scene->GetTotalMeshInstance();
+		const Uint32 submesh_count = scene->GetTotalInstanceSubmesh();
+		const Uint32 meshlet_count = scene->GetTotalMeshlet();
 
 		scene_cull_pass->AddPass(rg, element_count, submesh_count, meshlet_count);
 		gbuffer_pass->AddPass(rg);
-		//gbuffer_pass->AddNonMeshShaderPass(rg);
 
 		
 		using namespace render_graph;

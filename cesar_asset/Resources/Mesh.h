@@ -69,14 +69,17 @@ namespace cesar {
 		Uint32 meshlet_vertice_start;
 		Uint32 meshlet_triangle_start;
 
-		BoundingSphere bounding_sphere{};
-		Uint32 pad02[4];
+		BoundingBox bounding_box{};
+		Uint32 pad02[2];
 	};
 
 	struct Mesh : public Resource
 	{
 		Uint32 submesh_start      = 0;
 		Uint32 submesh_data_count = 0;
+
+		Uint32 meshlet_start = 0;
+		Uint32 meshlet_count = 0;
 
 		Matrix model_matrix;
 

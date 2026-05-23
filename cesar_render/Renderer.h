@@ -23,7 +23,9 @@ namespace cesar
 
 		void NewFrame();
 
+		void Update(Scene* scene);
 		void Render();
+
 		void RenderGraphImpl(render_graph::RenderGraph& render_graph);
 		void AddEditorPass(std::function<void(render_graph::RenderGraph&)>);
 

@@ -68,6 +68,7 @@ namespace cesar
 		Mesh* mesh_resource = resource_cache->LoadResource<Mesh>(load_desc);
 		SubMeshData* mesh_data = resource_cache->GetSubMeshDataBlock(mesh_resource->submesh_start,mesh_resource->submesh_data_count).data();
 		total_instance_submesh += mesh_resource->submesh_data_count;
+		total_meshlet += mesh_resource->meshlet_count;
 
 		if (mesh_resource == nullptr) {
 			LOG_ERROR("Failed to load mesh resource. [Path]::[{}]", path.string().c_str());
@@ -122,6 +123,11 @@ namespace cesar
 	const Uint64& Scene::GetTotalInstanceSubmesh()
 	{
 		return total_instance_submesh;
+	}
+
+	const Uint64& Scene::GetTotalMeshlet() const
+	{
+		return total_meshlet;
 	}
 
 	Uint32 Scene::GetMeshInstanceCount(UUID uuid)

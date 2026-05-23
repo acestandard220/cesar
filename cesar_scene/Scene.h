@@ -35,11 +35,12 @@ namespace cesar
 			return registery.view<T>();
 		}
 
-		Uint32 GetMeshInstanceCount(UUID uuid);
 		const Uint64& GetTotalMeshInstance()const;
-
-		std::vector<Entity>& GetMeshInsances(UUID uuid);
 		const Uint64& GetTotalInstanceSubmesh();
+		const Uint64& GetTotalMeshlet()const;
+
+		Uint32 GetMeshInstanceCount(UUID uuid);
+		std::vector<Entity>& GetMeshInsances(UUID uuid);
 
 		LinearAllocator<SubmeshInstance>* GetSubmeshInstanceAllocator() { return submesh_instances.get(); }
 
@@ -56,8 +57,10 @@ namespace cesar
 		ResourceCache* resource_cache;
 
 		std::unordered_map<UUID, std::vector<Entity>> mesh_instances;
+
 		Uint64 total_mesh_instance = 0;
 		Uint64 total_instance_submesh = 0;
+		Uint64 total_meshlet = 0;
 
 		std::unique_ptr<LinearAllocator<SubmeshInstance>> submesh_instances = nullptr;
 	};

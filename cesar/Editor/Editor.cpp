@@ -1,4 +1,5 @@
 #include "Editor.h"
+#include "../../cesar_core/Event/Input.h"
 #include <ImGui/imgui.h>
 #include <ImGui/imgui_impl_win32.h>
 #include <ImGui/imgui_impl_dx12.h>
@@ -156,7 +157,13 @@ namespace cesar
                 desc.slice = 0;
 
                 builder.WriteRenderTarget(RG_NAME(Backbuffer), ResourceLoadStoreFlags::ClearPreserve, desc);
+
                 data.viewport_texture = builder.ReadTexture(RG_NAME(FinalTexture), ReadAccessType::AllShader, desc);
+
+                //Temporary way to view mesh bounds
+                if (gInput.IsKeyHeld(Key::RAlt)) {
+                    data.viewport_texture = builder.ReadTexture(RG_NAME(SubmeshBoundsMap), ReadAccessType::AllShader, desc);
+                }
             },
             [&](PassData& data, RenderGraphContext& context)
             {

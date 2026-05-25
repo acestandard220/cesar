@@ -23,7 +23,7 @@ namespace cesar
 		GPUContext* gpu_context = render_context->GetGPUContext();
 		MeshPipelineStateDesc desc;
 		desc.raster_state = {
-			.fill_mode = FillMode::Solid,
+			.fill_mode = FillMode::Wireframe,
 			.cull_mode = CullMode::None,
 		};
 		desc.depth_stencil_state = {
@@ -32,11 +32,8 @@ namespace cesar
 			.write_mask  = DepthWriteMask::All
 		};
 		desc.primitive_topology_type = PrimitiveTypologyType::Triangle;
-		desc.render_target_count = 4;
+		desc.render_target_count = 1;
 		desc.reformat[0]  = ResourceFormat::RGBA8_UNORM;
-		desc.reformat[1]  = ResourceFormat::RGBA8_UNORM;
-		desc.reformat[2]  = ResourceFormat::RGBA8_UNORM;
-		desc.reformat[3]  = ResourceFormat::RGBA8_UNORM;
 		desc.depth_format = ResourceFormat::D32_FLOAT;
 
 		desc.as = ShaderID::NoShader;
@@ -65,7 +62,7 @@ namespace cesar
 		render_graph.AddPass<PassData>("Visualize Submesh Bounds", RGPassType::Graphics, RGPassFlags::None,
 			[&](PassData& data, RGBuilder& builder)
 			{
-				builder.DeclareTexture(RG_NAME(SubmeshBoundsMap), RenderTargetDesc(width, height));
+				builder.DeclareTexture(RG_NAME(SubmeshBoundsMap), RenderTargetDesc(width, height, ResourceBindFlag::ShaderResource));
 				builder.WriteRenderTarget(RG_NAME(SubmeshBoundsMap), ResourceLoadStoreFlags::ClearPreserve, {});
 
 				data.submesh_candidates_idx = builder.ReadBuffer(RG_NAME(SubMeshCandidatesBuffer), ReadAccessType::AllShader, {});
@@ -99,9 +96,9 @@ namespace cesar
 
 				CommandList& cmd_list = context.GetCommandList();
 				cmd_list.SetPipelineState(viz_submesh_bounds_pso.get());
-				cmd_list.SetGraphicsConstants(std::span<Constants>(&constants, 1));
 				RGBuffer* cbv = render_graph.GetBufferResource(data.frame_constants.id);
 				cmd_list.SetGraphicsCBV(0, cbv->resource);
+				cmd_list.SetGraphicsConstants(std::span<Constants>(&constants, 1));
 
 				cmd_list.DispatchMesh((data.scene->GetTotalInstanceSubmesh() + 20) / 21, 1, 1);
 			}

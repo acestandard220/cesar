@@ -71,11 +71,14 @@ void VizSubMeshBounds_MS(uint3 gid : SV_GroupID, uint gtid : SV_GroupThreadID, o
     ByteAddressBuffer                  submesh_candidate_counter = ResourceDescriptorHeap[constants.submesh_candidate_counter_idx];
     
     uint thread_limit = submesh_candidate_counter.Load(0);
-    uint candidate_index = (gid.x * 21) + gtid;
+    
+    uint group_start = gid.x * 21;
+    uint active = min(21u, thread_limit > group_start ? thread_limit - group_start : 0u);
+    SetMeshOutputCounts(8 * active, 12 * active);
+
+    uint candidate_index = group_start + gtid;
     if (candidate_index >= thread_limit)
         return;
-    
-    SetMeshOutputCounts(8, 12);
     
     SubMeshCandidate candidate        = submesh_candidates[candidate_index];
     MeshInstance     mesh_instance    = mesh_instances[candidate.instance_idx];

@@ -77,6 +77,8 @@ namespace cesar
 				base_ptr = nullptr;
 				top_ptr = nullptr;
 				element_count = 0;
+
+				expansion_rate = 1.5f;
 			}
 
 			~LinearAllocator() = default;
@@ -130,7 +132,8 @@ namespace cesar
 				const Uint64 capacity = element_size * element_count;
 
 				if (used + required_size > capacity) {
-					if (!Reserve(this->element_count + (2 * count))) {
+					auto expanded_required_count = GetNewExpansionSize(count);
+					if (!Reserve(expanded_required_count) {
 						CESAR_DEBUGBREAK();
 						LOG_ERROR("Not enough memory for allocation.");
 						return { (T*)top_ptr, 0 };
@@ -174,7 +177,20 @@ namespace cesar
 				return MemoryBlock(base_ptr, count);
 			}
 
+			Uint32 GetNewExpansionSize(Uint32 required_count)
+			{
+				CESAR_ASSERT(expansion_rate >= 1 && "Allocator Pool cannot be expanded below a factor of 1.0f. Possible loss of data.");
+				Uint32 expanded_required_count = static_cast<Uint32>(required_count * expansion_rate);
+				return element_count + expanded_required_count;
+			}
+
+
+			void SetExpansionRate(Float rate) { expansion_rate = rate; }
+			Float GetExpansionRate()const { return expansion_rate; }
+
 	    private:
+			Float expansion_rate;
+
 			T* base_ptr;
 			T* top_ptr;
 

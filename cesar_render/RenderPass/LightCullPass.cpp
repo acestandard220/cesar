@@ -73,7 +73,7 @@ namespace cesar
 				cmd_list.SetComputeCBV(0, cbv->resource);
 				cmd_list.SetComputeConstants(std::span<Constants>(&constants, 1));
 
-				cmd_list.DispatchCompute(data.tile_count_x, data.tile_count_y, data.tile_z);
+				cmd_list.DispatchCompute((data.tile_count_x + 15) / 16, (data.tile_count_y + 15)/16, data.tile_z);
 			}
 		);
 	

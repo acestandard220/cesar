@@ -133,7 +133,7 @@ namespace cesar
 
 				if (used + required_size > capacity) {
 					auto expanded_required_count = GetNewExpansionSize(count);
-					if (!Reserve(expanded_required_count) {
+					if (!Reserve(expanded_required_count)) {
 						CESAR_DEBUGBREAK();
 						LOG_ERROR("Not enough memory for allocation.");
 						return { (T*)top_ptr, 0 };

@@ -7,6 +7,8 @@
 
 namespace cesar {
 
+	constexpr Uint32 START_LIGHT_COUNT = 1000;
+
 	struct TagComponent {
 		std::string tag;
 
@@ -31,6 +33,13 @@ namespace cesar {
 		{
 
 		}
+	};
+
+	struct LightComponent
+	{
+		Vector4 position;
+		Vector4 direction;
+		Vector4 color;
 	};
 
 	struct SubmeshInstance 

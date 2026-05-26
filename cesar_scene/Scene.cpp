@@ -110,6 +110,18 @@ namespace cesar
 		return entity;
 	}
 
+	Entity Scene::AddLightEntity(std::string const& name)
+	{
+		Entity entity = CreateEmptyEntity(name);
+		LightComponent light = entity.AddComponent<LightComponent>();
+		light.position = { 0.0f, 0.0f, 0.0f, 1.0f };
+		light.direction = { 0.0f, 0.0f, 0.0f, 0.0f };
+		light.color = { 1.0f, 1.0f, 1.0f, 1.0f };
+
+		total_light++;
+		return entity;
+	}
+
 	cesar::ResourceCache* Scene::GetResourceCache() const
 	{
 		return resource_cache;
@@ -128,6 +140,11 @@ namespace cesar
 	const Uint64& Scene::GetTotalMeshlet() const
 	{
 		return total_meshlet;
+	}
+
+	const Uint64& Scene::GetTotalLight() const
+	{
+		return total_light;
 	}
 
 	Uint32 Scene::GetMeshInstanceCount(UUID uuid)

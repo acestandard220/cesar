@@ -36,6 +36,8 @@ namespace cesar
 		void CreatePersistentPSO();
 		void CreatePersistentResource();
 
+		void UploadLightData();
+
 		void CopyToBackbuffer(render_graph::RenderGraph& render_graph);
 		void PrepareBackbuffer(render_graph::RenderGraph& render_graph);
 	private:
@@ -78,6 +80,9 @@ namespace cesar
 		
 		std::shared_ptr<Buffer> upload_mesh_filter_buffer;
 		std::shared_ptr<Buffer> upload_submesh_instance_buffer;
+
+		std::shared_ptr<Buffer> upload_lights_buffer;
+		std::shared_ptr<Buffer> lights_buffer;
 
 
 		std::shared_ptr<Texture> final_texture;

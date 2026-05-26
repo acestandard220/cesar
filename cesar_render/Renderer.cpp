@@ -31,6 +31,11 @@ namespace cesar {
 		
 	}
 
+	void Renderer::Update(Scene* scene)
+	{
+	
+	}
+
 	void Renderer::Render()
 	{
 		ZoneScopedN("Renderer::Render");
@@ -123,6 +128,9 @@ namespace cesar {
 		final_texture->Resize(width, height);
 	}
 
+
+	//CPU's Linear Allocator expands the buffer to twice the size required. 
+	//All GPU buffers that copy from CPU LinearAllocators will query the new size and match it.
 	void Renderer::PrepareSceneBuffers(Scene* scene)
 	{
 		auto copy_cmd_list = render_context->GetCopyCommandList();
@@ -279,6 +287,8 @@ namespace cesar {
 
 		copy_cmd_list->FlushBarriers();
 
+		UploadLightData();
+
 		copy_cmd_list->End();
 
 		copy_cmd_list->Signal(copy_fence, ++copy_fence_value);
@@ -287,12 +297,6 @@ namespace cesar {
 		copy_cmd_list->Submit();
 	}
 	
-
-	void Renderer::CreatePersistentPSO()
-	{
-
-	}
-
 	void Renderer::CreatePersistentResource()
 	{
 		TextureDesc texture_desc{};
@@ -332,6 +336,38 @@ namespace cesar {
 
 		submesh_instance_buffer = gpu_context->CreateBuffer(StructuredBufferDesc<SubmeshInstance>(START_INSTANCE_PER_MESH,      ResourceBindFlag::ShaderResource | ResourceBindFlag::UnorderedAccess), "InstanceSubmesh_Buffer");
 		mesh_instance_buffer      = gpu_context->CreateBuffer(StructuredBufferDesc<MeshInstanceComponent>(START_INSTANCE_PER_MESH,  ResourceBindFlag::ShaderResource | ResourceBindFlag::UnorderedAccess), "MeshFilter_Buffer");
+
+		upload_lights_buffer = gpu_context->CreateBuffer(UploadBufferDesc<LightComponent>(START_LIGHT_COUNT), "UploadLights_Buffer");
+		lights_buffer = gpu_context->CreateBuffer(StructuredBufferDesc<LightComponent>(START_LIGHT_COUNT, ResourceBindFlag::UnorderedAccess | ResourceBindFlag::ShaderResource), "Lights_Buffer");
+
+	}
+
+	void Renderer::UploadLightData()
+	{
+		CommandList& cmd_list = *render_context->GetCopyCommandList();
+
+		const auto required_size = CESAR_SIZEOF_BUFFER(LightComponent, scene->GetTotalLight());
+		const MemoryBlock<LightComponent> light_storage = scene->GetComponentStorage<LightComponent>();
+
+
+		if (upload_lights_buffer->GetSize() < required_size)
+		{
+			upload_lights_buffer->Resize(required_size);
+			lights_buffer->Resize(required_size);
+		}
+		upload_lights_buffer->Upload<LightComponent>(light_storage);
+		
+		cmd_list.BufferBarrier(upload_lights_buffer.get(), ResourceState::Common, ResourceState::CopySrc);
+		cmd_list.BufferBarrier(lights_buffer.get(), ResourceState::Common, ResourceState::CopyDst);
+
+		cmd_list.FlushBarriers();
+
+		cmd_list.CopyBuffer(upload_lights_buffer.get(), lights_buffer.get());
+
+		cmd_list.BufferBarrier(upload_lights_buffer.get(), ResourceState::CopySrc, ResourceState::Common);
+		cmd_list.BufferBarrier(lights_buffer.get(), ResourceState::CopyDst, ResourceState::Common);
+
+		cmd_list.FlushBarriers();
 	}
 
 	void Renderer::CopyToBackbuffer(render_graph::RenderGraph& render_graph)

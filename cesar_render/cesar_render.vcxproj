@@ -218,6 +218,7 @@
     <ClCompile Include="RenderGraph\RenderGraphPass.h" />
     <ClCompile Include="RenderGraph\ResourceID.h" />
     <ClCompile Include="RenderPass\GBufferPass.cpp" />
+    <ClCompile Include="RenderPass\LightCullPass.cpp" />
     <ClCompile Include="RenderPass\SceneCullPass.cpp" />
     <ClCompile Include="RenderPass\VisualizerPass.cpp" />
   </ItemGroup>
@@ -231,6 +232,7 @@
     <ClInclude Include="RenderGraph\ResourceName.h" />
     <ClInclude Include="RenderGraph\ResourcePool.h" />
     <ClInclude Include="RenderPass\GBufferPass.h" />
+    <ClInclude Include="RenderPass\LightCullPass.h" />
     <ClInclude Include="RenderPass\SceneCullPass.h" />
     <ClInclude Include="RenderPass\VisualizerPass.h" />
     <ClInclude Include="TextureManager.h" />

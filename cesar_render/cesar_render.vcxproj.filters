@@ -45,6 +45,9 @@
     <ClCompile Include="RenderPass\VisualizerPass.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="RenderPass\LightCullPass.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="FrameData.h">
@@ -81,6 +84,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="RenderPass\VisualizerPass.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="RenderPass\LightCullPass.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -123,18 +123,34 @@ namespace cesar
 		orientation = q;
 	}
 
-	Matrix Camera::View() const
+	const Matrix& Camera::View() const
 	{
 		return view_matrix;
 	}
-	Matrix Camera::Projection() const
+	const Matrix& Camera::Projection() const
 	{
 		return projection_matrix;
 	}
-	Matrix Camera::ViewProjection() const
+	const Matrix& Camera::ViewProjection() const
 	{
 		return view_matrix * projection_matrix;
 	}
+
+	const Matrix& Camera::InverseView() const
+	{
+		return view_matrix.Invert();
+	}
+
+	const Matrix& Camera::InverseProjection()const
+	{
+		return projection_matrix.Invert();
+	}
+
+	const Matrix& Camera::InverseViewProjection()const
+	{
+		return ViewProjection().Invert();
+	}
+
 	BoundingFrustum Camera::Frustum() const
 	{
 		BoundingFrustum frustum(Projection());

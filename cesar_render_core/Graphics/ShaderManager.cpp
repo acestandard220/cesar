@@ -25,6 +25,7 @@ namespace cesar{
 		case ShaderID::Mesh:        return L"mesh.hlsl";
 		case ShaderID::Compute:     return L"compute.hlsl";
 
+		case ShaderID::GenerateClusters: return L"Light/GenerateClusters.hlsl";
 		case ShaderID::CullMeshlets:   return L"Meshlet/CullMeshlets.hlsl";
 		case ShaderID::BuildCullMeshletArgs: return L"Meshlet/CullMeshlets.hlsl";
 		case ShaderID::CullInstances:  return L"Meshlet/CullInstances.hlsl";
@@ -61,6 +62,8 @@ namespace cesar{
 			return L"VizSubMeshBounds_MS";
 		case ShaderID::VizSubMeshBounds_PS:
 			return L"VizSubMeshBounds_PS";
+		case ShaderID::GenerateClusters:
+			return L"GenerateClusters";
 		default:
 			return L"InvalidMain";
 		}
@@ -106,6 +109,7 @@ namespace cesar{
 				break;
 			}
 
+			case ShaderID::GenerateClusters:
 			case ShaderID::CullMeshlets:
 			case ShaderID::BuildCullMeshletArgs:
 			case ShaderID::CullInstances:

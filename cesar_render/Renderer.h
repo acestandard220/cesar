@@ -10,6 +10,7 @@
 
 #include "RenderPass/GBufferPass.h"
 #include "RenderPass/SceneCullPass.h"
+#include "RenderPass/LightCullPass.h"
 #include "RenderPass/VisualizerPass.h"
 
 namespace cesar
@@ -55,6 +56,7 @@ namespace cesar
 		std::unique_ptr<GBufferPass> gbuffer_pass = nullptr;
 		std::unique_ptr<SceneCullPass> scene_cull_pass = nullptr;
 		std::unique_ptr<Visualizer> visualizer = nullptr;
+		std::unique_ptr<LightCullPass> light_cull_pass = nullptr;
 
 		//Global Pass Resources
 		std::unique_ptr<Buffer> frame_data_buffer;

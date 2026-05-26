@@ -26,9 +26,13 @@ namespace cesar
 		Camera() = default;
 		explicit Camera(CameraParameters const&);
 
-		Matrix View() const;
-		Matrix Projection() const;
-		Matrix ViewProjection() const;
+		const Matrix& View() const;
+		const Matrix& Projection() const;
+		const Matrix& ViewProjection() const;
+		const Matrix& InverseView()const;
+		const Matrix& InverseProjection()const;
+		const Matrix& InverseViewProjection()const;
+
 		BoundingFrustum Frustum() const;
 
 		Vector3 Position() const

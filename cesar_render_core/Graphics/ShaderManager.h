@@ -24,6 +24,8 @@ namespace cesar
 		DrawMeshlet,
 		GenerateMipMap,
 
+		GenerateClusters,
+
 		VizSubMeshBounds_MS, VizSubMeshBounds_PS, 
 
 		NoShader

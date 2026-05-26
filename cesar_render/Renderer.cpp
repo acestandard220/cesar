@@ -12,7 +12,10 @@ namespace cesar {
 		
 		gbuffer_pass    = std::make_unique<GBufferPass>(render_context, width, height);
 		scene_cull_pass = std::make_unique<SceneCullPass>(render_context);
+		light_cull_pass = std::make_unique<LightCullPass>(render_context, width, height);
+
 		visualizer = std::make_unique<Visualizer>(render_context, width, height);
+
 
 		GPUContext* gpu_context = render_context->GetGPUContext();
 		frame_data_buffer = gpu_context->CreateConstantBuffer<FrameData>("Frame Constant Buffer");
@@ -50,31 +53,39 @@ namespace cesar {
 	{
 		Camera* camera = scene->GetEditorCamera();
 
-		frame_data.view = camera->View();
-		frame_data.projection = camera->Projection();
+		frame_data.view            = camera->View();
+		frame_data.projection      = camera->Projection();
 		frame_data.view_projection = camera->ViewProjection();
-		frame_data.camera_far = camera->Far();
-		frame_data.camera_near = camera->Near();
-		frame_data.camera_fov = camera->Fov();
+
+		frame_data.inverse_view            = camera->InverseView();
+		frame_data.inverse_projection      = camera->InverseProjection();
+		frame_data.inverse_view_projection = camera->InverseViewProjection();
+
+		frame_data.camera_far      = camera->Far();
+		frame_data.camera_near     = camera->Near();
+		frame_data.camera_fov      = camera->Fov();
 		frame_data.camera_position = { camera->Position().x,camera->Position().y,camera->Position().z,1.0f };
+
+		frame_data.screen_width  = width;
+		frame_data.screen_height = height;
 
 		frame_data_buffer->Upload<FrameData>({ &frame_data ,1 });
 
 		render_graph.ImportBuffer(RG_NAME(FrameConstants), frame_data_buffer.get());
 
 		render_graph.ImportBuffer(RG_NAME(SubMeshDataBuffer), submeshdata_buffer.get());
-		render_graph.ImportBuffer(RG_NAME(VertexBuffer), vertex_buffer.get());
-		render_graph.ImportBuffer(RG_NAME(IndexBuffer), index_buffer.get());
+		render_graph.ImportBuffer(RG_NAME(VertexBuffer),      vertex_buffer.get());
+		render_graph.ImportBuffer(RG_NAME(IndexBuffer),       index_buffer.get());
 
-		render_graph.ImportBuffer(RG_NAME(MeshletBuffer), meshlet_buffer.get());
-		render_graph.ImportBuffer(RG_NAME(MeshletVertexBuffer), meshlet_vertex_buffer.get());
+		render_graph.ImportBuffer(RG_NAME(MeshletBuffer),         meshlet_buffer.get());
+		render_graph.ImportBuffer(RG_NAME(MeshletVertexBuffer),   meshlet_vertex_buffer.get());
 		render_graph.ImportBuffer(RG_NAME(MeshletTriangleBuffer), meshlet_triangle_buffer.get());
 
-		render_graph.ImportBuffer(RG_NAME(MeshInstanceBuffer), mesh_instance_buffer.get());
+		render_graph.ImportBuffer(RG_NAME(MeshInstanceBuffer),    mesh_instance_buffer.get());
 		render_graph.ImportBuffer(RG_NAME(SubmeshInstanceBuffer), submesh_instance_buffer.get());
 
 		render_graph.ImportTexture(RG_NAME(FinalTexture), final_texture.get());
-		render_graph.ImportTexture(RG_NAME(Backbuffer), render_context->GetBackbuffer());
+		render_graph.ImportTexture(RG_NAME(Backbuffer),   render_context->GetBackbuffer());
 
 		render_graph::RenderGraph& rg = render_graph;
 
@@ -85,6 +96,7 @@ namespace cesar {
 
 		scene_cull_pass->AddPass(rg, element_count, submesh_count, meshlet_count);
 		gbuffer_pass->AddPass(rg);
+		light_cull_pass->AddPass(rg);
 		visualizer->AddPass(render_graph, scene);
 
 		

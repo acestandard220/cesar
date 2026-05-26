@@ -1,16 +1,23 @@
-
+//Bug: Camera Data goes in as column major for some reason. 
+//Mesh Transform data goes in as row_major
 struct FrameConstants
 {
     float4x4 view;
     float4x4 projection;
     float4x4 view_projection;
+    float4x4 inverse_view;
+    float4x4 inverse_projection;
+    float4x4 inverse_view_projection;
     
     float4 camera_position;
-    float camera_fov;
-    float camera_near;
-    float camera_far;
+    float  camera_fov;
+    float  camera_near;
+    float  camera_far;
     
-    float p[9];
+    uint screen_width;
+    uint screen_height;
+    
+    float _pad[23];
 };
 
 ConstantBuffer<FrameConstants> frame_constants : register(b0);
@@ -133,3 +140,5 @@ float3 GetMeshletColor(uint id)
         ((h >> 16) & 0xFF) / 255.0f
     );
 }
+
+//Some thing currently dont get is that the cameras matrixes are comming in column-major even though I push as row

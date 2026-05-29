@@ -195,7 +195,7 @@ namespace cesar
 		MeshPipelineStateDesc desc;
 		desc.raster_state = {
 			.fill_mode = FillMode::Solid,
-			.cull_mode = CullMode::None,
+			.cull_mode = CullMode::Back,
 		};
 		desc.depth_stencil_state = {
 			.DepthEnable = true,

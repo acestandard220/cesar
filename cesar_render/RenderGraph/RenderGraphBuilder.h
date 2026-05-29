@@ -22,6 +22,7 @@ namespace cesar {
 
 			void WriteRenderTarget(RGResourceName name, ResourceLoadStoreFlags load_store_flags, const TextureViewDesc& view_desc);
 			void WriteDepthStencilTarget(RGResourceName name, ResourceLoadStoreFlags depth_load_store_flags, ResourceLoadStoreFlags stencil_load_store_flags, const TextureViewDesc& view_desc);
+			void ReadDepthStencilTarget(RGResourceName name, ResourceLoadStoreFlags depth_load_store_flags, ResourceLoadStoreFlags stencil_load_store_flags, const TextureViewDesc& view_desc);
 
 			void WriteTexture(RGResourceName name, TextureViewDesc view_desc);
 			BufferReadWrite WriteBuffer(RGResourceName name, BufferViewDesc view_desc);

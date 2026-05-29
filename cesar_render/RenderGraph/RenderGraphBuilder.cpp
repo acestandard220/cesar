@@ -64,6 +64,19 @@ namespace cesar
 			}
 		}
 
+		void RenderGraphBuilder::ReadDepthStencilTarget(RGResourceName name, ResourceLoadStoreFlags depth_load_store_flags, ResourceLoadStoreFlags stencil_load_store_flags, const TextureViewDesc& view_desc)
+		{
+			DepthStencilID depth_stencil_id = render_graph.DepthStencilTarget(name, view_desc);
+			TextureID texture_id = depth_stencil_id.GetResourceID();
+			render_pass.texture_writes.insert(texture_id);
+			render_pass.depth_targets = RGPassBase::DepthStencilTargetInfo{ depth_stencil_id,depth_load_store_flags,stencil_load_store_flags };
+			render_pass.texture_state[texture_id] = ResourceState::DSV_ReadOnly;
+			if (!render_pass.texture_creates.contains(texture_id))
+			{
+				DummyReadTexture(name);
+			}
+		}
+
 		void RenderGraphBuilder::WriteTexture(RGResourceName name, TextureViewDesc view_desc)
 		{
 			TextureReadWrite texture_read_write = render_graph.WriteTexture(name, view_desc);

@@ -103,6 +103,7 @@ namespace cesar
 	constexpr D3D12_BARRIER_SYNC ToD3D12BarrierSync(ResourceState state) {
 		switch (state) {
 		case ResourceState::RTV:     return D3D12_BARRIER_SYNC_RENDER_TARGET;
+		case ResourceState::DSV_ReadOnly: [[fallthrough]];
 		case ResourceState::DSV:     return D3D12_BARRIER_SYNC_DEPTH_STENCIL;
 		case ResourceState::Present: [[fallthrough]];
 		case ResourceState::Common:  return D3D12_BARRIER_SYNC_ALL;
@@ -125,6 +126,7 @@ namespace cesar
 		switch (state) {
 		    case ResourceState::RTV:        return D3D12_BARRIER_LAYOUT_RENDER_TARGET;
 		    case ResourceState::DSV:        return D3D12_BARRIER_LAYOUT_DEPTH_STENCIL_WRITE;
+			case ResourceState::DSV_ReadOnly: return D3D12_BARRIER_LAYOUT_DEPTH_STENCIL_READ;
 		    case ResourceState::Present:    return D3D12_BARRIER_LAYOUT_PRESENT;
 		    case ResourceState::Common:     return D3D12_BARRIER_LAYOUT_COMMON;
 		    case ResourceState::CopyDst:    return D3D12_BARRIER_LAYOUT_COPY_DEST;
@@ -142,6 +144,7 @@ namespace cesar
 		switch (state) {
 		    case ResourceState::RTV:          return D3D12_BARRIER_ACCESS_RENDER_TARGET;
 		    case ResourceState::DSV:          return D3D12_BARRIER_ACCESS_DEPTH_STENCIL_WRITE;
+			case ResourceState::DSV_ReadOnly: return D3D12_BARRIER_ACCESS_DEPTH_STENCIL_READ;
 		    case ResourceState::Present: 
 		    case ResourceState::Common:       return D3D12_BARRIER_ACCESS_COMMON;
 		    case ResourceState::CopyDst:      return D3D12_BARRIER_ACCESS_COPY_DEST;

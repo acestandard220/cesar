@@ -10,6 +10,7 @@ namespace cesar {
 
 		resource_pool = new ResourcePool(render_context);
 		
+		depth_prepass   = std::make_unique<DepthPrePass>(render_context, width, height);
 		gbuffer_pass    = std::make_unique<GBufferPass>(render_context, width, height);
 		scene_cull_pass = std::make_unique<SceneCullPass>(render_context);
 		light_cull_pass = std::make_unique<LightCullPass>(render_context, width, height);
@@ -95,6 +96,7 @@ namespace cesar {
 		const Uint32 meshlet_count = scene->GetTotalMeshlet();
 
 		scene_cull_pass->AddPass(rg, element_count, submesh_count, meshlet_count);
+		depth_prepass->AddPass(rg);
 		gbuffer_pass->AddPass(rg);
 		light_cull_pass->AddPass(rg);
 		visualizer->AddPass(render_graph, scene);

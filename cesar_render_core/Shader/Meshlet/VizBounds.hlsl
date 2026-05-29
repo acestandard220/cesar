@@ -1,5 +1,4 @@
 #include "../common_resources.hlsli"
-#include "meshlet_common.hlsli"
 
 struct Constants
 {

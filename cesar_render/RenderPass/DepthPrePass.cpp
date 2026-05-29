@@ -115,8 +115,8 @@ namespace cesar
 		desc.depth_format = ResourceFormat::D32_FLOAT;
 
 		desc.as = ShaderID::NoShader;
-		desc.ms = ShaderID::DrawMeshlet;
-		desc.ps = ShaderID::GBufferPixel;
+		desc.ms = ShaderID::DepthPrePass_MS;
+		desc.ps = ShaderID::NoShader;
 
 		depth_pre_pass_pso = gpu_context->CreateMeshShaderPipelineState(desc);
 	}

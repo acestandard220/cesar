@@ -25,6 +25,7 @@ namespace cesar{
 		case ShaderID::Mesh:        return L"mesh.hlsl";
 		case ShaderID::Compute:     return L"compute.hlsl";
 
+		case ShaderID::DepthPrePass_MS: return L"DepthPrePass.hlsl";
 		case ShaderID::GenerateClusters: return L"Light/GenerateClusters.hlsl";
 		case ShaderID::CullMeshlets:   return L"Meshlet/CullMeshlets.hlsl";
 		case ShaderID::BuildCullMeshletArgs: return L"Meshlet/CullMeshlets.hlsl";
@@ -64,6 +65,8 @@ namespace cesar{
 			return L"VizSubMeshBounds_PS";
 		case ShaderID::GenerateClusters:
 			return L"GenerateClusters";
+		case ShaderID::DepthPrePass_MS:
+			return L"DepthPrePass_MS";
 		default:
 			return L"InvalidMain";
 		}
@@ -119,6 +122,8 @@ namespace cesar{
 				target_profile = std::format(L"{}{}", GetShaderTypeTargetProfilePrefix(ShaderType::Compute), GetShaderModelTargetProfileSuffix(shader_model));
 				break;
 			}
+
+			case ShaderID::DepthPrePass_MS:
 			case ShaderID::VizSubMeshBounds_MS:
 			case ShaderID::DrawMeshlet:
 		    case ShaderID::Mesh:
@@ -258,12 +263,20 @@ namespace cesar{
 
 	const Shader& ShaderManager::GetShaderImpl(ShaderID shader_id)
 	{
+		if (shader_id == ShaderID::NoShader) {
+			return Shader{};
+		}
+
 		CompileShader(shader_id);
 		return shader_blob[shader_id];
 	}
 
 	D3D12_SHADER_BYTECODE ShaderManager::GetShaderByteCodeImpl(Shader shader) const
 	{
+		if (shader.blob == nullptr) {
+			return {};
+		}
+
 		return D3D12_SHADER_BYTECODE(shader.blob->GetBufferPointer(), shader.blob->GetBufferSize());
 	}
 

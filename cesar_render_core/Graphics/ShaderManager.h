@@ -21,6 +21,8 @@ namespace cesar
 		CullInstances, CullMeshlets,
 		BuildCullMeshletArgs,
 
+		DepthPrePass_MS,
+
 		DrawMeshlet,
 		GenerateMipMap,
 

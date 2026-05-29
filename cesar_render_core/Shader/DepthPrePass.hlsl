@@ -3,7 +3,7 @@
 #define MAX_VERTICES 64
 #define MAX_PRIMITIVES 124
 
-#define THREADS_X 128
+#define THREADS_X 32
 #define THREADS_Y 1
 #define THREADS_Z 1
 

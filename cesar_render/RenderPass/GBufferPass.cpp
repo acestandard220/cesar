@@ -160,8 +160,7 @@ namespace cesar
 
 				data.frame_constants = render_graph.GetBufferID(RG_NAME(FrameConstants));
 
-				//Resize Bug: These are hardcode.
-				builder.SetViewport(800, 800);
+				builder.SetViewport(width, height);
 
 			},
 			[&](NonMeshShaderPassData& data, RGContext& context) 

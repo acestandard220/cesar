@@ -56,9 +56,9 @@ namespace cesar
 				builder.WriteRenderTarget(RG_NAME(AlbedoMap), ResourceLoadStoreFlags::ClearPreserve, {});
 
 				TextureDesc gbuffer_depth_stencil_texture_desc = DepthStencilTargetDesc(width, height);
-				builder.DeclareTexture(RG_NAME(DepthStencilMap), gbuffer_depth_stencil_texture_desc);
-				builder.WriteDepthStencilTarget(RG_NAME(DepthStencilMap), ResourceLoadStoreFlags::ClearPreserve, ResourceLoadStoreFlags::ClearPreserve, {});
-
+				//builder.DeclareTexture(RG_NAME(DepthStencilMap), gbuffer_depth_stencil_texture_desc);
+				//builder.WriteDepthStencilTarget(RG_NAME(DepthStencilMap), ResourceLoadStoreFlags::ClearPreserve, ResourceLoadStoreFlags::ClearPreserve, {});
+				builder.ReadDepthStencilTarget(RG_NAME(DepthPrePass_Map), ResourceLoadStoreFlags::Preserve, ResourceLoadStoreFlags::Preserve, {});
 
 				data.meshlets_idx = builder.ReadBuffer(RG_NAME(MeshletBuffer), ReadAccessType::AllShader, {});
 				data.vertices_idx = builder.ReadBuffer(RG_NAME(VertexBuffer), ReadAccessType::AllShader, {});
@@ -152,8 +152,9 @@ namespace cesar
 				builder.WriteRenderTarget(RG_NAME(AlbedoMap), ResourceLoadStoreFlags::ClearPreserve, {});
 
 				TextureDesc gbuffer_depth_stencil_texture_desc = DepthStencilTargetDesc(width, height);
-				builder.DeclareTexture(RG_NAME(DepthStencilMap), gbuffer_depth_stencil_texture_desc);
-				builder.WriteDepthStencilTarget(RG_NAME(DepthStencilMap), ResourceLoadStoreFlags::ClearPreserve, ResourceLoadStoreFlags::ClearPreserve, {});
+				//builder.DeclareTexture(RG_NAME(DepthStencilMap), gbuffer_depth_stencil_texture_desc);
+				//builder.WriteDepthStencilTarget(RG_NAME(DepthStencilMap), ResourceLoadStoreFlags::ClearPreserve, ResourceLoadStoreFlags::ClearPreserve, {});
+				builder.ReadDepthStencilTarget(RG_NAME(DepthPrePass_Map), ResourceLoadStoreFlags::Preserve, ResourceLoadStoreFlags::Preserve, {});
 
 				data.vertex_buffer = builder.ReadVertexBuffer(RG_NAME(VertexBuffer));
 				data.index_buffer  = builder.ReadIndexBuffer(RG_NAME(IndexBuffer));
@@ -199,8 +200,8 @@ namespace cesar
 		};
 		desc.depth_stencil_state = {
 			.DepthEnable = true,
-			.DepthFunc = ComparisonFunc::LessEqual,
-			.write_mask = DepthWriteMask::All
+			.DepthFunc = ComparisonFunc::Equal,
+			.write_mask = DepthWriteMask::Zero
 		};
 		desc.primitive_topology_type = PrimitiveTypologyType::Triangle;
 		desc.render_target_count = 4;
@@ -225,8 +226,8 @@ namespace cesar
 		};
 		desc2.depth_stencil_state = {
 			.DepthEnable = true,
-			.DepthFunc = ComparisonFunc::LessEqual,
-			.write_mask = DepthWriteMask::All
+			.DepthFunc = ComparisonFunc::Equal,
+			.write_mask = DepthWriteMask::Zero
 		};
 		desc2.primitive_topology_type = PrimitiveTypologyType::Triangle;
 		desc2.render_target_count = 4;

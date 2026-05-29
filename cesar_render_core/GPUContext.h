@@ -49,7 +49,8 @@ namespace cesar
 		}
 
 		Descriptor CreateTextureRTV(Texture* backbuffer, const TextureViewDesc& view_desc);
-		Descriptor CreateTextureDSV(Texture* depthmap,   const TextureViewDesc& view_desc);
+		Descriptor CreateTextureDSV(Texture* depthmap,   const TextureViewDesc& view_desc); // Todo: Sort out Texture View Creations in to similar system like buffers
+		Descriptor CreateTextureDSVReadOnly(Texture* depthmap, const TextureViewDesc& view_desc);
 		Descriptor CraeteTextureSRV(Texture* texture,    const TextureViewDesc& view_desc, Bool force_cpu_descriptor = false, Bool is_persistent = false);
 		Descriptor CreateTextureUAV(Texture* texture,    const TextureViewDesc& view_desc, Bool force_cpu_descriptor = false, Bool is_persistent = false);
 

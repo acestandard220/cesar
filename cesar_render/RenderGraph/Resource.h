@@ -28,17 +28,17 @@ namespace cesar {
 		};
 
 		template<RenderGraphResourceType type>
-		struct ResourceTypeTrait;
+		struct RenderGraphResourceTypeTrait;
 
 		template<>
-		struct ResourceTypeTrait<RenderGraphResourceType::Buffer>
+		struct RenderGraphResourceTypeTrait<RenderGraphResourceType::Buffer>
 		{
 			using Resource = Buffer;
 			using ResourceDesc = BufferDesc;
 		};
 
 		template<>
-		struct ResourceTypeTrait<RenderGraphResourceType::Texture>
+		struct RenderGraphResourceTypeTrait<RenderGraphResourceType::Texture>
 		{
 			using Resource = Texture;
 			using ResourceDesc = TextureDesc;
@@ -46,8 +46,8 @@ namespace cesar {
 
 		template<RenderGraphResourceType type>
 		struct TypedResource : RenderGraphResource {
-			using Resource = typename ResourceTypeTrait<type>::Resource;
-			using ResourceDesc = typename ResourceTypeTrait<type>::ResourceDesc;
+			using Resource = typename RenderGraphResourceTypeTrait<type>::Resource;
+			using ResourceDesc = typename RenderGraphResourceTypeTrait<type>::ResourceDesc;
 
 			TypedResource(Uint64 id, Resource* resource, RenderGraphResourceName& name)
 				:RenderGraphResource(id, true, name), resource(resource), desc(resource->GetDesc())

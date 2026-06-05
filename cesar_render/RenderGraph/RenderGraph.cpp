@@ -72,6 +72,16 @@ namespace cesar::render_graph
 		_texture_views_to_destroy.clear();
 	}
 
+	FrameData& RenderGraph::GetFrameData()
+	{
+		return frame_data;
+	}
+
+	const FrameData& RenderGraph::GetFrameData() const
+	{
+		return frame_data;
+	}
+
 	TextureID RenderGraph::ImportTexture(RGResourceName name, Texture* texture) {
 		textures.emplace_back(std::make_unique<RGTexture>(textures.size(), texture, name));
 		TextureID texture_id(textures.size() - 1);
@@ -296,6 +306,18 @@ namespace cesar::render_graph
 	BufferID RenderGraph::GetBufferID(RGResourceName name)
 	{
 		return buffer_name_id_map[name];
+	}
+
+	Uint32 RenderGraph::GetTextureReadOnlyIndex(TextureReadOnly texture_id)
+	{
+		Descriptor descriptor = texture_desc_map[texture_id.GetResourceID()][texture_id.GetViewID()];
+		return render_context->GetBindlesDescriptorIndex(descriptor);
+	}
+
+	Uint32 RenderGraph::GetTextureReadWriteIndex(TextureReadWrite texture_id)
+	{
+		Descriptor descriptor = texture_desc_map[texture_id.GetResourceID()][texture_id.GetViewID()];
+		return render_context->GetBindlesDescriptorIndex(descriptor);
 	}
 
 	Uint32 RenderGraph::GetBufferReadOnlyIndex(BufferReadOnly buffer_id)

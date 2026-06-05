@@ -125,9 +125,15 @@ namespace cesar {
 			TextureID GetTextureID(RGResourceName name);
 			BufferID GetBufferID(RGResourceName name);
 
+			Uint32 GetTextureReadOnlyIndex(TextureReadOnly texture_id);
+			Uint32 GetTextureReadWriteIndex(TextureReadWrite texture_id);
+
 			Uint32 GetBufferReadOnlyIndex(BufferReadOnly buffer_id);
 			Uint32 GetBufferReadWriteIndex(BufferReadWrite buffer_id);
 			
+
+			FrameData& GetFrameData();
+			const FrameData& GetFrameData()const;
 		private:
 			void BuildAdjacencyList();
 			void TopologicalSort();
@@ -149,6 +155,7 @@ namespace cesar {
 		private:
 			RenderContext* render_context;
 			
+			FrameData frame_data;
 			
 
 			std::vector<std::unique_ptr<RenderGraphPassBase>> passes;

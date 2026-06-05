@@ -100,7 +100,7 @@ namespace cesar
 		Bool operator==(const TextureViewDesc& other)const = default;
 	};
 
-    #define CESAR_DEFAULT_TEXTURE_VIEW_DESC TextureViewDesc{}
+    #define CESAR_DEFAULT_TEXTURE_VIEW_DESC TextureViewDesc{/* Use Texture Desc Values */}
 
 
 	class GPUContext;

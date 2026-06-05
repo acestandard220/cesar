@@ -41,6 +41,14 @@ namespace cesar
         {
             return *render_graph.GetBufferResource(index_id.id);
         }
+        Uint32 RenderGraphContext::GetTextureReadOnlyIndex(TextureReadOnly texture_id)
+        {
+            return render_graph.GetTextureReadOnlyIndex(texture_id);
+        }
+        Uint32 RenderGraphContext::GetTextureReadWriteIndex(TextureReadWrite texture_id)
+        {
+            return render_graph.GetTextureReadWriteIndex(texture_id);
+        }
         Uint32 RenderGraphContext::GetBufferReadOnlyIndex(BufferReadOnly buffer_id)
         {
             return render_graph.GetBufferReadOnlyIndex(buffer_id);

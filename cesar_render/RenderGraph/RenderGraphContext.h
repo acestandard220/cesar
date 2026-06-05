@@ -32,6 +32,9 @@ namespace cesar
 			RGBuffer& GetVertexBuffer(BufferVertexID buffer_id);
 			RGBuffer& GetIndexBuffer(BufferIndexID index_id);
 
+			Uint32 GetTextureReadOnlyIndex(TextureReadOnly texture_id);
+			Uint32 GetTextureReadWriteIndex(TextureReadWrite Stexture_id);
+
 			Uint32 GetBufferReadOnlyIndex(BufferReadOnly buffer_id);
 			Uint32 GetBufferReadWriteIndex(BufferReadWrite buffer_id);
 

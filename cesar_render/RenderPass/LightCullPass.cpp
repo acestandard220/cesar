@@ -1,7 +1,5 @@
 #include "LightCullPass.h"
-// Portions of this file are derived from Adria Renderer (MIT License)
-// Copyright (c) <https://github.com/mateeeeeee>
-// See ext/Adria/LICENSE for details.
+#include <../cesar_render_core/Graphics/Buffer.h>
 
 using namespace cesar::render_graph;
 
@@ -76,7 +74,85 @@ namespace cesar
 				cmd_list.DispatchCompute((data.tile_count_x + 15) / 16, (data.tile_count_y + 15)/16, data.tile_z);
 			}
 		);
+
+		AddCullClusteraPass(render_graph);
+	}
+
+	void LightCullPass::AddCullClusteraPass(render_graph::RenderGraph& render_graph)
+	{
+		struct PassData
+		{
+			TextureReadOnly depth_map;
+			BufferReadWrite active_clusters;
+
+			Uint32 tile_size;
+			Uint32 tile_count_x;
+			Uint32 tile_count_y;
+
+			Uint32 depth_slice_scale;
+			Uint32 depth_slice_bias;
+
+			BufferID frame_constants;
+		};
 	
+		const FrameData& frame_data = render_graph.GetFrameData();
+
+		render_graph.AddPass<PassData>("Cull Clusters", RGPassType::Compute, RGPassFlags::None,
+			[&](PassData& data, RGBuilder& builder)
+			{
+				data.depth_slice_scale = TILE_Z / log2(frame_data.camera_far / frame_data.camera_near);
+				data.depth_slice_bias = -(TILE_Z * log2(frame_data.camera_near) / log2(frame_data.camera_far / frame_data.camera_near));
+
+				data.tile_size = TILE_SIZE;
+				data.tile_count_x = (width + TILE_SIZE - 1) / TILE_SIZE;
+				data.tile_count_y = (height + TILE_SIZE - 1) / TILE_SIZE;
+
+				const Uint32 cluster_count = data.tile_count_x * data.tile_count_y * TILE_Z;
+
+				builder.DeclareBuffer(RG_NAME(ActiveClustersBuffer), StructuredBufferDesc<Uint32>(cluster_count, ResourceBindFlag::UnorderedAccess));
+
+				data.depth_map = builder.ReadTexture(RG_NAME(DepthPrePass_Map), ReadAccessType::NonPixelShader, CESAR_DEFAULT_TEXTURE_VIEW_DESC);
+				data.active_clusters = builder.WriteBuffer(RG_NAME(ActiveClustersBuffer), CESAR_DEFAULT_BUFFER_VIEW_DESC);
+
+				data.frame_constants = render_graph.GetBufferID(RG_NAME(FrameConstants));
+			},
+			[&, frame_data](PassData& data, RGContext& context)
+			{
+				struct Constants
+				{
+					Uint32 depth_map_idx;
+					Uint32 active_clusters_idx;
+					Uint32 active_clusters_counter_idx;
+
+					Uint32 tile_size;
+					Uint32 tile_count_x;
+					Uint32 tile_count_y;
+
+					Uint32 depth_slice_scale;
+					Uint32 depth_slice_bias;
+				}constants = {
+					.depth_map_idx = context.GetTextureReadOnlyIndex(data.depth_map),
+					.active_clusters_idx = context.GetBufferReadWriteIndex(data.active_clusters),
+
+					.tile_size = data.tile_size,
+					.tile_count_x = data.tile_count_x,
+					.tile_count_y = data.tile_count_y,
+					.depth_slice_scale = data.depth_slice_scale,
+					.depth_slice_bias = data.depth_slice_bias
+				};
+
+				CommandList& cmd_list = context.GetCommandList();
+				cmd_list.SetPipelineState(cull_cluster_pso.get());
+
+				RGBuffer* cbv = render_graph.GetBufferResource(data.frame_constants);
+				cmd_list.SetComputeCBV(0, cbv->resource);
+				cmd_list.SetComputeConstants(std::span<Constants>(&constants, 1));
+
+				cmd_list.DispatchCompute((frame_data.screen_width + 31)/32, (frame_data.screen_height + 31)/32, 1);
+			}
+		);
+
+
 	}
 
 	void LightCullPass::CreatePSO()
@@ -84,8 +160,11 @@ namespace cesar
 		GPUContext* gpu_context = render_context->GetGPUContext();
 
 		ComputePipelineStateDesc desc{};
-		desc.cs = ShaderID::GenerateClusters;
 
+		desc.cs = ShaderID::GenerateClusters;
 		generate_cluster_pso = gpu_context->CreateComputePipelineState(desc, "Generate Clusters PSO");
+
+		desc.cs = ShaderID::CullClusters;
+		cull_cluster_pso     = gpu_context->CreateComputePipelineState(desc, "Cull Clusters PSO");
 	}
 }

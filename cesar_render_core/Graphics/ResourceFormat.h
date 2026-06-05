@@ -212,6 +212,21 @@ namespace cesar
         }
     }
 
+    inline constexpr DXGI_FORMAT ToSRVFormat(DXGI_FORMAT format)
+    {
+        switch (format)
+        {
+            case DXGI_FORMAT_R32_TYPELESS: return DXGI_FORMAT_R32_FLOAT;
+            case DXGI_FORMAT_R16_TYPELESS: return DXGI_FORMAT_R16_FLOAT;
+    
+            case DXGI_FORMAT_D32_FLOAT:         return DXGI_FORMAT_R32_FLOAT;
+            case DXGI_FORMAT_D16_UNORM:         return DXGI_FORMAT_R16_UNORM;
+            case DXGI_FORMAT_D24_UNORM_S8_UINT: return DXGI_FORMAT_R24_UNORM_X8_TYPELESS;
+    
+            default: return format;
+        }
+    }
+
     inline constexpr ResourceFormat FromDXGIFormat(DXGI_FORMAT format)
     {
         switch (format)

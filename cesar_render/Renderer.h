@@ -47,8 +47,6 @@ namespace cesar
 		Uint32 width, height;
 		RenderContext* render_context = nullptr;
 
-		FrameData frame_data;
-
 		std::function<void(render_graph::RenderGraph&)> editor_add_pass = nullptr;
 
 		ResourcePool* resource_pool = nullptr;

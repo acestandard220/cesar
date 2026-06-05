@@ -27,6 +27,7 @@ namespace cesar{
 
 		case ShaderID::DepthPrePass_MS: return L"DepthPrePass.hlsl";
 		case ShaderID::GenerateClusters: return L"Light/GenerateClusters.hlsl";
+		case ShaderID::CullClusters: return L"Light/CullClusters.hlsl";
 		case ShaderID::CullMeshlets:   return L"Meshlet/CullMeshlets.hlsl";
 		case ShaderID::BuildCullMeshletArgs: return L"Meshlet/CullMeshlets.hlsl";
 		case ShaderID::CullInstances:  return L"Meshlet/CullInstances.hlsl";
@@ -65,6 +66,8 @@ namespace cesar{
 			return L"VizSubMeshBounds_PS";
 		case ShaderID::GenerateClusters:
 			return L"GenerateClusters";
+		case ShaderID::CullClusters:
+			return L"CullClusters";
 		case ShaderID::DepthPrePass_MS:
 			return L"DepthPrePass_MS";
 		default:
@@ -112,6 +115,7 @@ namespace cesar{
 				break;
 			}
 
+			case ShaderID::CullClusters:
 			case ShaderID::GenerateClusters:
 			case ShaderID::CullMeshlets:
 			case ShaderID::BuildCullMeshletArgs:

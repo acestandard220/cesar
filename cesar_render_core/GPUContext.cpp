@@ -321,7 +321,8 @@ namespace cesar
 		}
 		case DescriptorType::CBV_SRV_UAV: {
 			D3D12_SHADER_RESOURCE_VIEW_DESC srv_desc{};
-			srv_desc.Format = ToDXGIFormat(texture_desc.format);
+			const auto dxgi_format = ToDXGIFormat(texture_desc.format);
+			srv_desc.Format = ToSRVFormat(dxgi_format);
 			switch (texture_desc.type)
 			{
 			case TextureType::Texture2D:

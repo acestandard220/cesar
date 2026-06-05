@@ -54,6 +54,8 @@ namespace cesar {
 	{
 		Camera* camera = scene->GetEditorCamera();
 
+		FrameData& frame_data = render_graph.GetFrameData();
+
 		frame_data.view            = camera->View();
 		frame_data.projection      = camera->Projection();
 		frame_data.view_projection = camera->ViewProjection();

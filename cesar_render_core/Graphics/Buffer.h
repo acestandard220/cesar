@@ -25,7 +25,7 @@ namespace cesar
 		Bool operator==(const BufferViewDesc& other) const = default;
 	};
 
-#define CESAR_DEFAULT_TEXTURE_VIEW_DESC BufferViewDesc{/* Use Buffer Desc Values */}
+#define CESAR_DEFAULT_BUFFER_VIEW_DESC BufferViewDesc{/* Use Buffer Desc Values */}
 
 
 	struct BufferDesc

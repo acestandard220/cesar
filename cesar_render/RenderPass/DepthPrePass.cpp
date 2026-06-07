@@ -96,6 +96,12 @@ namespace cesar
 		);
 	}
 
+	void DepthPrePass::OnResize(Uint32 w, Uint32 h) 
+	{
+		width = w;
+		height = h;
+	}
+
 	void DepthPrePass::CreatePSO()
 	{
 		GPUContext* gpu_context = render_context->GetGPUContext();

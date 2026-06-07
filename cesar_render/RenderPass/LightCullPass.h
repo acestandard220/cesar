@@ -22,7 +22,7 @@ namespace cesar {
 			void AddCullClusteraPass(render_graph::RenderGraph& render_graph);
 			void AddCompactClustersPass(render_graph::RenderGraph& render_graph);
 
-			void OnResize(Uint32, Uint32) {}
+			void OnResize(Uint32 w, Uint32 h);
 
 		private:
 			void CreatePSO();

@@ -96,6 +96,9 @@ namespace cesar
 			return;
 		}
 
+		texture_desc.Width = width;
+		texture_desc.Height = height;
+
 		resource.Reset();
 		if (allocation) {
 			allocation->Release();

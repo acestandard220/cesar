@@ -217,6 +217,12 @@ namespace cesar
 
 	}
 
+	void LightCullPass::OnResize(Uint32 w, Uint32 h) 
+	{
+		width = w;
+		height = h;
+	}
+
 	void LightCullPass::CreatePSO()
 	{
 		GPUContext* gpu_context = render_context->GetGPUContext();

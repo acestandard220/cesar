@@ -18,6 +18,12 @@ namespace cesar
 		AddVisualizeSubmeshBound(render_graph, scene);
 	}
 
+	void Visualizer::OnResize(Uint32 w, Uint32 h)
+	{
+		width  = w;
+		height = h;
+	}
+
 	void Visualizer::CreatePSO()
 	{
 		GPUContext* gpu_context = render_context->GetGPUContext();

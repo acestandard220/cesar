@@ -141,7 +141,15 @@ namespace cesar {
 
 	void Renderer::OnResize(Uint32 width, Uint32 height)
 	{
+		this->width = width;
+		this->height = height;
+
 		final_texture->Resize(width, height);
+
+		gbuffer_pass->OnResize(width, height);
+		depth_prepass->OnResize(width, height);
+		light_cull_pass->OnResize(width, height);
+		visualizer->OnResize(width, height);
 	}
 
 

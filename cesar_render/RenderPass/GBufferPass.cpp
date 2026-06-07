@@ -56,8 +56,6 @@ namespace cesar
 				builder.WriteRenderTarget(RG_NAME(AlbedoMap), ResourceLoadStoreFlags::ClearPreserve, {});
 
 				TextureDesc gbuffer_depth_stencil_texture_desc = DepthStencilTargetDesc(width, height);
-				//builder.DeclareTexture(RG_NAME(DepthStencilMap), gbuffer_depth_stencil_texture_desc);
-				//builder.WriteDepthStencilTarget(RG_NAME(DepthStencilMap), ResourceLoadStoreFlags::ClearPreserve, ResourceLoadStoreFlags::ClearPreserve, {});
 				builder.ReadDepthStencilTarget(RG_NAME(DepthPrePass_Map), ResourceLoadStoreFlags::Preserve, ResourceLoadStoreFlags::Preserve, {});
 
 				data.meshlets_idx = builder.ReadBuffer(RG_NAME(MeshletBuffer), ReadAccessType::AllShader, {});
@@ -115,7 +113,6 @@ namespace cesar
 
 				cmd_list->SetGraphicsConstants(std::span(&constants, 1));
 				cmd_list->DispatchMeshIndirect(execute_buffer->resource);
-				//cmd_list->DispatchMesh(10000, 1, 1);
 			}
 		);
 	}
@@ -186,9 +183,10 @@ namespace cesar
 			});
 	}
 
-	void GBufferPass::OnResize(Uint32, Uint32)
+	void GBufferPass::OnResize(Uint32 w, Uint32 h)
 	{
-
+		width = w;
+		height = h;
 	}
 
 	void GBufferPass::CreatePSO()

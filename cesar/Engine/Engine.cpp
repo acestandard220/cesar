@@ -15,9 +15,9 @@ namespace cesar
 
 		//Possible Cross Depp.
 		scene = std::make_shared<Scene>(window, resource_cache.get());
-		scene->AddMeshEntity("Z:\\Models\\Bistro\\Bistro_v5_2\\Bistro.glb");
+		//scene->AddMeshEntity("Z:\\Models\\Bistro\\Bistro_v5_2\\Bistro.glb");
 		//scene->AddMeshEntity("Z:\\Models\\EmeraldSquare\\EmeraldSquare_v4_1\\EmeraldDay.glb");
-		//scene->AddMeshEntity("Z:\\Models\\Cubes.glb");
+		scene->AddMeshEntity("Z:\\Models\\Cubes.glb");
 		scene->AddLightEntity("Point Light");
 
 		renderer = std::make_unique<Renderer>(window, render_context.get(),scene.get());
@@ -71,6 +71,7 @@ namespace cesar
 
 		render_context->OnWindowResize(width, height); // Must Always be first to guarantee all GPU work was done before resizing.
 		renderer->OnResize(width, height);
+		scene->OnResize(width, height);
 	}
 	
 	void Engine::OnViewportResize(Uint32 width, Uint32 height)

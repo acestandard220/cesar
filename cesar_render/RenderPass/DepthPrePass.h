@@ -18,7 +18,7 @@ namespace cesar
 		~DepthPrePass();
 
 		void AddPass(render_graph::RenderGraph& render_graph);
-		void OnResize(Uint32, Uint32) {}
+		void OnResize(Uint32, Uint32);
 
 	private:
 		void CreatePSO();

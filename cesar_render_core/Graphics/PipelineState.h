@@ -119,11 +119,14 @@ namespace cesar
 
 		ShaderID vs;
 		ShaderID ps;
+
+		std::string defines;
 	};
 
 	struct _declspec(dllexport) ComputePipelineStateDesc
 	{
 		ShaderID cs;
+		std::string defines;
 	};
 
 	struct _declspec(dllexport) MeshPipelineStateDesc
@@ -140,6 +143,8 @@ namespace cesar
 		ShaderID as = ShaderID::NoShader;
 		ShaderID ms;
 		ShaderID ps;
+
+		std::string defines;
 	};
 
 	enum class PipelineStateType : cesar::Uint8

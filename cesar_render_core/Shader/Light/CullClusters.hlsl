@@ -52,3 +52,6 @@ void CullClusters(uint3 gtid :SV_DispatchThreadID)
 
     active_clusters[cluster_index] = true;
 }
+
+
+

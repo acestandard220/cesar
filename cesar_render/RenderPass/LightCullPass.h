@@ -20,6 +20,7 @@ namespace cesar {
 			void AddPass(render_graph::RenderGraph& render_graph);
 
 			void AddCullClusteraPass(render_graph::RenderGraph& render_graph);
+			void AddCompactClustersPass(render_graph::RenderGraph& render_graph);
 
 			void OnResize(Uint32, Uint32) {}
 
@@ -30,6 +31,7 @@ namespace cesar {
 			Uint32 width, height;
 
 			std::unique_ptr<PipelineState> generate_cluster_pso = nullptr;
-			std::unique_ptr<PipelineState> cull_cluster_pso = nullptr;
+			std::unique_ptr<PipelineState> cull_cluster_pso     = nullptr;
+			std::unique_ptr<PipelineState> compact_cluster_pso  = nullptr;
 	};
 }

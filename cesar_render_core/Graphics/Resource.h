@@ -161,11 +161,6 @@ namespace cesar
 		if (HasAnyFlag(state, ResourceState::AllSRV))       access |= D3D12_BARRIER_ACCESS_SHADER_RESOURCE;
 		if (HasAnyFlag(state, ResourceState::AllUAV))       access |= D3D12_BARRIER_ACCESS_UNORDERED_ACCESS;
 
-		if (access == (D3D12_BARRIER_ACCESS_UNORDERED_ACCESS | D3D12_BARRIER_ACCESS_SHADER_RESOURCE))
-		{
-			LOG_ERROR("Founc");
-		}
-
 		return access;
 	}
 

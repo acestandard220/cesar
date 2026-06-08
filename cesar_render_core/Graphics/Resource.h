@@ -83,81 +83,90 @@ namespace cesar
 	CESAR_ENABLE_ENUM_OPS(ResourceState);
 
 	constexpr D3D12_RESOURCE_STATES ToD3D12State(ResourceState state) {
-		switch (state) {
-		case ResourceState::Common:return D3D12_RESOURCE_STATE_COMMON;
-		case ResourceState::GenericRead:return D3D12_RESOURCE_STATE_GENERIC_READ;
-		case ResourceState::Present:return D3D12_RESOURCE_STATE_PRESENT;
-		case ResourceState::RTV:return D3D12_RESOURCE_STATE_RENDER_TARGET;
-		case ResourceState::DSV:return D3D12_RESOURCE_STATE_DEPTH_WRITE;
-		case ResourceState::DSV_ReadOnly:return D3D12_RESOURCE_STATE_DEPTH_READ;
-		case ResourceState::CopyDst:return D3D12_RESOURCE_STATE_COPY_DEST;
-		case ResourceState::CopySrc:return D3D12_RESOURCE_STATE_COPY_SOURCE;
-		case ResourceState::VertexBuffer:return D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER;
-		case ResourceState::IndexBuffer:return D3D12_RESOURCE_STATE_INDEX_BUFFER;
-		case ResourceState::PixelSRV:return D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE;
-		case ResourceState::ComputeSRV: return D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE;
-		default:CESAR_DEBUGBREAK();
-		}
+		if (state == ResourceState::Common)
+			return D3D12_RESOURCE_STATE_COMMON;
+
+		D3D12_RESOURCE_STATES res = static_cast<D3D12_RESOURCE_STATES>(0);
+
+		if (HasFlag(state, ResourceState::Present))      res |= D3D12_RESOURCE_STATE_PRESENT;
+		if (HasFlag(state, ResourceState::RTV))          res |= D3D12_RESOURCE_STATE_RENDER_TARGET;
+		if (HasFlag(state, ResourceState::DSV))          res |= D3D12_RESOURCE_STATE_DEPTH_WRITE;
+		if (HasFlag(state, ResourceState::DSV_ReadOnly)) res |= D3D12_RESOURCE_STATE_DEPTH_READ;
+		if (HasFlag(state, ResourceState::CopyDst))      res |= D3D12_RESOURCE_STATE_COPY_DEST;
+		if (HasFlag(state, ResourceState::CopySrc))      res |= D3D12_RESOURCE_STATE_COPY_SOURCE;
+		if (HasFlag(state, ResourceState::VertexBuffer)) res |= D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER;
+		if (HasFlag(state, ResourceState::IndexBuffer))  res |= D3D12_RESOURCE_STATE_INDEX_BUFFER;
+		if (HasFlag(state, ResourceState::IndirectArgs)) res |= D3D12_RESOURCE_STATE_INDIRECT_ARGUMENT;
+		if (HasFlag(state, ResourceState::PixelSRV))     res |= D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE;
+		if (HasFlag(state, ResourceState::VertexSRV) || HasFlag(state, ResourceState::ComputeSRV)) 
+			res |= D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE;
+		if (HasFlag(state, ResourceState::VertexUAV) || HasFlag(state, ResourceState::PixelUAV) ||
+			HasFlag(state, ResourceState::ComputeUAV) || HasFlag(state, ResourceState::ClearUAV))
+			res |= D3D12_RESOURCE_STATE_UNORDERED_ACCESS;
+
+		return res;
 	}
 
 	constexpr D3D12_BARRIER_SYNC ToD3D12BarrierSync(ResourceState state) {
-		switch (state) {
-		case ResourceState::RTV:     return D3D12_BARRIER_SYNC_RENDER_TARGET;
-		case ResourceState::DSV_ReadOnly: [[fallthrough]];
-		case ResourceState::DSV:     return D3D12_BARRIER_SYNC_DEPTH_STENCIL;
-		case ResourceState::Present: [[fallthrough]];
-		case ResourceState::Common:  return D3D12_BARRIER_SYNC_ALL;
-		case ResourceState::GenericRead: return D3D12_BARRIER_SYNC_ALL_SHADING;
+		D3D12_BARRIER_SYNC sync = (D3D12_BARRIER_SYNC)0;
 
-		case ResourceState::CopyDst: [[fallthrough]];
-		case ResourceState::CopySrc: return D3D12_BARRIER_SYNC_COPY;
+		if (HasFlag(state, ResourceState::RTV))            sync = (D3D12_BARRIER_SYNC)(sync | D3D12_BARRIER_SYNC_RENDER_TARGET);
+		if (HasFlag(state, ResourceState::DSV) || HasFlag(state, ResourceState::DSV_ReadOnly)) 
+			sync = (D3D12_BARRIER_SYNC)(sync | D3D12_BARRIER_SYNC_DEPTH_STENCIL);
+		if (HasFlag(state, ResourceState::Present) || HasFlag(state, ResourceState::Common))
+			sync = (D3D12_BARRIER_SYNC)(sync | D3D12_BARRIER_SYNC_ALL);
+		if (HasFlag(state, ResourceState::CopyDst) || HasFlag(state, ResourceState::CopySrc))
+			sync = (D3D12_BARRIER_SYNC)(sync | D3D12_BARRIER_SYNC_COPY);
+		if (HasFlag(state, ResourceState::VertexBuffer))  sync = (D3D12_BARRIER_SYNC)(sync | D3D12_BARRIER_SYNC_VERTEX_SHADING);
+		if (HasFlag(state, ResourceState::IndexBuffer))   sync = (D3D12_BARRIER_SYNC)(sync | D3D12_BARRIER_SYNC_INDEX_INPUT);
+		if (HasFlag(state, ResourceState::ComputeSRV))    sync = (D3D12_BARRIER_SYNC)(sync | D3D12_BARRIER_SYNC_NON_PIXEL_SHADING);
+		if (HasFlag(state, ResourceState::ComputeUAV))    sync = (D3D12_BARRIER_SYNC)(sync | D3D12_BARRIER_SYNC_COMPUTE_SHADING);
+		if (HasFlag(state, ResourceState::PixelSRV))      sync = (D3D12_BARRIER_SYNC)(sync | D3D12_BARRIER_SYNC_PIXEL_SHADING);
 
-		case ResourceState::VertexBuffer: return D3D12_BARRIER_SYNC_VERTEX_SHADING;
-		case ResourceState::IndexBuffer:  return D3D12_BARRIER_SYNC_INDEX_INPUT;
-		case ResourceState::AllShading:   return D3D12_BARRIER_SYNC_ALL_SHADING;
-		case ResourceState::ComputeSRV:   return D3D12_BARRIER_SYNC_NON_PIXEL_SHADING;
-		case ResourceState::ComputeUAV:   return D3D12_BARRIER_SYNC_COMPUTE_SHADING;
-		case ResourceState::PixelSRV:     return D3D12_BARRIER_SYNC_PIXEL_SHADING;
-		default:CESAR_DEBUGBREAK();
-		}
+		if (sync == (D3D12_BARRIER_SYNC)0) CESAR_DEBUGBREAK();
+		return sync;
 	}
 
 	constexpr D3D12_BARRIER_LAYOUT ToD3D12BarrierLayout(ResourceState state) {
-		switch (state) {
-		    case ResourceState::RTV:        return D3D12_BARRIER_LAYOUT_RENDER_TARGET;
-		    case ResourceState::DSV:        return D3D12_BARRIER_LAYOUT_DEPTH_STENCIL_WRITE;
-			case ResourceState::DSV_ReadOnly: return D3D12_BARRIER_LAYOUT_DEPTH_STENCIL_READ;
-		    case ResourceState::Present:    return D3D12_BARRIER_LAYOUT_PRESENT;
-		    case ResourceState::Common:     return D3D12_BARRIER_LAYOUT_COMMON;
-		    case ResourceState::CopyDst:    return D3D12_BARRIER_LAYOUT_COPY_DEST;
-		    case ResourceState::CopySrc:    return D3D12_BARRIER_LAYOUT_COPY_SOURCE;
-		    case ResourceState::AllShading: return D3D12_BARRIER_LAYOUT_SHADER_RESOURCE;
-		    case ResourceState::ComputeSRV: return D3D12_BARRIER_LAYOUT_SHADER_RESOURCE;
-		    case ResourceState::ComputeUAV: return D3D12_BARRIER_LAYOUT_UNORDERED_ACCESS;
-			case ResourceState::PixelSRV:   return D3D12_BARRIER_LAYOUT_SHADER_RESOURCE;
-			case ResourceState::GenericRead: return D3D12_BARRIER_LAYOUT_GENERIC_READ;
-		    default:CESAR_DEBUGBREAK();
-		}
+		if (HasFlag(state, ResourceState::RTV))        return D3D12_BARRIER_LAYOUT_RENDER_TARGET;
+		if (HasFlag(state, ResourceState::DSV))        return D3D12_BARRIER_LAYOUT_DEPTH_STENCIL_WRITE;
+		if (HasFlag(state, ResourceState::DSV_ReadOnly)) return D3D12_BARRIER_LAYOUT_DEPTH_STENCIL_READ;
+		if (HasFlag(state, ResourceState::Present))    return D3D12_BARRIER_LAYOUT_PRESENT;
+		if (HasFlag(state, ResourceState::CopyDst))    return D3D12_BARRIER_LAYOUT_COPY_DEST;
+		if (HasFlag(state, ResourceState::CopySrc))    return D3D12_BARRIER_LAYOUT_COPY_SOURCE;
+		if (HasFlag(state, ResourceState::ComputeUAV)) return D3D12_BARRIER_LAYOUT_UNORDERED_ACCESS;
+		if (HasFlag(state, ResourceState::ComputeSRV) || HasFlag(state, ResourceState::PixelSRV))
+			return D3D12_BARRIER_LAYOUT_SHADER_RESOURCE;
+		if (HasFlag(state, ResourceState::Common))     return D3D12_BARRIER_LAYOUT_COMMON;
+
+		CESAR_DEBUGBREAK();
 	}
 
 	constexpr D3D12_BARRIER_ACCESS ToD3D12BarrierAccess(ResourceState state) {
-		switch (state) {
-		    case ResourceState::RTV:          return D3D12_BARRIER_ACCESS_RENDER_TARGET;
-		    case ResourceState::DSV:          return D3D12_BARRIER_ACCESS_DEPTH_STENCIL_WRITE;
-			case ResourceState::DSV_ReadOnly: return D3D12_BARRIER_ACCESS_DEPTH_STENCIL_READ;
-		    case ResourceState::Present: 
-		    case ResourceState::Common:       return D3D12_BARRIER_ACCESS_COMMON;
-		    case ResourceState::CopyDst:      return D3D12_BARRIER_ACCESS_COPY_DEST;
-		    case ResourceState::CopySrc:      return D3D12_BARRIER_ACCESS_COPY_SOURCE;
-		    case ResourceState::VertexBuffer: return D3D12_BARRIER_ACCESS_VERTEX_BUFFER;
-		    case ResourceState::IndexBuffer:  return D3D12_BARRIER_ACCESS_INDEX_BUFFER;
-		    case ResourceState::AllShading:   return D3D12_BARRIER_ACCESS_SHADER_RESOURCE;
-		    case ResourceState::ComputeSRV:   return D3D12_BARRIER_ACCESS_SHADER_RESOURCE;
-		    case ResourceState::ComputeUAV:   return D3D12_BARRIER_ACCESS_UNORDERED_ACCESS;
-			case ResourceState::PixelSRV:     return D3D12_BARRIER_ACCESS_SHADER_RESOURCE;
-			case ResourceState::GenericRead: return D3D12_BARRIER_ACCESS_CONSTANT_BUFFER;
-		    default:CESAR_DEBUGBREAK();
+		D3D12_BARRIER_ACCESS access = (D3D12_BARRIER_ACCESS)0;
+
+		if (HasFlag(state, ResourceState::RTV))            access = (D3D12_BARRIER_ACCESS)(access | D3D12_BARRIER_ACCESS_RENDER_TARGET);
+		if (HasFlag(state, ResourceState::DSV))            access = (D3D12_BARRIER_ACCESS)(access | D3D12_BARRIER_ACCESS_DEPTH_STENCIL_WRITE);
+		if (HasFlag(state, ResourceState::DSV_ReadOnly))   access = (D3D12_BARRIER_ACCESS)(access | D3D12_BARRIER_ACCESS_DEPTH_STENCIL_READ);
+		if (HasFlag(state, ResourceState::Present) || HasFlag(state, ResourceState::Common))
+			access = (D3D12_BARRIER_ACCESS)(access | D3D12_BARRIER_ACCESS_COMMON);
+		if (HasFlag(state, ResourceState::CopyDst))        access = (D3D12_BARRIER_ACCESS)(access | D3D12_BARRIER_ACCESS_COPY_DEST);
+		if (HasFlag(state, ResourceState::CopySrc))        access = (D3D12_BARRIER_ACCESS)(access | D3D12_BARRIER_ACCESS_COPY_SOURCE);
+		if (HasFlag(state, ResourceState::VertexBuffer))   access = (D3D12_BARRIER_ACCESS)(access | D3D12_BARRIER_ACCESS_VERTEX_BUFFER);
+		if (HasFlag(state, ResourceState::IndexBuffer))    access = (D3D12_BARRIER_ACCESS)(access | D3D12_BARRIER_ACCESS_INDEX_BUFFER);
+		if (HasFlag(state, ResourceState::ComputeSRV) || HasFlag(state, ResourceState::PixelSRV))
+			access = (D3D12_BARRIER_ACCESS)(access | D3D12_BARRIER_ACCESS_SHADER_RESOURCE);
+		if (HasFlag(state, ResourceState::ComputeUAV))    access = (D3D12_BARRIER_ACCESS)(access | D3D12_BARRIER_ACCESS_UNORDERED_ACCESS);
+
+		if (HasAnyFlag(state, ResourceState::AllSRV))       access |= D3D12_BARRIER_ACCESS_SHADER_RESOURCE;
+		if (HasAnyFlag(state, ResourceState::AllUAV))       access |= D3D12_BARRIER_ACCESS_UNORDERED_ACCESS;
+
+		if (access == (D3D12_BARRIER_ACCESS_UNORDERED_ACCESS | D3D12_BARRIER_ACCESS_SHADER_RESOURCE))
+		{
+			LOG_ERROR("Founc");
 		}
+
+		return access;
 	}
 
 

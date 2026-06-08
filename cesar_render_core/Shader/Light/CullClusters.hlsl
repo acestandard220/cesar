@@ -13,7 +13,7 @@ struct Constants
     uint depth_slice_bias;
 };
 
-ConstantBuffer<Constants> constants;
+ConstantBuffer<Constants> constants : register(b1);
 
 float LinearizeDepth(float d, float near_plane, float far_plane)
 {

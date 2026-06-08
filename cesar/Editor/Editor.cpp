@@ -158,11 +158,11 @@ namespace cesar
 
                 builder.WriteRenderTarget(RG_NAME(Backbuffer), ResourceLoadStoreFlags::ClearPreserve, desc);
 
-                data.viewport_texture = builder.ReadTexture(RG_NAME(FinalTexture), ReadAccessType::AllShader, desc);
+                data.viewport_texture = builder.ReadTexture(RG_NAME(FinalTexture), ReadAccessType::PixelShader, desc);
 
                 //Temporary way to view mesh bounds
                 if (gInput.IsKeyHeld(Key::RAlt)) {
-                    data.viewport_texture = builder.ReadTexture(RG_NAME(SubmeshBoundsMap), ReadAccessType::AllShader, desc);
+                    data.viewport_texture = builder.ReadTexture(RG_NAME(SubmeshBoundsMap), ReadAccessType::PixelShader, desc);
                 }
             },
             [&](PassData& data, RenderGraphContext& context)

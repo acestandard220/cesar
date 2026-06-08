@@ -32,7 +32,7 @@ namespace cesar
 			Uint32 cluster_count;
 		};
 
-		render_graph.AddPass<PassData>("Light Cull Pass", RGPassType::AsyncCompute, RGPassFlags::None,
+		render_graph.AddPass<PassData>("Generate Cluster Pass", RGPassType::AsyncCompute, RGPassFlags::None,
 			[&](PassData& data, RGBuilder& builder)
 			{
 				data.tile_count_x = (width + TILE_SIZE - 1) / TILE_SIZE;
@@ -67,9 +67,9 @@ namespace cesar
 
 				RGBuffer* cbv = render_graph.GetBufferResource(data.frame_constants);
 
-				cmd_list.SetPipelineState(generate_cluster_pso.get());
 				cmd_list.SetComputeCBV(0, cbv->resource);
 				cmd_list.SetComputeConstants(std::span<Constants>(&constants, 1));
+				cmd_list.SetPipelineState(generate_cluster_pso.get());
 
 				cmd_list.DispatchCompute((data.tile_count_x + 15) / 16, (data.tile_count_y + 15)/16, data.tile_z);
 			}
@@ -98,7 +98,7 @@ namespace cesar
 	
 		const FrameData& frame_data = render_graph.GetFrameData();
 
-		render_graph.AddPass<PassData>("Cull Clusters", RGPassType::Compute, RGPassFlags::None,
+		render_graph.AddPass<PassData>("Cull Clusters", RGPassType::AsyncCompute, RGPassFlags::None,
 			[&](PassData& data, RGBuilder& builder)
 			{
 				data.depth_slice_scale = TILE_Z / log2(frame_data.camera_far / frame_data.camera_near);
@@ -142,12 +142,12 @@ namespace cesar
 				};
 
 				CommandList& cmd_list = context.GetCommandList();
-				cmd_list.SetPipelineState(cull_cluster_pso.get());
 
 				RGBuffer* cbv = render_graph.GetBufferResource(data.frame_constants);
 				cmd_list.SetComputeCBV(0, cbv->resource);
 				cmd_list.SetComputeConstants(std::span<Constants>(&constants, 1));
 
+				cmd_list.SetPipelineState(cull_cluster_pso.get());
 				cmd_list.DispatchCompute((frame_data.screen_width + 31)/32, (frame_data.screen_height + 31)/32, 1);
 			}
 		);
@@ -168,7 +168,7 @@ namespace cesar
 			Uint32 tile_count_z;
 		};
 
-		render_graph.AddPass<PassData>("Compact Clusters Pass", RGPassType::Compute, RGPassFlags::None,
+		render_graph.AddPass<PassData>("Compact Clusters Pass", RGPassType::AsyncCompute, RGPassFlags::None,
 			[&](PassData& data, RGBuilder& builder)
 			{
 				data.tile_count_x = (width + TILE_SIZE - 1) / TILE_SIZE;
@@ -206,8 +206,8 @@ namespace cesar
 				};
 
 				CommandList& cmd_list = context.GetCommandList();
-				cmd_list.SetPipelineState(compact_cluster_pso.get());
 				cmd_list.SetComputeConstants(std::span<Constants>(&constants, 1));
+				cmd_list.SetPipelineState(compact_cluster_pso.get());
 
 				context.ClearCounterBuffer(data.active_clusters_counter);
 				cmd_list.DispatchCompute((data.tile_count_x + 15) / 16, (data.tile_count_y + 15) / 16, TILE_Z);

@@ -22,9 +22,9 @@ float4 SolidShade_PS(ScreenTriangleVertexOut input) : SV_Target
     
     const float3 sun_direction = float3(-1.0f, 1.0f, 1.0f);
     const float4 sun_color = float4(1.0f, 1.0f, 1.0f, 1.0f);
-    const float4 base_color = float4(0.18, 0.18, 0.18, 1.0f);
+    const float4 base_color = float4(0.58039, 0.58431, 0.592156, 1.0f);
 
-    float ambient_strength = 0.1f;
+    float ambient_strength = 0.4f;
     float3 ambient = ambient_strength * sun_color;
   	
     float3 norm = normalize(normal);

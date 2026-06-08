@@ -37,7 +37,7 @@ namespace cesar
 		render_graph.AddPass<DrawMeshletData>("Draw Meshlet Pass", RGPassType::Graphics, RGPassFlags::None,
 			[&](DrawMeshletData& data, RGBuilder& builder)
 			{
-				TextureDesc gbuffer_texture_desc = RenderTargetDesc(width, height, ResourceBindFlag::ShaderResource);
+				TextureDesc gbuffer_texture_desc = RenderTargetDesc(width, height, ResourceBindFlag::ShaderResource, ClearValue({ 0.0f,0.0f,0.0f,0.0f }));
 
 				BufferViewDesc view_desc{
 					.size = 0,

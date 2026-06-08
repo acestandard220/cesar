@@ -38,6 +38,13 @@ using namespace Microsoft::WRL;
 #define BIT(x) (1<<x)
 
 template<typename Enum> requires std::is_enum_v<Enum>
+inline constexpr bool HasAnyFlag(Enum value, Enum flags)
+{
+	using T = std::underlying_type_t<Enum>;
+	return (((T)value) & (T)flags) != 0;
+}
+
+template<typename Enum> requires std::is_enum_v<Enum>
 inline constexpr bool HasFlag(Enum value, Enum flag)
 {
     CESAR_ASSERT(std::has_single_bit(static_cast<std::make_unsigned_t<std::underlying_type_t<Enum>>>(std::to_underlying(flag))));

@@ -114,7 +114,7 @@ namespace cesar {
 			[&](PassData& data, RGBuilder& builder)
 			{
 				data.final_texture = builder.WriteTextureCopyDst(RG_NAME(FinalTexture));
-				data.src_texture = builder.ReadTextureCopySrc(RG_NAME(AlbedoMap));
+				data.src_texture = builder.ReadTextureCopySrc(RG_NAME(SolidShadeMap));
 			},
 			[&](PassData& data, RGContext& context)
 			{
@@ -150,6 +150,7 @@ namespace cesar {
 		depth_prepass->OnResize(width, height);
 		light_cull_pass->OnResize(width, height);
 		visualizer->OnResize(width, height);
+		shade_pass->OnResize(width, height);
 	}
 
 

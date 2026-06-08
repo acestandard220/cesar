@@ -44,7 +44,9 @@ VertexOut GetVertex(Meshlet meshlet, SubMeshData submesh, SubmeshInstance submes
     VertexOut v_out;
     float4 position = mul(float4(v.position, 1.0f), submesh_instance.model_matrix);
     v_out.position = mul(frame_constants.view_projection, position);
-    v_out.normal = GetMeshletColor(id);
+    v_out.normal = v.normal;
+    v_out.tangent = float4(GetMeshletColor(id), 1.0f);
+
     return v_out;
 }
 

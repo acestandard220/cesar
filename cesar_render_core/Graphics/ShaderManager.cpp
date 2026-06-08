@@ -25,6 +25,8 @@ namespace cesar{
 		case ShaderID::Mesh:        return L"mesh.hlsl";
 		case ShaderID::Compute:     return L"compute.hlsl";
 
+		case ShaderID::DrawScreenTriangle_MS: return L"DrawScreenTriangle_MS.hlsl";
+		case ShaderID::SolidShade_PS:return L"SolidShade_PS.hlsl";
 		case ShaderID::DepthPrePass_MS: return L"DepthPrePass.hlsl";
 		case ShaderID::GenerateClusters: return L"Light/GenerateClusters.hlsl";
 		case ShaderID::CullClusters: return L"Light/CullClusters.hlsl";
@@ -73,6 +75,10 @@ namespace cesar{
 			return L"CompactClusters";
 		case ShaderID::DepthPrePass_MS:
 			return L"DepthPrePass_MS";
+		case ShaderID::DrawScreenTriangle_MS:
+			return L"DrawScreenTriangle_MS";
+		case ShaderID::SolidShade_PS:
+			return L"SolidShade_PS";
 		default:
 			return L"InvalidMain";
 		}
@@ -111,6 +117,8 @@ namespace cesar{
 				target_profile = std::format(L"{}{}", GetShaderTypeTargetProfilePrefix(ShaderType::Vertex), GetShaderModelTargetProfileSuffix(shader_model));
 				break;
 			}
+
+			case ShaderID::SolidShade_PS:
 			case ShaderID::VizSubMeshBounds_PS:
 		    case ShaderID::GBufferPixel:
 			{
@@ -131,6 +139,7 @@ namespace cesar{
 				break;
 			}
 
+			case ShaderID::DrawScreenTriangle_MS:
 			case ShaderID::DepthPrePass_MS:
 			case ShaderID::VizSubMeshBounds_MS:
 			case ShaderID::DrawMeshlet:

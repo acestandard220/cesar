@@ -30,6 +30,8 @@ namespace cesar
 
 		VizSubMeshBounds_MS, VizSubMeshBounds_PS, 
 
+		DrawScreenTriangle_MS, SolidShade_PS,
+
 		NoShader
 	};
 

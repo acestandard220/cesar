@@ -59,7 +59,6 @@ namespace cesar::render_graph
 		{
 			dep_levels.Execute(execution_context);
 		}
-
 	}
 
 	void RenderGraph::CleanUp()

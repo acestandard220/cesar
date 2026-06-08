@@ -16,6 +16,7 @@ namespace cesar {
 		light_cull_pass = std::make_unique<LightCullPass>(render_context, width, height);
 
 		visualizer = std::make_unique<Visualizer>(render_context, width, height);
+		shade_pass = std::make_unique<ShadePass>(render_context, width, height);
 
 
 		GPUContext* gpu_context = render_context->GetGPUContext();
@@ -91,6 +92,7 @@ namespace cesar {
 		render_graph.ImportTexture(RG_NAME(Backbuffer),   render_context->GetBackbuffer());
 
 		render_graph::RenderGraph& rg = render_graph;
+		using namespace render_graph;
 
 		//This is not ideal
 		const Uint32 element_count = scene->GetTotalMeshInstance();
@@ -100,11 +102,9 @@ namespace cesar {
 		scene_cull_pass->AddPass(rg, element_count, submesh_count, meshlet_count);
 		depth_prepass->AddPass(rg);
 		gbuffer_pass->AddPass(rg);
+		shade_pass->AddSolidShadePass(rg);
 		light_cull_pass->AddPass(rg);
 		visualizer->AddPass(render_graph, scene);
-
-		
-		using namespace render_graph;
 
 		struct PassData {
 			render_graph::TextureCopyDstID final_texture;
@@ -114,7 +114,7 @@ namespace cesar {
 			[&](PassData& data, RGBuilder& builder)
 			{
 				data.final_texture = builder.WriteTextureCopyDst(RG_NAME(FinalTexture));
-				data.src_texture = builder.ReadTextureCopySrc(RG_NAME(PositionMap));
+				data.src_texture = builder.ReadTextureCopySrc(RG_NAME(AlbedoMap));
 			},
 			[&](PassData& data, RGContext& context)
 			{

@@ -12,10 +12,10 @@ GBufferOutputs PixelMain(VertexOut input)
 {
     GBufferOutputs output;
 
-    output.position_map = float4(input.normal, 1.0f);
-    output.normal_map = float4(1, 1, 1, 1);
-    output.arm_map = float4(1, 1, 1, 1);
-    output.albedo_map = float4(0.8f, 0.8f, 0.8f, 1);
+    output.position_map = float4(input.tangent);
+    output.normal_map = float4(input.normal, 1);
+    output.arm_map = float4(input.tangent);
+    output.albedo_map = float4(input.tangent);
 
     return output;
 }

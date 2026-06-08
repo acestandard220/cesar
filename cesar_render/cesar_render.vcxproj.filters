@@ -51,6 +51,9 @@
     <ClCompile Include="RenderPass\DepthPrePass.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="RenderPass\ShadePass.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="FrameData.h">
@@ -93,6 +96,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="RenderPass\DepthPrePass.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="RenderPass\ShadePass.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

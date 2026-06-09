@@ -85,4 +85,9 @@ namespace cesar
 		renderer->OnResize(width, height);
 		scene->OnResize(width, height);
 	}
+
+	Scene* Engine::GetScene()
+	{
+		return scene.get();
+	}
 }

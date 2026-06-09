@@ -1,5 +1,6 @@
 #include "Editor.h"
 #include "../../cesar_core/Event/Input.h"
+#include "../Engine/Engine.h"
 #include <ImGui/imgui.h>
 #include <ImGui/imgui_impl_win32.h>
 #include <ImGui/imgui_impl_dx12.h>
@@ -30,7 +31,7 @@ namespace cesar
 
     Editor::Editor(Window* window, Engine* engine, GPUContext* gpu_context)
         :window(window), is_visible(true), engine(engine),
-        viewport(this)
+        viewport(this), hierarchy(this)
 	{
         DescriptorHeapDesc heap_desc{};
         heap_desc.descriptor_count = 1024;
@@ -171,9 +172,9 @@ namespace cesar
                 
                 Descriptor viewport_texture_desc = context.GetTextureReadOnlyDescriptor(data.viewport_texture);
                 viewport.DrawViewport(GetGPUHandle(viewport_texture_desc).ptr);
+                hierarchy.DrawHierarchy(engine->GetScene());
 
                 CommandList& cmd_list = context.GetCommandList();
-
                 ImGuiEnd(cmd_list);
             });
 

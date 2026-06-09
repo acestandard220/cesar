@@ -217,6 +217,7 @@
     <ClCompile Include="..\ext\ImGui\imgui_tables.cpp" />
     <ClCompile Include="..\ext\ImGui\imgui_widgets.cpp" />
     <ClCompile Include="Editor\Editor.cpp" />
+    <ClCompile Include="Editor\Panels\Hierarchy.cpp" />
     <ClCompile Include="Editor\Panels\Viewport.cpp" />
     <ClCompile Include="Engine\Engine.cpp" />
     <ClCompile Include="main.cpp" />
@@ -246,6 +247,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Editor\Editor.h" />
+    <ClInclude Include="Editor\Panels\Hierarchy.h" />
     <ClInclude Include="Editor\Panels\Viewport.h" />
     <ClInclude Include="Engine\Engine.h" />
   </ItemGroup>

@@ -23,6 +23,8 @@ namespace cesar
 		void OnResize(Uint32 width, Uint32 height);
 		void OnViewportResize(Uint32 width, Uint32 height);
 
+		Scene* GetScene();
+
 	private:
 		Window* window = nullptr;
 

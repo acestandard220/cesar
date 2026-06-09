@@ -68,6 +68,8 @@ namespace cesar
 
 		LinearAllocator<SubmeshInstance>* GetSubmeshInstanceAllocator() { return submesh_instances.get(); }
 
+		std::vector<Entity>& GetEntities() { return entities; }
+
 		entt::registry& GetEnttRegistery() { return registery; }
 	private:
 		void InsertMeshInstance(UUID id, Entity& entt);

@@ -26,6 +26,7 @@ namespace cesar {
 		}
 
 		Bool IsValid()const { return entity == entt::null; }
+		void MakeInvalid() { registery = nullptr; entity == entt::null; }
 
 		template<typename T>
 		Bool HasComponent() {

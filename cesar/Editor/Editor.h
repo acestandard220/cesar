@@ -5,8 +5,10 @@
 #include "../../cesar_render/RenderGraph/RenderGraph.h"
 #include "../../cesar_render/RenderGraph/RenderGraphContext.h"
 #include "../../cesar_render/RenderGraph/RenderGraphBuilder.h"
+#include "../../cesar_scene/Scene.h"
 
 #include "Panels/Viewport.h"
+#include "Panels/Hierarchy.h"
 
 namespace cesar
 {
@@ -40,6 +42,7 @@ namespace cesar
 		Bool is_visible;
 
 		Viewport viewport;
+		Hierarchy hierarchy;
 	};
 
 }

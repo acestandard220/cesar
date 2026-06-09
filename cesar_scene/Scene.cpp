@@ -82,7 +82,6 @@ namespace cesar
 			existing_instance_count ? std::format("_{}", existing_instance_count) : "");
 		
 		Entity entity = CreateEmptyEntity(name);
-		//RelationshipComponent& relation_component = 
 		MemoryBlock<SubmeshInstance> smd_block = submesh_instances->Allocate(mesh_resource->submesh_data_count);
 		Uint32 submesh_index = 0;
 		for (auto& sm_instance : smd_block) {

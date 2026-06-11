@@ -28,9 +28,9 @@ namespace cesar
 
 		DescriptorHeapDesc heap_desc{};
 		heap_desc.type              = DescriptorType::CBV_SRV_UAV;
-		heap_desc.descriptor_count  = 4096;
+		heap_desc.descriptor_count  = 70960;
 		heap_desc.is_shader_visible = true;
-		online_descriptor_pool = std::make_unique<OnlineDescriptorAllocator>(std::make_unique<DescriptorHeap>(this, heap_desc, "Online CBV_SRV_UAV Heap"), 1024);
+		online_descriptor_pool = std::make_unique<OnlineDescriptorAllocator>(std::make_unique<DescriptorHeap>(this, heap_desc, "Online CBV_SRV_UAV Heap"), 20480);
 
 		CreateCommonRootSignature();
 	}

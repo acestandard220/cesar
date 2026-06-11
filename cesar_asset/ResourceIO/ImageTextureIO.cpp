@@ -23,6 +23,7 @@ namespace cesar {
 
     std::unique_ptr<Resource> ImageTextureIO::LoadFromFileNonNative(ImageLoadDesc* load_desc)
     {
+        
         ImageLoadDesc image_load_desc = static_cast<ImageLoadDesc>(*load_desc);
 
         std::unique_ptr<ImageTexture> image_texture = std::make_unique<ImageTexture>();
@@ -82,7 +83,7 @@ namespace cesar {
         texture_desc.misc_flag = TextureMiscFlag::SRGB;
         texture_desc.intial_state = ResourceState::CopyDst;
 
-        image_texture->gpu_texture = context->CreateTexture(data, texture_desc);
+        image_texture->gpu_texture = context->CreateTexture(data, texture_desc, load_desc->file_path.stem().string().c_str());
         image_texture->srv_index   = context->AllocateBindlessTextureSRV(image_texture->gpu_texture.get());
 		context->GenerateMips(image_texture->gpu_texture.get(), image_texture->srv_index);
 
@@ -119,6 +120,10 @@ namespace cesar {
 			is16Bit = false;
         }
 
+        if (data == nullptr) {
+            return nullptr;
+        }
+
         nChannel = 4;
         image_texture->width = width;
         image_texture->height = height;
@@ -153,7 +158,7 @@ namespace cesar {
         texture_desc.misc_flag = TextureMiscFlag::SRGB;
         texture_desc.intial_state = ResourceState::CopyDst;
 
-        image_texture->gpu_texture = context->CreateTexture(data->data, texture_desc);
+        image_texture->gpu_texture = context->CreateTexture(data->data, texture_desc,load_desc->file_path.stem().string().c_str());
         image_texture->srv_index = context->AllocateBindlessTextureSRV(image_texture->gpu_texture.get());
         context->GenerateMips(image_texture->gpu_texture.get(), image_texture->srv_index);
 

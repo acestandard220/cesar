@@ -12,9 +12,18 @@
 
 namespace cesar
 {
+	//Todo: If *Type*ResourceLoadDesc only end up storing load flags and other data that is also used in some way by other 
+	//loaders, move it to resource load desc as a Uint32 or Int32
+	enum class MeshLoadFlags
+	{
+		None = BIT(0),
+		LoadMeshMaterials = BIT(1)
+	};
+	CESAR_ENABLE_ENUM_OPS(MeshLoadFlags);
+
 	struct MeshLoadDesc : public ResourceLoadDesc
 	{
-
+		MeshLoadFlags load_flags;
 	};
 
 	//struct aiNode;

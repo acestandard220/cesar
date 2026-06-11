@@ -182,6 +182,7 @@ namespace cesar {
     void MeshIO::LoadFastGLTF(ResourceLoadDesc& load_desc, std::vector<Vertex>& vertices, std::vector<Uint32>& indices, 
         std::vector<SubMeshData>& submesh_data, Mesh* mesh)
     {
+        MeshLoadDesc mesh_load_desc = static_cast<MeshLoadDesc>(load_desc);
         fastgltf::Parser parser;
 
         auto data = fastgltf::GltfDataBuffer::FromPath(load_desc.file_path);
@@ -199,6 +200,8 @@ namespace cesar {
             LOG_ERROR("Failed to parse GLTF asset.");
             return;
         }
+
+        auto* material_allocator = resource_cache->GetMaterialAllocator();
 
         Uint32 submesh_count = 0;
         for (auto& mesh : asset->meshes)
@@ -333,35 +336,42 @@ namespace cesar {
 
                 submesh.bounding_box = sm_bounding_box;
                 submesh_names[submesh_index] = std::format("{}_{}", mesh.name, primitive_index++);
-                submesh_materials[submesh_index]          = 0;
+                submesh_materials[submesh_index] = 0;
                 submesh_matrixes[submesh_index] = mesh_world_matrixes[mmesh_index];
+
+        
+                if (HasFlag(mesh_load_desc.load_flags, MeshLoadFlags::LoadMeshMaterials));
+                {
+                    if (primitive.materialIndex.has_value())
+                    {
+                        auto& gltf_material_idx = primitive.materialIndex.value();
+                        fastgltf::Material* primitive_material = &asset->materials[gltf_material_idx];
+                        const auto& material_name = primitive_material->name;
+
+                        struct _data_
+                        {
+                            const void* data;
+                            Uint32 index;
+                        };
+                        _data_ data{
+                            .data = &asset,
+                            .index = static_cast<Uint32>(gltf_material_idx)
+                        };
+                        MaterialLoadDesc material_load_desc{};
+                        material_load_desc.flags = MaterialLoadFlags::LoadFromGlb_Gltf;
+                        material_load_desc.payload = &data;
+                        material_load_desc.no_path = true;
+                        material_load_desc.file_path = material_name;
+                        Material* material = resource_cache->LoadResource<Material>(material_load_desc);
+                        MemoryBlock<MaterialData> mtl_block(material->material_data, 1);
+                        submesh_materials[submesh_index] = material_allocator->GetIndex(mtl_block);
+                    }
+
+                }
                 ++submesh_index;
             }
             mmesh_index++;
         }
-
-        //auto* material_allocator = resource_cache->GetMaterialAllocator();
-        //for (Uint32 i = 0; i < asset->materials.size(); i++)
-        //{
-        //    struct _data_
-        //    {
-        //        const void* data;
-        //        Uint32 index;
-        //    };
-        //    _data_ data{
-        //        .data = &asset,
-        //        .index = i
-        //    };
-
-        //    MaterialLoadDesc material_load_desc{};
-        //    material_load_desc.flags = MaterialLoadFlags::LoadFromGlb_Gltf;
-        //    material_load_desc.payload = &data;
-        //    material_load_desc.no_path = true;
-        //    material_load_desc.file_path = std::format("{}_material_{}", load_desc.file_path.stem().string(), i);
-        //    Material* material = resource_cache->LoadResource<Material>(material_load_desc);
-        //    MemoryBlock<MaterialData> mtl_block(material->material_data, 1);
-        //    mtl[i] = material_allocator->GetIndex(mtl_block);
-        //}
     }
 
     DirectX::XMMATRIX GetWorldTransform(aiNode* node)

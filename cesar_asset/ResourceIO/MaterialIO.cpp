@@ -124,24 +124,29 @@ namespace cesar
                 if (!texture.imageIndex.has_value()) return nullptr;
 
                 auto& image = asset->images[texture.imageIndex.value()];
-                if (auto* arr = std::get_if<fastgltf::sources::Array>(&image.data))
+                if (auto* bv = std::get_if<fastgltf::sources::BufferView>(&image.data))
                 {
-                    struct _data_ {
-                        void* data;
-                        Uint64 size;
-                    }data = {
-                        .data = arr->bytes.data(),
-                        .size = arr->bytes.size()
-                    };
+                    auto& buffer_view = asset->bufferViews[bv->bufferViewIndex];
+                    auto& buffer = asset->buffers[buffer_view.bufferIndex];
 
-                    ImageLoadDesc desc{};
-                    desc.payload = &data;
-                    desc.flags = flags;
-                    desc.no_path = true;
-                    desc.file_path = std::format("{}_image_{}", material_load_desc->file_path.stem().string(), texture.imageIndex.value());
-                    return resource_cache->LoadResource<ImageTexture>(desc);
+                    if (auto* arr = std::get_if<fastgltf::sources::Array>(&buffer.data))
+                    {
+                        struct _data_ {
+                            void* data;
+                            Uint64 size;
+                        } img_data = {
+                            .data = arr->bytes.data() + buffer_view.byteOffset,
+                            .size = buffer_view.byteLength
+                        };
+
+                        ImageLoadDesc desc{};
+                        desc.payload = &img_data;
+                        desc.flags = flags;
+                        desc.no_path = true;
+                        desc.file_path = std::format("{}_image_{}", material_load_desc->file_path.stem().string(), texture.imageIndex.value());
+                        return resource_cache->LoadResource<ImageTexture>(desc);
+                    }
                 }
-                return nullptr;
             };
 
         auto& pbr_info = material->pbrData;
@@ -204,7 +209,6 @@ namespace cesar
             material_data.roughness.channel = ImageTextureChannel::G;
             if (auto* tex = load_texture(info.textureIndex, ImageLoadFlags::FlipUV | ImageLoadFlags::GenerateMips | ImageLoadFlags::LoadFromMemory))
             {
-                //material_data.ao.map_index        = tex->srv_index;
                 material_data.metallic.map_index  = tex->srv_index;
                 material_data.roughness.map_index = tex->srv_index;
             }

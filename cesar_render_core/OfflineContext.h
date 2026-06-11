@@ -12,7 +12,7 @@ namespace cesar
 		OfflineContext(GPUContext* gpu_context);
 		~OfflineContext();
 
-		std::unique_ptr<Texture> CreateTexture(const void* data, const TextureDesc& desc);
+		std::unique_ptr<Texture> CreateTexture(const void* data, const TextureDesc& desc, const Char* name);
 		void GenerateMips(Texture* texture, Uint32 srv_index);
 
 		Uint32 AllocateBindlessTextureSRV(Texture* texture);

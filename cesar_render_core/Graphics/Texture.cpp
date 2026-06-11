@@ -68,7 +68,7 @@ namespace cesar
 			CESAR_FEATURE_NO_IMPL("Other texture types have not been implemented");
 			return;
 		}
-		 
+		SetName(name);
 	}
 
 	Texture::Texture(GPUContext* gpu_context, const TextureDesc& desc, ComPtr<ID3D12Resource> backbuffer, const Char* name)

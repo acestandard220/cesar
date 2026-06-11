@@ -21,10 +21,10 @@ namespace cesar
 	
 	}
 
-	std::unique_ptr<Texture> OfflineContext::CreateTexture(const void* data, const TextureDesc& desc) {
+	std::unique_ptr<Texture> OfflineContext::CreateTexture(const void* data, const TextureDesc& desc, const Char* name) {
 		const Uint64 byte_size = desc.width * desc.height * GetFormatStride(desc.format);
 
-		auto texture = gpu_context->CreateTexture(desc, "ImageTexture");
+		auto texture = gpu_context->CreateTexture(desc, name);
 		auto buffer = gpu_context->CreateBuffer(UploadBufferDesc<Uint8>(byte_size));
 		buffer->Upload<Uint8>(std::span<Uint8>((Uint8*)(data), byte_size));
 

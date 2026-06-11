@@ -11,8 +11,8 @@ namespace cesar {
 			Uint32 allocation_size;
 		};
 	public:
-		RingAllocator(Uint32 capacity, Uint32 reserved)
-			:head(0), tail(0), reserved(reserved), capacity(capacity-reserved), used(reserved), current_frame_size(0)
+		RingAllocator(Uint32 cap, Uint32 reserved)
+			:head(0), tail(0), reserved(reserved), capacity(cap-reserved), used(reserved), current_frame_size(0)
 		{
 
 		}

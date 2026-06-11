@@ -4,7 +4,7 @@
 namespace cesar {
 
 	Renderer::Renderer(Window* window, RenderContext* render_context, Scene* scene)
-		:scene(scene), render_context(render_context)
+		:scene(scene), render_context(render_context), render_path(RenderPath::Solid)
 	{
 		window->GetClientDimensions(width, height);
 
@@ -102,7 +102,17 @@ namespace cesar {
 		scene_cull_pass->AddPass(rg, element_count, submesh_count, meshlet_count);
 		depth_prepass->AddPass(rg);
 		gbuffer_pass->AddPass(rg);
-		shade_pass->AddSolidShadePass(rg);
+
+		switch (render_path)
+		{
+		    case RenderPath::Solid:
+		    {
+		    	SolidRenderPathImpl(render_graph);
+		    	break;
+		    }
+
+		default: CESAR_FEATURE_NO_IMPL("Other Render Paths are yet to implemented");
+		}
 		light_cull_pass->AddPass(rg);
 		visualizer->AddPass(render_graph, scene);
 
@@ -151,6 +161,11 @@ namespace cesar {
 		light_cull_pass->OnResize(width, height);
 		visualizer->OnResize(width, height);
 		shade_pass->OnResize(width, height);
+	}
+
+	void Renderer::SolidRenderPathImpl(render_graph::RenderGraph& render_graph)
+	{
+		shade_pass->AddSolidShadePass(render_graph);
 	}
 
 

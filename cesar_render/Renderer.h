@@ -17,6 +17,15 @@
 
 namespace cesar
 {
+	enum class RenderPath
+	{
+		Solid, 
+		MaterialPreview, 
+		Render, 
+		Production 
+	};
+
+
 	class _declspec(dllexport) Renderer
 	{
 	public:
@@ -36,6 +45,8 @@ namespace cesar
 		void OnResize(Uint32 width, Uint32 height);
 
 	private:
+		void SolidRenderPathImpl(render_graph::RenderGraph& render_graph);
+
 		void CreatePersistentPSO();
 		void CreatePersistentResource();
 
@@ -47,6 +58,7 @@ namespace cesar
 		Scene* scene = nullptr;
 		Uint32 width, height;
 		RenderContext* render_context = nullptr;
+		RenderPath render_path;
 
 		std::function<void(render_graph::RenderGraph&)> editor_add_pass = nullptr;
 

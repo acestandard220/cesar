@@ -229,11 +229,12 @@
     <ClCompile Include="..\ext\meshoptimizer\vertexcodec.cpp" />
     <ClCompile Include="..\ext\meshoptimizer\vertexfilter.cpp" />
     <ClCompile Include="..\ext\meshoptimizer\vfetchoptimizer.cpp" />
+    <ClCompile Include="..\ext\SimpleMath\SimpleMath.cpp" />
     <ClCompile Include="..\ext\stb\stb.cpp" />
     <ClCompile Include="..\ext\tinyobj\tiny_obj_loader.cpp" />
     <ClCompile Include="cesar_asset.cpp" />
     <ClCompile Include="ResourceIO\MaterialIO.cpp" />
-    <ClCompile Include="ResourceIO\MeshIO.cpp" />
+    <ClCompile Include="ResourceIO\MeshIO\MeshIO.cpp" />
     <ClCompile Include="Resource.cpp" />
     <ClCompile Include="ResourceCache.cpp" />
     <ClCompile Include="ResourceIO\ImageTextureIO.cpp" />
@@ -248,7 +249,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ResourceIO\MaterialIO.h" />
-    <ClInclude Include="ResourceIO\MeshIO.h" />
+    <ClInclude Include="ResourceIO\MeshIO\MeshIO.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="ResourceCache.h" />
     <ClInclude Include="ResourceIO\ImageTextureIO.h" />

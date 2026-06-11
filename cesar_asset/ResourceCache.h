@@ -9,7 +9,7 @@
 #include "Resources/Material.h"
 #include "Resources/ImageTexture.h"
 
-#include "ResourceIO/MeshIO.h"
+#include "ResourceIO/MeshIO/MeshIO.h"
 #include "ResourceIO/MaterialIO.h"
 #include "ResourceIO/ResourceIO.h"
 #include "ResourceIO/ImageTextureIO.h"

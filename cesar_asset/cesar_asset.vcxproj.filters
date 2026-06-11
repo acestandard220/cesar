@@ -30,7 +30,7 @@
     <ClCompile Include="ResourceCache.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ResourceIO\MeshIO.cpp">
+    <ClCompile Include="ResourceIO\MeshIO\MeshIO.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\ext\fastgltf\fastgltf.cpp">
@@ -99,6 +99,9 @@
     <ClCompile Include="..\ext\meshoptimizer\vfetchoptimizer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\ext\SimpleMath\SimpleMath.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Resource.h">
@@ -122,7 +125,7 @@
     <ClInclude Include="ResourceIO\ImageTextureIO.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ResourceIO\MeshIO.h">
+    <ClInclude Include="ResourceIO\MeshIO\MeshIO.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="ResourceIO\MaterialIO.h">

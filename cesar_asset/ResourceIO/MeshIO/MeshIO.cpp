@@ -1,6 +1,6 @@
 #include "MeshIO.h"
-#include "../../cesar_core/Core/MathConstants.h"
-#include "../ResourceCache.h"
+#include "../../../cesar_core/Core/MathConstants.h"
+#include "../../ResourceCache.h"
 
 #include <fastgltf/core.hpp>
 #include <fastgltf/types.hpp>
@@ -34,15 +34,12 @@ namespace cesar {
         std::vector<SubMeshData> submesh_data;
 
         const std::string file_extension = load_desc.file_path.extension().string();
-        if (file_extension == ".gltf" || file_extension == ".glb" || file_extension == ".obj") {
-            //FastGLTF Loader is not setting transforms
-            //LoadGLTF(load_desc, vertices, indices, submesh_data, mesh_resource->default_materials, mesh_resource->submesh_names);
-            LoadWithAssimp(load_desc, vertices, indices, submesh_data, mesh_resource.get());
+        if (file_extension == ".gltf" || file_extension == ".glb") {
+            LoadFastGLTF(load_desc, vertices, indices, submesh_data, mesh_resource.get());
         }
-        else if (false) {
-            LOG_FATAL("Cannot load OBJ Models.");
-            CESAR_FEATURE_NO_IMPL("Loading OBJ Models has not been implemented yet");
-            return nullptr;
+        else {
+            LOG_WARN("File type is not optimized for fast loading in Cesar");
+            LoadWithAssimp(load_desc, vertices, indices, submesh_data, mesh_resource.get());
         }
 
         //I don't understand what is happening properly will check out later. 5/22/2026
@@ -91,58 +88,6 @@ namespace cesar {
 
     void MeshIO::SaveToDisk(const std::filesystem::path& file_path)
     {}
-
-    Vector2 MeshIO::OctEncode(const DirectX::XMFLOAT3& n)
-    {
-        DirectX::XMVECTOR v = DirectX::XMVector3Normalize(XMLoadFloat3(&n));
-
-        DirectX::XMFLOAT3 f;
-        DirectX::XMStoreFloat3(&f, v);
-
-        float invL1Norm = 1.0f / (fabsf(f.x) + fabsf(f.y) + fabsf(f.z));
-
-        f.x *= invL1Norm;
-        f.y *= invL1Norm;
-        f.z *= invL1Norm;
-
-        DirectX::XMFLOAT2 enc = { f.x, f.y };
-
-        if (f.z < 0.0f)
-        {
-            float oldX = enc.x;
-            float oldY = enc.y;
-
-            enc.x = (1.0f - fabsf(oldY)) * (oldX >= 0.0f ? 1.0f : -1.0f);
-            enc.y = (1.0f - fabsf(oldX)) * (oldY >= 0.0f ? 1.0f : -1.0f);
-        }
-
-        return enc;
-    }
-
-    Vector3 MeshIO::OctDecode(const DirectX::XMFLOAT2& e)
-    {
-        DirectX::XMFLOAT3 n;
-
-        n.x = e.x;
-        n.y = e.y;
-        n.z = 1.0f - fabsf(e.x) - fabsf(e.y);
-
-        if (n.z < 0.0f)
-        {
-            float oldX = n.x;
-            float oldY = n.y;
-
-            n.x = (1.0f - fabsf(oldY)) * (oldX >= 0.0f ? 1.0f : -1.0f);
-            n.y = (1.0f - fabsf(oldX)) * (oldY >= 0.0f ? 1.0f : -1.0f);
-        }
-
-        DirectX::XMVECTOR v = DirectX::XMVector3Normalize(XMLoadFloat3(&n));
-
-        DirectX::XMFLOAT3 result;
-        DirectX::XMStoreFloat3(&result, v);
-
-        return result;
-    }
 
     void MeshIO::OptimizeMesh(std::vector<SubMeshData>& submeshes, std::vector<Vertex>& vertices, std::vector<Uint32>& indices)
     {
@@ -234,7 +179,8 @@ namespace cesar {
         }
     }
 
-    void MeshIO::LoadGLTF(ResourceLoadDesc& load_desc, std::vector<Vertex>& vertices, std::vector<Uint32>& indices, std::vector<SubMeshData>& submesh_data, std::vector<Uint32>& mtl, std::vector<std::string>& submesh_name)
+    void MeshIO::LoadFastGLTF(ResourceLoadDesc& load_desc, std::vector<Vertex>& vertices, std::vector<Uint32>& indices, 
+        std::vector<SubMeshData>& submesh_data, Mesh* mesh)
     {
         fastgltf::Parser parser;
 
@@ -259,21 +205,56 @@ namespace cesar {
             submesh_count += mesh.primitives.size();
 
         submesh_data.resize(submesh_count);
-        submesh_name.resize(submesh_count);
-        mtl.resize(submesh_count);
+
+        auto& submesh_names     = mesh->submesh_names;
+        auto& submesh_materials = mesh->default_materials;
+        auto& submesh_matrixes  = mesh->model_matrixes;
+
+        submesh_names.resize(submesh_count);
+        submesh_materials.resize(submesh_count);
+        submesh_matrixes.resize(submesh_count);
 
         Uint32 submesh_index = 0;
 
+        //Build World Matrixes
+        std::vector<Matrix> world_matrixes(asset->nodes.size()); 
+        std::vector<Matrix> mesh_world_matrixes(asset->meshes.size(), Matrix::Identity);
+
+        {
+
+            auto computeWorld = [&](auto& self, size_t nodeIdx, const Matrix& parent) -> void {
+                const auto& node = asset->nodes[nodeIdx];
+                auto local = fastgltf::getTransformMatrix(node);
+
+                Matrix localMat = Matrix(reinterpret_cast<const float*>(local.data())).Transpose();
+                world_matrixes[nodeIdx] =  parent * localMat;
+
+                for (size_t child : node.children)
+                    self(self, child, world_matrixes[nodeIdx]);
+                };
+
+            for (size_t rootIdx : asset->scenes[0].nodeIndices)
+                computeWorld(computeWorld, rootIdx, Matrix::Identity);
+
+            for (size_t i = 0; i < asset->nodes.size(); ++i) {
+                const auto& node = asset->nodes[i];
+                if (node.meshIndex.has_value())
+                    mesh_world_matrixes[node.meshIndex.value()] = world_matrixes[i];
+            }
+        }
+
+
+        Uint32 mmesh_index = 0;
         for (auto& mesh : asset->meshes) {
             Uint32 primitive_index = 0;
             for (auto& primitive : mesh.primitives) {
 
                 const size_t vertex_offset = vertices.size();
-                const size_t index_offset = indices.size();
+                const size_t index_offset  = indices.size();
 
                 auto& submesh = submesh_data[submesh_index];
 
-                BoundingSphere sm_bounding_sphere{};
+                BoundingBox sm_bounding_box{};
 
                 auto* posAttr = primitive.findAttribute("POSITION");
                 if (posAttr == primitive.attributes.end()) {
@@ -289,15 +270,21 @@ namespace cesar {
                 fastgltf::iterateAccessorWithIndex<fastgltf::math::fvec3>(
                     asset.get(), posAccessor,
                     [&](fastgltf::math::fvec3 pos, size_t i) {
-                        vertices[vertex_offset + i].position = { pos[0], pos[1], pos[2] };
-                    });
+                        Vector3 position = { pos[0], pos[1], pos[2] };
+                        vertices[vertex_offset + i].position = position;
 
-                sm_bounding_sphere = RitterSphere(vertices, vertex_offset, prim_vertex_count);
+                        submesh.bounding_box.max.x = std::max(submesh.bounding_box.max.x, position.x);
+                        submesh.bounding_box.max.y = std::max(submesh.bounding_box.max.y, position.y);
+                        submesh.bounding_box.max.z = std::max(submesh.bounding_box.max.z, position.z);
+
+                        submesh.bounding_box.min.x = std::min(submesh.bounding_box.min.x, position.x);
+                        submesh.bounding_box.min.y = std::min(submesh.bounding_box.min.y, position.y);
+                        submesh.bounding_box.min.z = std::min(submesh.bounding_box.min.z, position.z);
+                    });
 
                 submesh.vertex_start = vertex_offset;
                 submesh.vertex_count = prim_vertex_count;
 
-                // --- NORMAL ---
                 auto* normAttr = primitive.findAttribute("NORMAL");
                 if (normAttr != primitive.attributes.end()) {
                     fastgltf::iterateAccessorWithIndex<fastgltf::math::fvec3>(asset.get(), asset->accessors[normAttr->accessorIndex],
@@ -306,7 +293,6 @@ namespace cesar {
                         });
                 }
 
-                // --- TEXCOORD_0 ---
                 auto* uvAttr = primitive.findAttribute("TEXCOORD_0");
                 if (uvAttr != primitive.attributes.end()) {
                     fastgltf::iterateAccessorWithIndex<fastgltf::math::fvec2>(asset.get(), asset->accessors[uvAttr->accessorIndex],
@@ -315,7 +301,6 @@ namespace cesar {
                         });
                 }
 
-                // --- TANGENT (xyzw, w = handedness) ---
                 auto* tanAttr = primitive.findAttribute("TANGENT");
                 if (tanAttr != primitive.attributes.end()) {
                     fastgltf::iterateAccessorWithIndex<fastgltf::math::fvec4>(asset.get(), asset->accessors[tanAttr->accessorIndex],
@@ -346,36 +331,37 @@ namespace cesar {
                         indices.push_back((Uint32)(vertex_offset + i));
                 }
 
-                //submesh.bounding_sphere     = sm_bounding_sphere;
-                submesh_name[submesh_index] = std::format("{}_{}", mesh.name, primitive_index++);
-                mtl[submesh_index]          = 0;
-
+                submesh.bounding_box = sm_bounding_box;
+                submesh_names[submesh_index] = std::format("{}_{}", mesh.name, primitive_index++);
+                submesh_materials[submesh_index]          = 0;
+                submesh_matrixes[submesh_index] = mesh_world_matrixes[mmesh_index];
                 ++submesh_index;
             }
+            mmesh_index++;
         }
 
-        auto* material_allocator = resource_cache->GetMaterialAllocator();
-        for (Uint32 i = 0; i < asset->materials.size(); i++)
-        {
-            struct _data_
-            {
-                const void* data;
-                Uint32 index;
-            };
-            _data_ data{
-                .data = &asset,
-                .index = i
-            };
+        //auto* material_allocator = resource_cache->GetMaterialAllocator();
+        //for (Uint32 i = 0; i < asset->materials.size(); i++)
+        //{
+        //    struct _data_
+        //    {
+        //        const void* data;
+        //        Uint32 index;
+        //    };
+        //    _data_ data{
+        //        .data = &asset,
+        //        .index = i
+        //    };
 
-            MaterialLoadDesc material_load_desc{};
-            material_load_desc.flags = MaterialLoadFlags::LoadFromGlb_Gltf;
-            material_load_desc.payload = &data;
-            material_load_desc.no_path = true;
-            material_load_desc.file_path = std::format("{}_material_{}", load_desc.file_path.stem().string(), i);
-            Material* material = resource_cache->LoadResource<Material>(material_load_desc);
-            MemoryBlock<MaterialData> mtl_block(material->material_data, 1);
-            mtl[i] = material_allocator->GetIndex(mtl_block);
-        }
+        //    MaterialLoadDesc material_load_desc{};
+        //    material_load_desc.flags = MaterialLoadFlags::LoadFromGlb_Gltf;
+        //    material_load_desc.payload = &data;
+        //    material_load_desc.no_path = true;
+        //    material_load_desc.file_path = std::format("{}_material_{}", load_desc.file_path.stem().string(), i);
+        //    Material* material = resource_cache->LoadResource<Material>(material_load_desc);
+        //    MemoryBlock<MaterialData> mtl_block(material->material_data, 1);
+        //    mtl[i] = material_allocator->GetIndex(mtl_block);
+        //}
     }
 
     DirectX::XMMATRIX GetWorldTransform(aiNode* node)
@@ -408,6 +394,7 @@ namespace cesar {
 
             aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
             aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
+
 
             model_matrix.push_back(world);
 

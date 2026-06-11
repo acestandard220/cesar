@@ -19,7 +19,7 @@ namespace cesar
 			material_resource->material_data = LoadMaterialFromMtl(load_desc.file_path.string(), "");
         }
         else if (HasFlag(mtl_load_desc->flags, MaterialLoadFlags::LoadFromGlb_Gltf)) {
-            material_resource->material_data = LoadMaterialFromGlbGltf(mtl_load_desc);
+            material_resource->material_data = LoadGlbGltfMaterial(mtl_load_desc);
         }
         
         return material_resource;
@@ -100,7 +100,9 @@ namespace cesar
         return material_data_block.data();
     }
 
-    MaterialData* MaterialIO::LoadMaterialFromGlbGltf(MaterialLoadDesc* material_load_desc)
+
+
+    MaterialData* MaterialIO::LoadGlbGltfMaterial(MaterialLoadDesc* material_load_desc)
     {
         MaterialData material_data{};
 
@@ -216,6 +218,11 @@ namespace cesar
         MemoryBlock<MaterialData> material_block = material_allocator->Allocate(1);
         CopyToMemoryBlock(material_block, &material_data);
         return material_block.data();
+    }
+
+    MaterialData* MaterialIO::LoadAssimpMaterial(MaterialLoadDesc* load_desc)
+    {
+        return nullptr;
     }
 
 	void MaterialIO::SaveToDisk(const std::filesystem::path& file_path)

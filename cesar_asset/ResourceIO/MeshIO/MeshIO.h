@@ -1,8 +1,8 @@
 #pragma once 
-#include "../cesar_core/cesar_core.h"
-#include "../Resource.h"
-#include "ResourceIO.h"
-#include "../Resources/Mesh.h"
+#include "../../../cesar_core/cesar_core.h"
+#include "../../Resource.h"
+#include "../ResourceIO.h"
+#include "../../Resources/Mesh.h"
 
 #include <Assimp/Importer.hpp>
 #include <Assimp/scene.h>
@@ -49,8 +49,7 @@ namespace cesar
 		void OptimizeMesh(std::vector<SubMeshData>& submeshes, std::vector<Vertex>& vertices, std::vector<Uint32>& indices);
 		void GenerateMeshlets(std::vector<SubMeshData>& submeshes, std::vector<Vertex>& vertices, std::vector<Uint32>& indices, std::vector<Meshlet>& meshlet, std::vector<Uint32>& meshlet_vertices, std::vector<Uint32>& meshlet_triangles);
 
-		//Load Per Extension
-		void LoadGLTF(ResourceLoadDesc& load_desc, std::vector<Vertex>& vertices, std::vector<Uint32>& indices, std::vector<SubMeshData>& submesh_data, std::vector<Uint32>& mtl, std::vector<std::string>& submesh_name);
+		void LoadFastGLTF(ResourceLoadDesc& load_desc, std::vector<Vertex>& vertices, std::vector<Uint32>& indices, std::vector<SubMeshData>& submesh_data, Mesh* mesh);
 
 		void ProcessNode(aiNode* node, const aiScene* scene, std::vector<Vertex>& vertices, std::vector<Uint32>& indices, std::vector<SubMeshData>& submeshes, std::vector<std::string>& submesh_names, std::vector<Matrix>& model_matrix, ResourceLoadDesc& load_desc);
 		void LoadWithAssimp(ResourceLoadDesc& load_desc, std::vector<Vertex>& vertices, std::vector<Uint32>& indices, std::vector<SubMeshData>& submeshes, Mesh* mesh_resource);

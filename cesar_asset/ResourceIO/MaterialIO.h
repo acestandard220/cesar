@@ -44,7 +44,8 @@ namespace cesar
 
 	private:
 		MaterialData* LoadMaterialFromMtl(const std::string& mtlPath, const std::string& materialName);
-		MaterialData* LoadMaterialFromGlbGltf(MaterialLoadDesc* load_desc);
+		MaterialData* LoadGlbGltfMaterial(MaterialLoadDesc* load_desc);
+		MaterialData* LoadAssimpMaterial(MaterialLoadDesc* load_desc);
 	};
 
 }

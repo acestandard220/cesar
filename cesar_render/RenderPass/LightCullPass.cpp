@@ -205,13 +205,14 @@ namespace cesar
 					.tile_count_z = data.tile_count_z
 				};
 
+				const Uint32 cluster_count = data.tile_count_x * data.tile_count_y * data.tile_count_z;
+
 				CommandList& cmd_list = context.GetCommandList();
-				cmd_list.SetComputeConstants(std::span<Constants>(&constants, 1));
 				cmd_list.SetPipelineState(compact_cluster_pso.get());
+				cmd_list.SetComputeConstants(std::span<Constants>(&constants, 1));
 
 				context.ClearCounterBuffer(data.active_clusters_counter);
-				cmd_list.DispatchCompute((data.tile_count_x + 15) / 16, (data.tile_count_y + 15) / 16, TILE_Z);
-
+				cmd_list.DispatchCompute((cluster_count + 31) / 32, 1, 1);
 			}
 		);
 

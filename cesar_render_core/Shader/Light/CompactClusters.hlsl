@@ -1,3 +1,5 @@
+#include "../common_resources.hlsli"
+
 struct Constants
 {
     uint active_clusters_idx;
@@ -9,16 +11,16 @@ struct Constants
     uint tile_count_z;
 };
 
-ConstantBuffer<Constants> constants;
+ConstantBuffer<Constants> constants : register(b1);
 
-[numthreads(16, 16, 1)]
+[numthreads(32, 1, 1)]
 void CompactClusters(uint3 gtid : SV_DispatchThreadID)
 {
     StructuredBuffer<uint>   active_clusters           = ResourceDescriptorHeap[constants.active_clusters_idx];
     RWStructuredBuffer<uint> compacted_active_clusters = ResourceDescriptorHeap[constants.compacted_clusters_idx];
     RWByteAddressBuffer      active_clusters_counter   = ResourceDescriptorHeap[constants.active_clusters_counter_idx];
     
-    uint thread_id = gtid.x + gtid.y * constants.tile_count_x + gtid.z * (constants.tile_count_x * constants.tile_count_y);
+    uint thread_id = gtid.x;
     const uint thread_limit = constants.tile_count_x * constants.tile_count_y * constants.tile_count_z;
     if(thread_id >= thread_limit)
         return;

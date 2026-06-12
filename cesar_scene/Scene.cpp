@@ -113,7 +113,7 @@ namespace cesar
 	Entity Scene::AddLightEntity(std::string const& name)
 	{
 		Entity entity = CreateEmptyEntity(name);
-		LightComponent light = entity.AddComponent<LightComponent>();
+		LightComponent& light = entity.AddComponent<LightComponent>();
 		light.position = { 0.0f, 0.0f, 0.0f, 1.0f };
 		light.direction = { 0.0f, 0.0f, 0.0f, 0.0f };
 		light.color = { 1.0f, 1.0f, 1.0f, 1.0f };

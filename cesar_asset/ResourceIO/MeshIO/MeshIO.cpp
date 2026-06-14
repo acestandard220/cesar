@@ -99,6 +99,7 @@ namespace cesar {
                 ReadFileData(meshlet_block.data(),          header.meshlet_start,          header.meshlet_count);
                 ReadFileData(meshlet_vertice_block.data(),  header.meshlet_vertex_start,   header.meshlet_vertex_count);
                 ReadFileData(meshlet_triangle_block.data(), header.meshlet_triangle_start, header.meshlet_triangle_count);
+                ReadFileData(mesh_resource->model_matrixes.data(), header.submesh_matrixes_start, header.submesh_count);
             }
 
             return mesh_resource;
@@ -167,12 +168,8 @@ namespace cesar {
         header.meshlet_triangle_start = header.meshlet_vertex_start + CESAR_SIZEOF_BUFFER(Uint32, header.meshlet_vertex_count);
         header.meshlet_triangle_count = mesh_resource->meshlet_triangle_count;
 
-        header.submesh_names_start = header.meshlet_triangle_start + CESAR_SIZEOF_BUFFER(Uint32, header.meshlet_triangle_count);
-
-        std::span<std::string> submesh_names_span = mesh_resource->submesh_names;
-
-        header.submesh_matrixes_start = header.submesh_names_start + submesh_names_span.size_bytes();
-        header.submesh_material_start = header.submesh_matrixes_start + CESAR_SIZEOF_BUFFER(Matrix, header.submesh_count);
+        header.submesh_matrixes_start = header.meshlet_triangle_start + CESAR_SIZEOF_BUFFER(Uint32, header.meshlet_triangle_count);
+        header.submesh_names_start = header.submesh_matrixes_start + CESAR_SIZEOF_BUFFER(Matrix, header.submesh_count);
 
         header.model_matrix = mesh_resource->model_matrix;
 
@@ -191,62 +188,53 @@ namespace cesar {
         output.write(header_bytes, static_cast<std::streamsize>(base_size));
         output.write(header_bytes + base_size, static_cast<std::streamsize>(total_size - base_size));
         
-        auto submesh_blk = resource_cache->GetSubMeshDataBlock(mesh_resource->submesh_start, 1).data();
         {
-            const Uint32 mesh_vertex_start = submesh_blk->vertex_start;
-
             auto vertex_allocator = resource_cache->GetVertexAllocator();
-            Vertex* mesh_vertex = vertex_allocator->GetMemoryBlock(mesh_vertex_start, 1).data();
 
+            Vertex* mesh_vertex = vertex_allocator->GetMemoryBlock(mesh_resource->vertex_start, 1).data();
             output.write(reinterpret_cast<char*>(mesh_vertex), CESAR_SIZEOF(Vertex) * header.vertex_count);
         }
 
         {
-            const Uint32 mesh_index_start = submesh_blk->index_start;
-
             auto index_allocator = resource_cache->GetIndexAllocator();
-            Uint32* mesh_index = index_allocator->GetMemoryBlock(mesh_index_start, 1).data();
 
+            Uint32* mesh_index = index_allocator->GetMemoryBlock(mesh_resource->index_start, 1).data();
             output.write(reinterpret_cast<char*>(mesh_index), CESAR_SIZEOF(Uint32) * header.index_count);
         }
 
         {
             auto submesh_allocator = resource_cache->GetMeshAllocator();
-            
-            output.write(reinterpret_cast<char*>(submesh_blk), CESAR_SIZEOF(SubMeshData) * header.submesh_count);
+
+            SubMeshData* submesh  = submesh_allocator->GetMemoryBlock(mesh_resource->submesh_start,1).data();
+            output.write(reinterpret_cast<char*>(submesh), CESAR_SIZEOF(SubMeshData) * header.submesh_count);
         }
 
         {
             auto meshlet_allocator = resource_cache->GetMeshletAllocator();
 
             Meshlet* mesh_meshlet = meshlet_allocator->GetMemoryBlock(mesh_resource->meshlet_start, 1).data();
-
             output.write(reinterpret_cast<char*>(mesh_meshlet), CESAR_SIZEOF(Meshlet) * header.meshlet_count);
         }
 
         {
             auto meshlet_vertex_allocator = resource_cache->GetMeshletVertexAllocator();
 
-            Uint32* meshlet_vertices = meshlet_vertex_allocator->GetMemoryBlock(submesh_blk->meshlet_vertice_start, 1).data();
-
+            Uint32* meshlet_vertices = meshlet_vertex_allocator->GetMemoryBlock(mesh_resource->meshlet_vertex_start, 1).data();
             output.write(reinterpret_cast<char*>(meshlet_vertices), CESAR_SIZEOF(Uint32) * header.meshlet_vertex_count);
         }
 
         {
             auto meshlet_triangle_allocator = resource_cache->GetMeshletTriangleAllocator();
 
-            Uint32* meshlet_triangles = meshlet_triangle_allocator->GetMemoryBlock(submesh_blk->meshlet_triangle_start, 1).data();
-
+            Uint32* meshlet_triangles = meshlet_triangle_allocator->GetMemoryBlock(mesh_resource->meshlet_triangle_start, 1).data();
             output.write(reinterpret_cast<char*>(meshlet_triangles), CESAR_SIZEOF(Uint32) * header.meshlet_triangle_count);
         }
         
         {
-            output.write(reinterpret_cast<char*>(submesh_names_span.data()), submesh_names_span.size_bytes());
             output.write(reinterpret_cast<char*>(mesh_resource->model_matrixes.data()), CESAR_SIZEOF(Matrix) * header.submesh_count);
         }
 
         output.close();
-        
     }
 
     void MeshIO::OptimizeMesh(std::vector<SubMeshData>& submeshes, std::vector<Vertex>& vertices, std::vector<Uint32>& indices)

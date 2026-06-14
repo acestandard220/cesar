@@ -77,11 +77,11 @@ namespace cesar {
                     mesh_resource->model_matrixes.resize(header.submesh_count);
                     mesh_resource->default_materials.resize(header.submesh_count);
 
-                    mesh_resource->submesh_data_count = submesh_data_block.size();
-                    mesh_resource->vertex_count = index_block.size();
-                    mesh_resource->index_count = vertex_block.size();
-                    mesh_resource->meshlet_count = meshlet_block.size();
-                    mesh_resource->meshlet_vertex_count = meshlet_triangle_block.size();
+                    mesh_resource->submesh_data_count     = submesh_data_block.size();
+                    mesh_resource->vertex_count           = vertex_block.size();
+                    mesh_resource->index_count            = index_block.size();
+                    mesh_resource->meshlet_count          = meshlet_block.size();
+                    mesh_resource->meshlet_vertex_count   = meshlet_vertice_block.size();
                     mesh_resource->meshlet_triangle_count = meshlet_triangle_block.size();
                 }
 

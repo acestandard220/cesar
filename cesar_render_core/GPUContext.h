@@ -43,6 +43,13 @@ namespace cesar
 		std::unique_ptr<Texture> CreateTexture(const TextureDesc& desc, ComPtr<ID3D12Resource> d3d12_texture, const Char* name);
 
 		std::unique_ptr<Buffer> CreateBuffer(const BufferDesc& desc, const Char* name = "Unnamed Buffer");
+
+		template<typename T>
+		Buffer* CreateReadbackBuffer(Uint32 element_count, const Char* name = "Unnamed Readback Buffer")
+		{
+			return new Buffer(this, ReadbackBufferDesc<T>(element_count), name);
+		}
+
 		template<typename T>
 		std::unique_ptr<Buffer> CreateConstantBuffer(const Char* name = "Unnamed Constant Buffer") {
 			return std::make_unique<Buffer>(this, ConstantBufferDesc(CESAR_SIZEOF(T)), name);
@@ -60,6 +67,10 @@ namespace cesar
 
 		void FreeCPUDescriptor(Descriptor descriptor);
 		Uint32 GetBindlesDescriptorIndex(Descriptor descriptor);
+
+		//GetCopyable Stuff
+		Uint64 GetCopyableSize(Texture* texture);
+		Uint64 GetCopyableRowByteSize(Texture* texture);
 
 		//Misc
 		void SignalGraphicsCommandQueue(Fence* fence, Uint32 fence_value);

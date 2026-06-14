@@ -140,6 +140,22 @@ namespace cesar
 		return descriptor.index;
 	}
 
+	inline Uint64 GPUContext::GetCopyableSize(Texture* texture)
+	{
+		Uint64 total_size;
+		auto dd3d12_desc = texture->GetTexture()->GetDesc();
+		device->GetDevice()->GetCopyableFootprints(&dd3d12_desc, 0, (dd3d12_desc.DepthOrArraySize * dd3d12_desc.MipLevels), 0, nullptr, nullptr, nullptr, &total_size);
+		return total_size;
+	}
+
+	inline Uint64 GPUContext::GetCopyableRowByteSize(Texture* texture)
+	{
+		Uint64 row_size;
+		auto dd3d12_desc = texture->GetTexture()->GetDesc();
+		device->GetDevice()->GetCopyableFootprints(&dd3d12_desc, 0, (dd3d12_desc.DepthOrArraySize * dd3d12_desc.MipLevels), 0, nullptr, nullptr, &row_size, nullptr);
+		return row_size;
+	}
+
 	//Misc
 	void GPUContext::SignalGraphicsCommandQueue(Fence* fence, Uint32 fence_value) {
 		graphics_command_queue->Signal(fence, fence_value);

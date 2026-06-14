@@ -40,7 +40,7 @@ namespace cesar {
 		virtual ~ImageTextureIO() = default;
 
 		virtual std::unique_ptr<Resource> LoadFromFile(ResourceLoadDesc& load_desc) override;
-		virtual void SaveToDisk(const std::filesystem::path& file_path) override;
+		virtual void SaveToDisk(const ResourceLoadDesc& load_desc, void* resource) override;
 	private:
 		std::unique_ptr<Resource> LoadFromFileNonNative(ImageLoadDesc* load_desc);
 		std::unique_ptr<Resource> LoadFromMemory(ImageLoadDesc* load_desc);

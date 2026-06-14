@@ -9,8 +9,8 @@ namespace cesar
 	ImageTexture* default_black_texture   = nullptr;
 	ImageTexture* default_normal_texture  = nullptr;
 
-	ResourceCache::ResourceCache(OfflineContext* offline_context)
-		:offline_context(offline_context)
+	ResourceCache::ResourceCache(OfflineContext* offline_context, const filespace::filepath& asset_path)
+		:offline_context(offline_context), assets_path(asset_path)
 	{		
 		if (!InitializeAllocators())
 			return;
@@ -50,6 +50,11 @@ namespace cesar
 		return resource_io[idx].get();
 	}
 	
+	const filespace::filepath& ResourceCache::GetAssetsPath() const
+	{
+		return assets_path;
+	}
+
 	ImageTexture* ResourceCache::GetDefaultInvalidTexture() const { return default_invalid_texture; }
 	ImageTexture* ResourceCache::GetDefaultWhiteTexture()   const { return default_white_texture; }
 	ImageTexture* ResourceCache::GetDefaultBlackTexture()   const { return default_black_texture; }

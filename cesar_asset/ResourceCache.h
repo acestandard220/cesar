@@ -1,5 +1,6 @@
 #pragma once
 #include "../cesar_core/cesar_core.h"
+#include "../cesar_core/Core/Filespace.h"
 #include "../cesar_core/Allocator/LinearAllocator.h"
 
 #include "../cesar_render_core/OfflineContext.h"
@@ -23,12 +24,28 @@ namespace cesar
 	class __declspec(dllexport) ResourceCache 
 	{
 		public:
-			ResourceCache(OfflineContext* offline_context);
+			ResourceCache(OfflineContext* offline_context, const filespace::filepath& asset_path);
 			~ResourceCache() = default;
 
-			UUID IsCached(const std::filesystem::path& path)const {
+			UUID IsLoaded(const filespace::filepath& path)const {
 				auto it = path_uuid_map.find(path);
 				return (it != path_uuid_map.end()) ? it->second : CESAR_INVALID_UUID;
+			}
+
+			filespace::filepath GetCookedAssetPath(const filespace::filepath& raw_path)const {
+				filespace::filepath new_path = assets_path / raw_path.stem();
+				new_path.replace_extension(extensions::cooked_asset);
+				return new_path;
+			}
+
+			Bool IsCached(filespace::filepath& path)const {
+				filespace::filepath cooked_path = GetCookedAssetPath(path);
+				if (filespace::Exists(cooked_path)) {
+					path = cooked_path;
+					return true;
+				}
+
+				return false;
 			}
 
 			template<IsResourceType T>
@@ -66,9 +83,9 @@ namespace cesar
 
 			template<IsResourceType T>
 			T* LoadResource(ResourceLoadDesc& load_desc) {
-				ZoneScopedN("ResourceCache::LoadResource");
+				ZoneScopedN("ResourceCache::LoadResource")
 
-				UUID uuid = IsCached(load_desc.file_path);
+				UUID uuid = IsLoaded(load_desc.file_path);
 
 				if (uuid) {
 					LOG_WARN("Resource has already been loaded.");
@@ -81,6 +98,9 @@ namespace cesar
 					return nullptr;
 				}
 
+				if (IsCached(load_desc.file_path))
+					load_desc.is_cooked = true;
+
 				IResourceIO* io = GetResourceIO(load_desc.type);
 				std::unique_ptr<Resource> resource = io->LoadFromFile(load_desc);
 				if (!resource) {
@@ -89,8 +109,12 @@ namespace cesar
 				}
 
 				LOG_DEBUG("Resource loaded successfully");
-				return static_cast<T*>(Cache(resource, load_desc));
+				auto* ret = static_cast<T*>(Register(resource, load_desc));
+				io->SaveToDisk(load_desc, ret);
+				return ret;
 			}
+
+			const filespace::filepath& GetAssetsPath()const;
 
 			ImageTexture* GetDefaultInvalidTexture() const;
 			ImageTexture* GetDefaultWhiteTexture() const;
@@ -110,7 +134,7 @@ namespace cesar
 			LinearAllocator<Uint32>* GetMeshletTriangleAllocator() { return meshlet_triangles.get(); }
 
 		private:
-			Resource* Cache(std::unique_ptr<Resource>& resource, ResourceLoadDesc& load_desc) {
+			Resource* Register(std::unique_ptr<Resource>& resource, ResourceLoadDesc& load_desc) {
 				ZoneScopedN("ResourceCache::Cache");
 
 				if (!load_desc.uuid) {
@@ -133,6 +157,8 @@ namespace cesar
 			friend class MeshIO;
 			friend class ImageTextureIO;
 			friend class MaterialIO;
+
+			filespace::filepath assets_path;
 
 			OfflineContext* offline_context;
 			std::unique_ptr<LinearAllocator<MaterialData>> material_data;

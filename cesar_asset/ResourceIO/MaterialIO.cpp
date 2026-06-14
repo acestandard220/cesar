@@ -25,6 +25,9 @@ namespace cesar
         return material_resource;
 	}
 
+    void MaterialIO::SaveToDisk(const ResourceLoadDesc& load_desc, void* resource)
+    {}
+
 
     MaterialData* MaterialIO::LoadMaterialFromMtl(const std::string& mtlPath, const std::string& materialName)
     {
@@ -104,6 +107,8 @@ namespace cesar
 
     MaterialData* MaterialIO::LoadGlbGltfMaterial(MaterialLoadDesc* material_load_desc)
     {
+        ZoneScopedN("MaterialIO::LoadGlbGltfMaterial")
+
         MaterialData material_data{};
 
         struct _data_
@@ -229,6 +234,4 @@ namespace cesar
         return nullptr;
     }
 
-	void MaterialIO::SaveToDisk(const std::filesystem::path& file_path)
-	{}
 }

@@ -11,13 +11,14 @@ namespace cesar
 		render_context = std::make_unique<RenderContext>(window, gpu_context.get());
 		offline_context = std::make_unique<OfflineContext>(gpu_context.get());
 
-		resource_cache = std::make_unique<ResourceCache>(offline_context.get());
+		//Specified Path Should be read from an engine/project config file.
+		resource_cache = std::make_unique<ResourceCache>(offline_context.get(),"D:\\Project\\cesar\\cesar\\resources");
 
 		//Possible Cross Depp.
 		scene = std::make_shared<Scene>(window, resource_cache.get());
-		scene->AddMeshEntity("Z:\\Models\\Bistro\\Bistro_v5_2\\Bistro.glb");
+		//scene->AddMeshEntity("Z:\\Models\\Bistro\\Bistro_v5_2\\Bistro.glb");
 		//scene->AddMeshEntity("Z:\\Models\\EmeraldSquare\\EmeraldSquare_v4_1\\EmeraldDay.glb");
-		//scene->AddMeshEntity("D:\\Project\\cesar\\cesar\\resources\\Backpack1k.glb");
+		scene->AddMeshEntity("D:\\Project\\cesar\\cesar\\resources\\Backpack1k.glb");
 		scene->AddLightEntity("Point Light");
 
 		renderer = std::make_unique<Renderer>(window, render_context.get(),scene.get());

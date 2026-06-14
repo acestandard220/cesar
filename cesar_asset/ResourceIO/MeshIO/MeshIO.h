@@ -26,8 +26,35 @@ namespace cesar
 		MeshLoadFlags load_flags;
 	};
 
-	//struct aiNode;
-	//struct aiScene;
+	// | Vertices | Indices | SubmeshDatas | Meshlets | MeshletTriangles | MeshletVertices | ModelMatrix  
+	struct MeshAssetHeader : public CesarAssetHeader
+	{
+		//These are the .casset file fields not the global buffer fields
+		Uint64 vertex_count;
+		Uint64 vertex_start;
+
+		Uint64 index_count;
+		Uint64 index_start;
+
+		Uint64 submesh_start;
+		Uint64 submesh_count;
+
+		Uint64 meshlet_start;
+		Uint64 meshlet_count;
+
+		Uint64 meshlet_vertex_start;
+		Uint64 meshlet_vertex_count;
+
+		Uint64 meshlet_triangle_start;
+		Uint64 meshlet_triangle_count;
+
+		Uint64 submesh_names_start;
+		Uint64 submesh_matrixes_start;
+		Uint64 submesh_material_start;
+
+		Matrix model_matrix;
+	};
+
 	class MeshIO :public IResourceIO
 	{
 		struct SubmeshHolder {
@@ -47,14 +74,10 @@ namespace cesar
 		virtual ~MeshIO() = default;
 
 		virtual std::unique_ptr<Resource> LoadFromFile(ResourceLoadDesc& load_desc) override;
-		virtual void SaveToDisk(const std::filesystem::path& file_path) override;
+		virtual void SaveToDisk(const ResourceLoadDesc& load_desc, void* mesh_resource) override;
 
 
 	private:
-		//Data Compression
-		Vector2 OctEncode(const DirectX::XMFLOAT3& n);
-		Vector3 OctDecode(const DirectX::XMFLOAT2& e);
-
 		void OptimizeMesh(std::vector<SubMeshData>& submeshes, std::vector<Vertex>& vertices, std::vector<Uint32>& indices);
 		void GenerateMeshlets(std::vector<SubMeshData>& submeshes, std::vector<Vertex>& vertices, std::vector<Uint32>& indices, std::vector<Meshlet>& meshlet, std::vector<Uint32>& meshlet_vertices, std::vector<Uint32>& meshlet_triangles);
 
@@ -62,7 +85,6 @@ namespace cesar
 
 		void ProcessNode(aiNode* node, const aiScene* scene, std::vector<Vertex>& vertices, std::vector<Uint32>& indices, std::vector<SubMeshData>& submeshes, std::vector<std::string>& submesh_names, std::vector<Matrix>& model_matrix, ResourceLoadDesc& load_desc);
 		void LoadWithAssimp(ResourceLoadDesc& load_desc, std::vector<Vertex>& vertices, std::vector<Uint32>& indices, std::vector<SubMeshData>& submeshes, Mesh* mesh_resource);
-		
 
 		BoundingSphere RitterSphere(const std::vector<Vertex>& vertices, size_t vertex_offset, size_t vertex_count);
 		BoundingSphere MergeSpheres(BoundingSphere a, BoundingSphere b);

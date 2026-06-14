@@ -14,6 +14,8 @@ namespace cesar {
 
     std::unique_ptr<Resource> MeshIO::LoadFromFile(ResourceLoadDesc& load_desc)
     {
+        ZoneScopedN("MeshIO::LoadFromFile")
+
         std::unique_ptr<Mesh> mesh_resource = std::make_unique<Mesh>();
 
         LinearAllocator<SubMeshData>* submesh_data_allocator = resource_cache->GetMeshAllocator();
@@ -29,12 +31,81 @@ namespace cesar {
         const Uint32 global_meshlet_vertex_start = meshlet_vertex_allocator->GetOffset();
         const Uint32 global_meshlet_triangle_start = meshlet_triangle_allocator->GetOffset();
 
+        ///Todo: Write directly into allocator
         std::vector<Vertex>      vertices;
         std::vector<Uint32>      indices;
         std::vector<SubMeshData> submesh_data;
 
+        std::vector<Meshlet> meshlets;
+        std::vector<Uint32> meshlet_vertices;
+        std::vector<Uint32> meshlet_triangles;
+
         const std::string file_extension = load_desc.file_path.extension().string();
-        if (file_extension == ".gltf" || file_extension == ".glb") {
+        if (load_desc.is_cooked) {
+            ZoneScopedN("MeshIO::LoadNativeMeshFile")
+
+            {
+
+                std::ifstream input(load_desc.file_path, std::ios::binary);
+                if (!input.is_open()) {
+                    LOG_ERROR("Failed to open cached mesh file."); 
+                    return nullptr;
+                }
+
+                MeshAssetHeader header{};
+
+                constexpr std::size_t base_size = CESAR_SIZEOF(CesarAssetHeader);
+                constexpr std::size_t total_size = CESAR_SIZEOF(MeshAssetHeader);
+
+                char* header_bytes = reinterpret_cast<char*>(&header);
+
+                input.read(header_bytes, static_cast<std::streamsize>(base_size));
+                input.read(header_bytes + base_size, static_cast<std::streamsize>(total_size - base_size));
+                
+                //resize buffers
+                MemoryBlock<SubMeshData> submesh_data_block = submesh_data_allocator->Allocate(header.submesh_count);
+                MemoryBlock<Vertex>      vertex_block = vertex_allocator->Allocate(header.vertex_count);
+                MemoryBlock<Uint32>      index_block = index_allocator->Allocate(header.index_count);
+
+                MemoryBlock<Meshlet> meshlet_block = meshlet_allocator->Allocate(header.meshlet_count);
+                MemoryBlock<Uint32>  meshlet_vertice_block = meshlet_vertex_allocator->Allocate(header.meshlet_vertex_count);
+                MemoryBlock<Uint32>  meshlet_triangle_block = meshlet_triangle_allocator->Allocate(header.meshlet_triangle_count);
+                {
+
+                    mesh_resource->submesh_names.resize(header.submesh_count);
+                    mesh_resource->model_matrixes.resize(header.submesh_count);
+                    mesh_resource->default_materials.resize(header.submesh_count);
+
+                    mesh_resource->index_count = vertex_block.size();
+                    mesh_resource->vertex_count = index_block.size();
+
+                    mesh_resource->meshlet_count = meshlet_block.size();
+                    mesh_resource->meshlet_start;
+                    mesh_resource->meshlet_triangle_count = meshlet_triangle_block.size();
+                    mesh_resource->meshlet_vertex_count = meshlet_triangle_block.size();
+                    mesh_resource->submesh_start;
+                    mesh_resource->submesh_data_count = submesh_data_block.size();
+                }
+
+                auto ReadFileData = [&]<typename T>(T* ptr, Uint64 file_offset, Uint64 count)
+                {
+                    input.seekg(0); //reset just in case.
+                    input.seekg(static_cast<std::streamoff>(file_offset));
+                    input.read(reinterpret_cast<char*>(ptr), static_cast<std::streamsize>(count * CESAR_SIZEOF(T)));
+                    input.seekg(0); //reset just in case.
+                };
+
+                ReadFileData(vertex_block.data(),           header.vertex_start,           header.vertex_count);
+                ReadFileData(index_block.data(),            header.index_start,            header.index_count);
+                ReadFileData(submesh_data_block.data(),     header.submesh_start,          header.submesh_count);
+                ReadFileData(meshlet_block.data(),          header.meshlet_start,          header.meshlet_count);
+                ReadFileData(meshlet_vertice_block.data(),  header.meshlet_vertex_start,   header.meshlet_vertex_count);
+                ReadFileData(meshlet_triangle_block.data(), header.meshlet_triangle_start, header.meshlet_triangle_count);
+            }
+
+            return mesh_resource;
+        }
+        else if (file_extension == ".gltf" || file_extension == ".glb") {
             LoadFastGLTF(load_desc, vertices, indices, submesh_data, mesh_resource.get());
         }
         else {
@@ -45,9 +116,7 @@ namespace cesar {
         //I don't understand what is happening properly will check out later. 5/22/2026
         //OptimizeMesh(submesh_data, vertices, indices);
 
-        std::vector<Meshlet> meshlets;
-        std::vector<Uint32> meshlet_vertices;
-        std::vector<Uint32> meshlet_triangles;
+
         GenerateMeshlets(submesh_data, vertices, indices, meshlets, meshlet_vertices, meshlet_triangles);
 
         for (auto& submesh : submesh_data)
@@ -83,11 +152,121 @@ namespace cesar {
         mesh_resource->submesh_start      = submesh_data_allocator->GetIndex(submesh_data_block);
         mesh_resource->submesh_data_count = static_cast<Uint32>(submesh_data.size());
 
+        mesh_resource->vertex_count = vertices.size();
+        mesh_resource->index_count  = indices.size();
+        mesh_resource->meshlet_triangle_count = meshlet_triangles.size();
+        mesh_resource->meshlet_vertex_count = meshlet_vertices.size();
+
         return mesh_resource;
     }
 
-    void MeshIO::SaveToDisk(const std::filesystem::path& file_path)
-    {}
+    void MeshIO::SaveToDisk(const ResourceLoadDesc& load_desc, void* resource)
+    {
+        Mesh* mesh_resource = static_cast<Mesh*>(resource);
+        MeshAssetHeader header{};
+        header.version = 1;
+        header.uuid = load_desc.uuid;
+        header.type = ResourceType::Mesh;
+    
+        header.vertex_start = CESAR_SIZEOF(MeshAssetHeader);
+        header.vertex_count = mesh_resource->vertex_count;
+
+        header.index_count = mesh_resource->index_count;
+        header.index_start = header.vertex_start + CESAR_SIZEOF_BUFFER(Vertex, header.vertex_count);
+
+        header.submesh_start = header.index_start + CESAR_SIZEOF_BUFFER(Uint32, header.index_count);
+        header.submesh_count = mesh_resource->submesh_data_count;
+
+        header.meshlet_start = header.submesh_start + CESAR_SIZEOF_BUFFER(SubMeshData, header.submesh_count);
+        header.meshlet_count = mesh_resource->meshlet_count;
+
+        header.meshlet_vertex_start = header.meshlet_start + CESAR_SIZEOF_BUFFER(Meshlet, header.meshlet_count);
+        header.meshlet_vertex_count = mesh_resource->meshlet_vertex_count;
+
+        header.meshlet_triangle_start = header.meshlet_vertex_start + CESAR_SIZEOF_BUFFER(Uint32, header.meshlet_vertex_count);
+        header.meshlet_triangle_count = mesh_resource->meshlet_triangle_count;
+
+        header.submesh_names_start = header.meshlet_triangle_start + CESAR_SIZEOF_BUFFER(Uint32, header.meshlet_triangle_count);
+
+        std::span<std::string> submesh_names_span = mesh_resource->submesh_names;
+
+        header.submesh_matrixes_start = header.submesh_names_start + submesh_names_span.size_bytes();
+        header.submesh_material_start = header.submesh_matrixes_start + CESAR_SIZEOF_BUFFER(Matrix, header.submesh_count);
+
+        header.model_matrix = mesh_resource->model_matrix;
+
+        const auto cooked_path = resource_cache->GetCookedAssetPath(load_desc.file_path);
+        std::ofstream output(cooked_path, std::ios::binary | std::ios::out);
+
+        if (!output) {
+            LOG_ERROR("Failed to save asset to disk.");
+            return;
+        }
+
+        constexpr std::size_t base_size = CESAR_SIZEOF(CesarAssetHeader);
+        constexpr std::size_t total_size = CESAR_SIZEOF(MeshAssetHeader);
+
+        const char* header_bytes = reinterpret_cast<const char*>(&header);
+        output.write(header_bytes, static_cast<std::streamsize>(base_size));
+        output.write(header_bytes + base_size, static_cast<std::streamsize>(total_size - base_size));
+        
+        auto submesh_blk = resource_cache->GetSubMeshDataBlock(mesh_resource->submesh_start, 1).data();
+        {
+            const Uint32 mesh_vertex_start = submesh_blk->vertex_start;
+
+            auto vertex_allocator = resource_cache->GetVertexAllocator();
+            Vertex* mesh_vertex = vertex_allocator->GetMemoryBlock(mesh_vertex_start, 1).data();
+
+            output.write(reinterpret_cast<char*>(mesh_vertex), CESAR_SIZEOF(Vertex) * header.vertex_count);
+        }
+
+        {
+            const Uint32 mesh_index_start = submesh_blk->index_start;
+
+            auto index_allocator = resource_cache->GetIndexAllocator();
+            Uint32* mesh_index = index_allocator->GetMemoryBlock(mesh_index_start, 1).data();
+
+            output.write(reinterpret_cast<char*>(mesh_index), CESAR_SIZEOF(Uint32) * header.index_count);
+        }
+
+        {
+            auto submesh_allocator = resource_cache->GetMeshAllocator();
+            
+            output.write(reinterpret_cast<char*>(submesh_blk), CESAR_SIZEOF(SubMeshData) * header.submesh_count);
+        }
+
+        {
+            auto meshlet_allocator = resource_cache->GetMeshletAllocator();
+
+            Meshlet* mesh_meshlet = meshlet_allocator->GetMemoryBlock(mesh_resource->meshlet_start, 1).data();
+
+            output.write(reinterpret_cast<char*>(mesh_meshlet), CESAR_SIZEOF(Meshlet) * header.meshlet_count);
+        }
+
+        {
+            auto meshlet_vertex_allocator = resource_cache->GetMeshletVertexAllocator();
+
+            Uint32* meshlet_vertices = meshlet_vertex_allocator->GetMemoryBlock(submesh_blk->meshlet_vertice_start, 1).data();
+
+            output.write(reinterpret_cast<char*>(meshlet_vertices), CESAR_SIZEOF(Uint32) * header.meshlet_vertex_count);
+        }
+
+        {
+            auto meshlet_triangle_allocator = resource_cache->GetMeshletTriangleAllocator();
+
+            Uint32* meshlet_triangles = meshlet_triangle_allocator->GetMemoryBlock(submesh_blk->meshlet_triangle_start, 1).data();
+
+            output.write(reinterpret_cast<char*>(meshlet_triangles), CESAR_SIZEOF(Uint32) * header.meshlet_triangle_count);
+        }
+        
+        {
+            output.write(reinterpret_cast<char*>(submesh_names_span.data()), submesh_names_span.size_bytes());
+            output.write(reinterpret_cast<char*>(mesh_resource->model_matrixes.data()), CESAR_SIZEOF(Matrix) * header.submesh_count);
+        }
+
+        output.close();
+        
+    }
 
     void MeshIO::OptimizeMesh(std::vector<SubMeshData>& submeshes, std::vector<Vertex>& vertices, std::vector<Uint32>& indices)
     {
@@ -112,6 +291,8 @@ namespace cesar {
     void MeshIO::GenerateMeshlets(std::vector<SubMeshData>& submeshes, std::vector<Vertex>& vertices, std::vector<Uint32>& indices,
         std::vector<Meshlet>& meshlets, std::vector<Uint32>& meshlet_vertices, std::vector<Uint32>& meshlet_triangles)
     {
+        ZoneScopedN("MeshIO::GenerateMeshlets")
+
         for (auto& submesh : submeshes)
         {
             std::span submesh_vertices(vertices.data() + submesh.vertex_start, submesh.vertex_count);
@@ -182,6 +363,8 @@ namespace cesar {
     void MeshIO::LoadFastGLTF(ResourceLoadDesc& load_desc, std::vector<Vertex>& vertices, std::vector<Uint32>& indices, 
         std::vector<SubMeshData>& submesh_data, Mesh* mesh)
     {
+        ZoneScopedN("MeshIO::LoadFastGLTF")
+
         MeshLoadDesc mesh_load_desc = static_cast<MeshLoadDesc>(load_desc);
         fastgltf::Parser parser;
 
@@ -376,6 +559,8 @@ namespace cesar {
 
     DirectX::XMMATRIX GetWorldTransform(aiNode* node)
     {
+        ZoneScopedN("MeshIO::GetWorldTranform")
+
         aiMatrix4x4 world = node->mTransformation;
         aiNode* parent = node->mParent;
 
@@ -398,6 +583,8 @@ namespace cesar {
     void MeshIO::ProcessNode(aiNode* node, const aiScene* scene, std::vector<Vertex>& vertices, std::vector<Uint32>& indices, 
         std::vector<SubMeshData>& submeshes, std::vector<std::string>& submesh_names,std::vector<Matrix>& model_matrix, ResourceLoadDesc & load_desc)
     {
+        ZoneScopedN("MeshIO::ProcessNode")
+
         Matrix world = GetWorldTransform(node);
 
         for (uint32_t i = 0; i < node->mNumMeshes; i++) {

@@ -16,14 +16,13 @@ namespace cesar {
             return LoadFromMemory(image_load_desc); // TODO: Implement LoadFromMemory functionality.
 	}
 
-	void ImageTextureIO::SaveToDisk(const std::filesystem::path& file_path)
-	{
-	
-	}
+    void ImageTextureIO::SaveToDisk(const ResourceLoadDesc& load_desc, void* resource)
+    {}
 
     std::unique_ptr<Resource> ImageTextureIO::LoadFromFileNonNative(ImageLoadDesc* load_desc)
     {
-        
+        ZoneScopedN("ImageTextureIO::LoadFromFileNonNative")
+
         ImageLoadDesc image_load_desc = static_cast<ImageLoadDesc>(*load_desc);
 
         std::unique_ptr<ImageTexture> image_texture = std::make_unique<ImageTexture>();

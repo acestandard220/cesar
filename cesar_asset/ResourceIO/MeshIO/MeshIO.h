@@ -79,7 +79,7 @@ namespace cesar
 
 	private:
 		void OptimizeMesh(std::vector<SubMeshData>& submeshes, std::vector<Vertex>& vertices, std::vector<Uint32>& indices);
-		void GenerateMeshlets(std::vector<SubMeshData>& submeshes, std::vector<Vertex>& vertices, std::vector<Uint32>& indices, std::vector<Meshlet>& meshlet, std::vector<Uint32>& meshlet_vertices, std::vector<Uint32>& meshlet_triangles);
+		Uint32 GenerateMeshlets(std::vector<SubMeshData>& submeshes, std::vector<Vertex>& vertices, std::vector<Uint32>& indices, std::vector<Meshlet>& meshlet, std::vector<Uint32>& meshlet_vertices, std::vector<Uint32>& meshlet_triangles);
 
 		void LoadFastGLTF(ResourceLoadDesc& load_desc, std::vector<Vertex>& vertices, std::vector<Uint32>& indices, std::vector<SubMeshData>& submesh_data, Mesh* mesh);
 

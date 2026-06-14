@@ -77,15 +77,12 @@ namespace cesar {
                     mesh_resource->model_matrixes.resize(header.submesh_count);
                     mesh_resource->default_materials.resize(header.submesh_count);
 
-                    mesh_resource->index_count = vertex_block.size();
-                    mesh_resource->vertex_count = index_block.size();
-
-                    mesh_resource->meshlet_count = meshlet_block.size();
-                    mesh_resource->meshlet_start;
-                    mesh_resource->meshlet_triangle_count = meshlet_triangle_block.size();
-                    mesh_resource->meshlet_vertex_count = meshlet_triangle_block.size();
-                    mesh_resource->submesh_start;
                     mesh_resource->submesh_data_count = submesh_data_block.size();
+                    mesh_resource->vertex_count = index_block.size();
+                    mesh_resource->index_count = vertex_block.size();
+                    mesh_resource->meshlet_count = meshlet_block.size();
+                    mesh_resource->meshlet_vertex_count = meshlet_triangle_block.size();
+                    mesh_resource->meshlet_triangle_count = meshlet_triangle_block.size();
                 }
 
                 auto ReadFileData = [&]<typename T>(T* ptr, Uint64 file_offset, Uint64 count)
@@ -117,13 +114,7 @@ namespace cesar {
         //I don't understand what is happening properly will check out later. 5/22/2026
         //OptimizeMesh(submesh_data, vertices, indices);
 
-
-        GenerateMeshlets(submesh_data, vertices, indices, meshlets, meshlet_vertices, meshlet_triangles);
-
-        for (auto& submesh : submesh_data)
-        {
-            mesh_resource->meshlet_count += submesh.meshlet_count;
-        }
+        mesh_resource->meshlet_count = GenerateMeshlets(submesh_data, vertices, indices, meshlets, meshlet_vertices, meshlet_triangles);
 
         MemoryBlock<SubMeshData> submesh_data_block = submesh_data_allocator->Allocate(submesh_data.size());
         MemoryBlock<Vertex>      vertex_block       = vertex_allocator->Allocate(vertices.size());
@@ -278,11 +269,12 @@ namespace cesar {
         }
     }
 
-    void MeshIO::GenerateMeshlets(std::vector<SubMeshData>& submeshes, std::vector<Vertex>& vertices, std::vector<Uint32>& indices,
+    Uint32 MeshIO::GenerateMeshlets(std::vector<SubMeshData>& submeshes, std::vector<Vertex>& vertices, std::vector<Uint32>& indices,
         std::vector<Meshlet>& meshlets, std::vector<Uint32>& meshlet_vertices, std::vector<Uint32>& meshlet_triangles)
     {
         ZoneScopedN("MeshIO::GenerateMeshlets")
 
+        Uint32 total_meshlet_count = 0;
         for (auto& submesh : submeshes)
         {
             std::span submesh_vertices(vertices.data() + submesh.vertex_start, submesh.vertex_count);
@@ -347,7 +339,11 @@ namespace cesar {
             submesh.meshlet_triangle_start = submesh_meshlets_triangle_count;
 
             for (auto& idx : submesh_index) idx += submesh.vertex_start;
+
+            total_meshlet_count += meshlet_count;
         }
+
+        return total_meshlet_count;
     }
 
     void MeshIO::LoadFastGLTF(ResourceLoadDesc& load_desc, std::vector<Vertex>& vertices, std::vector<Uint32>& indices, 

@@ -25,11 +25,12 @@ namespace cesar {
         LinearAllocator<Uint32>* meshlet_vertex_allocator = resource_cache->GetMeshletVertexAllocator();
         LinearAllocator<Uint32>* meshlet_triangle_allocator = resource_cache->GetMeshletTriangleAllocator();
 
-        const Uint32 global_vertex_start         = vertex_allocator->GetOffset();
-        const Uint32 global_index_start          = index_allocator->GetOffset();
-        const Uint32 global_meshlet_start        = meshlet_allocator->GetOffset();
-        const Uint32 global_meshlet_vertex_start = meshlet_vertex_allocator->GetOffset();
-        const Uint32 global_meshlet_triangle_start = meshlet_triangle_allocator->GetOffset();
+        mesh_resource->vertex_start           = vertex_allocator->GetOffset();
+        mesh_resource->index_start            = index_allocator->GetOffset();
+        mesh_resource->submesh_start          = submesh_data_allocator->GetOffset();
+        mesh_resource->meshlet_start          = meshlet_allocator->GetOffset();
+        mesh_resource->meshlet_vertex_start   = meshlet_vertex_allocator->GetOffset();
+        mesh_resource->meshlet_triangle_start = meshlet_triangle_allocator->GetOffset();
 
         ///Todo: Write directly into allocator
         std::vector<Vertex>      vertices;
@@ -121,17 +122,8 @@ namespace cesar {
 
         for (auto& submesh : submesh_data)
         {
-            submesh.vertex_start += global_vertex_start;
-            submesh.index_start += global_index_start;
-
-            submesh.meshlet_start += global_meshlet_start;
-            submesh.meshlet_vertice_start += global_meshlet_vertex_start;
-            submesh.meshlet_triangle_start += global_meshlet_triangle_start;
-
             mesh_resource->meshlet_count += submesh.meshlet_count;
         }
-
-        mesh_resource->meshlet_start = global_meshlet_start;
 
         MemoryBlock<SubMeshData> submesh_data_block = submesh_data_allocator->Allocate(submesh_data.size());
         MemoryBlock<Vertex>      vertex_block       = vertex_allocator->Allocate(vertices.size());
@@ -149,11 +141,9 @@ namespace cesar {
         CopyToMemoryBlock(meshlet_vertice_block,  meshlet_vertices);
         CopyToMemoryBlock(meshlet_triangle_block, meshlet_triangles);
 
-        mesh_resource->submesh_start      = submesh_data_allocator->GetIndex(submesh_data_block);
-        mesh_resource->submesh_data_count = static_cast<Uint32>(submesh_data.size());
-
         mesh_resource->vertex_count = vertices.size();
         mesh_resource->index_count  = indices.size();
+        mesh_resource->submesh_data_count = static_cast<Uint32>(submesh_data.size());
         mesh_resource->meshlet_triangle_count = meshlet_triangles.size();
         mesh_resource->meshlet_vertex_count = meshlet_vertices.size();
 

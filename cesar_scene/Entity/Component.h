@@ -53,6 +53,12 @@ namespace cesar {
 		Uint32 submesh_data_start     = 0;
 		Uint32 submesh_instance_start = 0;
 		Uint32 submesh_data_count     = 0;
+
+		Uint32 vertex_start;
+		Uint32 index_start;
+		Uint32 meshlet_start;
+		Uint32 meshlet_vertex_start;
+		Uint32 meshlet_triangle_start;
 	};
 
 	struct GPU_STRUCTURE MeshInstanceBatch

@@ -62,6 +62,12 @@ struct MeshInstance
     uint     submesh_data_start;
     uint     submesh_instance_start;
     uint     submesh_data_count;
+
+    uint vertex_start;
+    uint index_start;
+    uint meshlet_start;
+    uint meshlet_vertex_start;
+    uint meshlet_triangle_start;
 };
 
 struct MeshletCandidate

@@ -104,6 +104,12 @@ namespace cesar
 		mesh_filter.submesh_instance_start   = smd_start;
 		mesh_filter.submesh_data_count       = mesh_resource->submesh_data_count;
 
+		mesh_filter.index_start = mesh_resource->index_start;
+		mesh_filter.vertex_start = mesh_resource->vertex_start;
+		mesh_filter.meshlet_start = mesh_resource->meshlet_start;
+		mesh_filter.meshlet_vertex_start = mesh_resource->meshlet_vertex_start;
+		mesh_filter.meshlet_triangle_start = mesh_resource->meshlet_triangle_start;
+
 		InsertMeshInstance(uuid, entity);
 
 		mesh_resource->Use();

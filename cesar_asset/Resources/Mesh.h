@@ -76,7 +76,10 @@ namespace cesar {
 
 	struct Mesh : public Resource
 	{
+		Uint32 vertex_start;
 		Uint32 vertex_count;
+
+		Uint32 index_start;
 		Uint32 index_count;
 
 		Uint32 submesh_start      = 0;
@@ -85,7 +88,10 @@ namespace cesar {
 		Uint32 meshlet_start = 0;
 		Uint32 meshlet_count = 0;
 
+		Uint32 meshlet_triangle_start;
 		Uint32 meshlet_triangle_count;
+
+		Uint32 meshlet_vertex_start;
 		Uint32 meshlet_vertex_count;
 
 		Matrix model_matrix;

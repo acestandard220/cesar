@@ -33,7 +33,7 @@ void CullMeshlets(uint3 gid : SV_GroupID, uint gtid : SV_GroupThreadID)
     
     for (uint i = gtid; i < submesh.meshlet_count; i += 64)
     {
-        Meshlet meshlet = meshlets[submesh.meshlet_start + i];
+        Meshlet meshlet = meshlets[mesh_instance.meshlet_start + submesh.meshlet_start + i];
         bool visible = true;
         if(visible)
         {
@@ -41,7 +41,7 @@ void CullMeshlets(uint3 gid : SV_GroupID, uint gtid : SV_GroupThreadID)
             meshelt_candidate_counter.InterlockedAdd(0, 1, index);
 
             MeshletCandidate candidate;
-            candidate.meshlet_idx = submesh.meshlet_start + i;
+            candidate.meshlet_idx = mesh_instance.meshlet_start + submesh.meshlet_start + i;
             candidate.submesh_candidate_idx = gid.x;
             
             meshlet_candidate[index] = candidate;

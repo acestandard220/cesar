@@ -23,23 +23,23 @@ struct Constants
 
 ConstantBuffer<Constants> constant : register(b1);
 
-uint3 GetTriangle(Meshlet meshlet, SubMeshData submesh, uint i)
+uint3 GetTriangle(Meshlet meshlet, SubMeshData submesh, uint i, uint global_start)
 {
     StructuredBuffer<uint> meshlet_triangles = ResourceDescriptorHeap[constant.meshlet_triangles_idx];
         
     uint3 t_out;
-    t_out.x = meshlet_triangles[submesh.meshlet_triangle_start + meshlet.triangle_start + i * 3 + 0];
-    t_out.y = meshlet_triangles[submesh.meshlet_triangle_start + meshlet.triangle_start + i * 3 + 1];
-    t_out.z = meshlet_triangles[submesh.meshlet_triangle_start + meshlet.triangle_start + i * 3 + 2];
+    t_out.x = meshlet_triangles[global_start + submesh.meshlet_triangle_start + meshlet.triangle_start + i * 3 + 0];
+    t_out.y = meshlet_triangles[global_start + submesh.meshlet_triangle_start + meshlet.triangle_start + i * 3 + 1];
+    t_out.z = meshlet_triangles[global_start + submesh.meshlet_triangle_start + meshlet.triangle_start + i * 3 + 2];
     return t_out;
 }
 
-VertexOut GetVertex(Meshlet meshlet, SubMeshData submesh, SubmeshInstance submesh_instance, uint i, uint id)
+VertexOut GetVertex(Meshlet meshlet, SubMeshData submesh, SubmeshInstance submesh_instance, uint i, uint id, MeshInstance mesh_instance)
 {
     StructuredBuffer<Vertex>          vertices         = ResourceDescriptorHeap[constant.vertices_idx];
     StructuredBuffer<uint>            meshlet_vertices = ResourceDescriptorHeap[constant.meshlet_vertices_idx];
     
-    Vertex v = vertices[submesh.vertex_start + meshlet_vertices[submesh.meshlet_vertice_start + meshlet.vertex_start + i]];
+    Vertex v = vertices[mesh_instance.vertex_start + submesh.vertex_start + meshlet_vertices[mesh_instance.meshlet_vertex_start + submesh.meshlet_vertice_start + meshlet.vertex_start + i]];
 
     VertexOut v_out;
     float4 position = mul(float4(v.position, 1.0f), submesh_instance.model_matrix);
@@ -74,11 +74,11 @@ void DrawMeshlet(uint3 gid : SV_GroupID, uint gtid : SV_GroupThreadID, out verti
     
     for (int i = gtid; i < meshlet.vertex_count; i += THREADS_X)
     {    
-        output_vertices[i] = GetVertex(meshlet, submesh, submesh_instance, i, candidate.meshlet_idx);
+        output_vertices[i] = GetVertex(meshlet, submesh, submesh_instance, i, candidate.meshlet_idx, mesh_instance);
     }
     
     for (int j = gtid; j < meshlet.triangle_count; j += THREADS_X)
     {
-        output_indices[j] = GetTriangle(meshlet, submesh, j);
+        output_indices[j] = GetTriangle(meshlet, submesh, j, mesh_instance.meshlet_triangle_start);
     }
 }

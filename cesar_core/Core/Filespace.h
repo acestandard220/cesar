@@ -28,6 +28,12 @@ namespace cesar
 			return std::filesystem::exists(path);
 		}
 
+		inline filepath Relative(filepath& base_path, filepath& path)
+		{
+			return std::filesystem::relative(path, base_path);
+		}
+
+		//Move these to their right files later
 		inline filepath GetCookedScenePath(const filepath& raw_path)
 		{
 			filepath new_path = raw_path;
@@ -42,6 +48,16 @@ namespace cesar
 			return new_path;
 		}
 
+		inline Bool IsChild(const filepath& parent_path, const filepath& child_path)
+		{
+			auto child_abs = std::filesystem::weakly_canonical(child_path);
+		    auto parent_abs = std::filesystem::weakly_canonical(parent_path);
+
+		    auto mismatch_pair = std::mismatch(parent_abs.begin(), parent_abs.end(),
+			child_abs.begin(), child_abs.end());
+
+     		return mismatch_pair.first == parent_abs.end();
+		}
 
 
 	}

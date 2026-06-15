@@ -142,4 +142,33 @@ namespace cesar
 		CESAR_D3D12_CHECK(hr);
 
 	}
+
+	Uint32 Texture::GetSubresourceCount() const
+	{
+		return desc.array_size * desc.mips;
+	}
+
+	inline Uint64 Texture::GetTextureCopyableSize()
+	{
+		return gpu_context->GetCopyableSize(this);
+	}
+
+	void Texture::GetTextureCopyableSubresources(std::vector<Subresource>& subresources)
+	{
+		const Uint32 subresource_count = desc.array_size * desc.mips;
+		std::vector<D3D12_PLACED_SUBRESOURCE_FOOTPRINT> subresource_footprint(subresource_count);
+
+		auto gpu_desc = resource->GetDesc();
+		gpu_context->GetDevice()->GetCopyableFootprints(&gpu_desc, 0, (gpu_desc.MipLevels * gpu_desc.DepthOrArraySize), 0, subresource_footprint.data(), nullptr, nullptr, nullptr);
+
+		for (Uint32 i = 0; i < subresource_count; i++)
+		{
+			auto& asr = subresources[i];
+			const auto& srf = subresource_footprint[i];
+			asr.width = srf.Footprint.Width;
+			asr.height = srf.Footprint.Height;
+			asr.offset = srf.Offset;
+			asr.copyable_size = (srf.Footprint.RowPitch) * (srf.Footprint.Height) * (srf.Footprint.Depth);
+		}
+	}
 }

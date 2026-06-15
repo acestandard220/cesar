@@ -335,19 +335,31 @@ namespace cesar
 		command_list->CopyBufferRegion(dst_buffer->GetBuffer(), dst_offset, src_buffer->GetBuffer(), src_offset, size);
 	}
 
-	void CommandList::CopyBufferToTexture(Buffer* src_buffer, Texture* dst_texture, Uint32 subresource_index) {
-		TextureDesc dst_desc = dst_texture->GetDesc();
+	void CommandList::CopyBufferToTexture(Buffer* src_buffer, Uint64 src_offset, Uint32 subresource_index, Texture* dst_texture, Bool align)
+	{
+		const TextureDesc& dst_desc = dst_texture->GetDesc();
+
+		Uint32 mip_index = subresource_index % dst_desc.mips;
+		Uint32 mip_width = std::max(1u, dst_desc.width >> mip_index);
+		Uint32 mip_height = std::max(1u, dst_desc.height >> mip_index);
+		Uint32 pixel_size = GetFormatStride(dst_desc.format);
+
+		Uint32 row_pitch = mip_width * pixel_size;
+		if (align) {
+			row_pitch = (row_pitch + D3D12_TEXTURE_DATA_PITCH_ALIGNMENT - 1)
+				& ~(D3D12_TEXTURE_DATA_PITCH_ALIGNMENT - 1);
+		}
 
 		D3D12_TEXTURE_COPY_LOCATION srcLocation{};
 		srcLocation.pResource = src_buffer->GetBuffer();
 		srcLocation.Type = D3D12_TEXTURE_COPY_TYPE_PLACED_FOOTPRINT;
-		srcLocation.PlacedFootprint.Offset = 0;
+		srcLocation.PlacedFootprint.Offset = src_offset;
 		srcLocation.PlacedFootprint.Footprint = {
 			.Format = ToDXGIFormat(dst_desc.format),
-			.Width = dst_desc.width,
-			.Height = dst_desc.height,
+			.Width = mip_width,   
+			.Height = mip_height,  
 			.Depth = 1,
-			.RowPitch = dst_desc.width * GetFormatStride(dst_desc.format)
+			.RowPitch = row_pitch
 		};
 
 		D3D12_TEXTURE_COPY_LOCATION dstLocation{};
@@ -357,6 +369,41 @@ namespace cesar
 
 		command_list->CopyTextureRegion(&dstLocation, 0, 0, 0, &srcLocation, nullptr);
 	}
+
+	//Don't rea;;y know about this function 
+	void CommandList::CopyTextureToBuffer(Texture* src_texture, Buffer* dst_buffer, Uint32 subresource_index, Uint64 buffer_offset)
+	{
+		const TextureDesc& texture_desc = src_texture->GetDesc();
+
+		Uint32 mip_levels = texture_desc.mips;
+		Uint32 mip_index = subresource_index % mip_levels;
+		Uint32 array_slice = subresource_index / mip_levels;
+
+		Uint32 mip_width = std::max(1u, texture_desc.width >> mip_index);
+		Uint32 mip_height = std::max(1u, texture_desc.height >> mip_index);
+
+		Uint32 pixel_size = GetFormatStride(texture_desc.format);
+		Uint32 row_pitch = (mip_width * pixel_size + D3D12_TEXTURE_DATA_PITCH_ALIGNMENT - 1)
+			& ~(D3D12_TEXTURE_DATA_PITCH_ALIGNMENT - 1);
+
+		D3D12_TEXTURE_COPY_LOCATION copy_src = {};
+		copy_src.Type = D3D12_TEXTURE_COPY_TYPE_SUBRESOURCE_INDEX;
+		copy_src.pResource = src_texture->GetTexture();
+		copy_src.SubresourceIndex = subresource_index;
+
+		D3D12_TEXTURE_COPY_LOCATION copy_dst = {};
+		copy_dst.Type = D3D12_TEXTURE_COPY_TYPE_PLACED_FOOTPRINT;
+		copy_dst.pResource = dst_buffer->GetBuffer();
+		copy_dst.PlacedFootprint.Offset = buffer_offset;
+		copy_dst.PlacedFootprint.Footprint.Format = ToDXGIFormat(texture_desc.format);
+		copy_dst.PlacedFootprint.Footprint.Width = mip_width;
+		copy_dst.PlacedFootprint.Footprint.Height = mip_height;
+		copy_dst.PlacedFootprint.Footprint.Depth = 1;
+		copy_dst.PlacedFootprint.Footprint.RowPitch = row_pitch;
+
+		command_list->CopyTextureRegion(&copy_dst, 0, 0, 0, &copy_src, nullptr);
+	}
+
 
 	void CommandList::ClearRenderTargetView(const std::span<Descriptor>& rtv, cesar::Float rgba[4])
 	{

@@ -138,7 +138,8 @@ namespace cesar
 
 		void CopyBuffer(Buffer* src_buffer, Buffer* dst_buffer);
 		void CopyBuffer(Buffer* src_buffer, cesar::Uint64 src_offset, Buffer* dst_buffer, cesar::Uint64 dst_offset, cesar::Uint64 size);
-		void CopyBufferToTexture(Buffer* src_buffer, Texture* dst_texture, Uint32 subresource_index = 0);
+		void CopyBufferToTexture(Buffer* src_buffer, Uint64 src_offset, Uint32 subresource_index, Texture* dst_texture, Bool align);
+		void CopyTextureToBuffer(Texture* src_texture, Buffer* dst_buffer, Uint32 subresource_index, Uint64 buffer_offset);
 
 		void ClearRenderTargetView(const std::span<Descriptor>& rtv, cesar::Float rgba[4]);
 		void ClearDepthTargetView(const Descriptor& dsv, cesar::Float depth);

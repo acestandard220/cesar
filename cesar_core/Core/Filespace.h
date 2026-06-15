@@ -9,11 +9,14 @@ namespace cesar
 		constexpr const Char* cooked_scene   = ".csc";
 		constexpr const Char* cooked_project = ".csr";
 
+		constexpr const Char* dds = ".dds";
+		constexpr const Char* ktx2 = ".ktx2";
+		constexpr const Char* cooked_image_raw = ".csa_image";
+
 		constexpr const Char* glb  = ".glb";
 		constexpr const Char* gltf = ".gltf";
 		constexpr const Char* fbx  = ".fbx";
 		constexpr const Char* abc  = ".abc";
-
 	}
 
 	namespace filespace

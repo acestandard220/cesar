@@ -13,7 +13,11 @@ namespace cesar
 		~OfflineContext();
 
 		std::unique_ptr<Texture> CreateTexture(const void* data, const TextureDesc& desc, const Char* name);
+		std::unique_ptr<Texture> CreateTexture(const void* data, Uint64 byte_size,Subresource* subresources, Uint32 subresource_count, const TextureDesc& desc, const Char* name);
 		void GenerateMips(Texture* texture, Uint32 srv_index);
+
+		Buffer* GetTextureSubRegionPixels(Texture* texture, const TextureViewDesc& view_desc);
+		Buffer* GetTexturePixels(Texture* texture);
 
 		Uint32 AllocateBindlessTextureSRV(Texture* texture);
 

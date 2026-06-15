@@ -33,8 +33,17 @@ namespace cesar
 			}
 
 			filespace::filepath GetCookedAssetPath(const filespace::filepath& raw_path)const {
-				filespace::filepath new_path = assets_path / raw_path.stem();
+				
+				filespace::filepath new_path = raw_path;
+				if (filespace::IsChild(assets_path, raw_path))
+				{
+					new_path.replace_extension(extensions::cooked_asset);
+					return new_path;
+				}
+				
+				new_path = assets_path / raw_path.stem();
 				new_path.replace_extension(extensions::cooked_asset);
+
 				return new_path;
 			}
 

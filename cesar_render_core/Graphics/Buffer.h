@@ -102,6 +102,20 @@ namespace cesar
 	}
 
 	template<typename T>
+	inline BufferDesc ReadbackBufferDesc(cesar::Uint64 element_count)
+	{
+		BufferDesc readback_buffer_desc = {
+			.size   = CESAR_SIZEOF_BUFFER(T, element_count),
+			.stride = CESAR_SIZEOF(T),
+			.usage  = ResourceUsage::Readback,
+			.bind_flag = ResourceBindFlag::None,
+			.format = ResourceFormat::UNKNOWN,
+			.misc_flag = BufferMiscFlag::None
+		};
+		return readback_buffer_desc;
+	}
+
+	template<typename T>
 	inline BufferDesc StructuredBufferDesc(Uint32 element_count, ResourceBindFlag bind_flag)
 	{
 		BufferDesc default_generic_desc{
@@ -180,6 +194,15 @@ namespace cesar
 			memcpy(destination.data(), mapped_ptr, destination.size_bytes());
 
 			resource->Unmap(0, nullptr);
+		}
+
+		void* GetPersistentPointer() {
+			void* mapped_ptr = nullptr;
+
+			HRESULT hr = resource->Map(0, nullptr, &mapped_ptr);
+			CESAR_D3D12_CHECK(hr);
+
+			return mapped_ptr;
 		}
 
 		void SetName(const cesar::Char* name);

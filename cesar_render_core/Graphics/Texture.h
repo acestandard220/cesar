@@ -1,9 +1,9 @@
-
 // Portions of this file are derived from Adria Renderer (MIT License)
 // Copyright (c) <https://github.com/mateeeeeee>
 // See ext/Adria/LICENSE for details.
 
 #pragma once
+
 #include "../cesar_core/cesar_core.h"
 #include "Resource.h"
 #include "ResourceFormat.h"
@@ -12,9 +12,11 @@
 
 #include <d3d12.h>
 
+#undef min
+#undef max
+
 namespace cesar
 {
-
 	enum class TextureType
 	{
 		Texture1D,
@@ -103,6 +105,15 @@ namespace cesar
     #define CESAR_DEFAULT_TEXTURE_VIEW_DESC TextureViewDesc{/* Use Texture Desc Values */}
 
 
+	struct Subresource
+	{
+		Uint32 width;
+		Uint32 height;
+
+		Uint32 offset;
+		Uint32 copyable_size;
+	};
+
 	class GPUContext;
 	class _declspec(dllexport) Texture
 	{
@@ -118,6 +129,10 @@ namespace cesar
 
 		void Resize(Uint32 width, Uint32 height);
 
+		Uint32 GetSubresourceCount()const;
+		Uint64 GetTextureCopyableSize();
+		void GetTextureCopyableSubresources(std::vector<Subresource>& subresources);
+
 	private:
 		GPUContext* gpu_context;
 		ComPtr<ID3D12Resource> resource;
@@ -125,4 +140,10 @@ namespace cesar
 		TextureDesc desc;
 	};
 
+
+	inline Uint32 GetMipCount(Uint32 width, Uint32 height, Uint32 depth = 1)
+	{
+		Uint32 maxDim = std::max<Uint32>(width, height);
+		return static_cast<Uint32>(std::floor(std::log2(maxDim))) + 1;
+	}
 }

@@ -1,4 +1,6 @@
 #pragma once
+#define NOMINMAX
+
 #include "Core/Align.h"
 #include "Core/Base.h"
 #include "Core/Log.h"

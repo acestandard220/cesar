@@ -15,9 +15,31 @@ namespace cesar {
 		FlipUV = 1 << 0,
 		GenerateMips = 1 << 1,
 
-		LoadFromMemory = 1 << 2
+		LoadFromMemory = 1 << 2,
+
+		//NormalMap = 1<<3,
+		//AlbedoMap =1<<4,
+		//AOMap = 1<<5,
+		//RoughnessMap = 1<<6,
+		//MetallicMap = 1<<7
 	};
 	CESAR_ENABLE_ENUM_OPS(ImageLoadFlags);
+
+	struct ImageAssetHeader : public CesarAssetHeader
+	{
+		Uint32 width;
+		Uint32 height;
+
+		Uint32 mip_count;
+		Uint32 array_size;
+
+		TextureType tex_type;
+		TextureMiscFlag misc_flag;
+		ResourceFormat format;
+
+		Uint32 pad;
+		Uint64 copyable_size;
+	};
 
 	struct ImageLoadDesc : public ResourceLoadDesc
 	{
@@ -42,6 +64,7 @@ namespace cesar {
 		virtual std::unique_ptr<Resource> LoadFromFile(ResourceLoadDesc& load_desc) override;
 		virtual void SaveToDisk(const ResourceLoadDesc& load_desc, void* resource) override;
 	private:
+		std::unique_ptr<Resource> LoadNative(ImageLoadDesc* load_desc);
 		std::unique_ptr<Resource> LoadFromFileNonNative(ImageLoadDesc* load_desc);
 		std::unique_ptr<Resource> LoadFromMemory(ImageLoadDesc* load_desc);
 	};

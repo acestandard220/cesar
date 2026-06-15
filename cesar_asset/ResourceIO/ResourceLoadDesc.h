@@ -10,7 +10,7 @@ namespace cesar
 		std::filesystem::path file_path;
 		ResourceType type;
 		Bool no_path;
-		Bool is_cooked;
+		Bool is_cooked = false;
 		void* payload = nullptr;
 	};
 

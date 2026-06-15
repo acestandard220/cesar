@@ -112,13 +112,6 @@ namespace cesar {
 		}
 	}
 
-	inline Uint32 GetMipCount(Uint32 width, Uint32 height, Uint32 depth = 1)
-	{
-		Uint32 maxDim = std::max<Uint32>(width, height);
-		return static_cast<Uint32>(std::floor(std::log2(maxDim))) + 1;
-		return 1;
-	}
-
 	struct ImageTexture : public Resource
 	{
 		Uint32 width;

@@ -377,3 +377,9 @@ FodyWeavers.xsd
 *.usd
 *.usda
 *.usdc
+
+
+#Cooked Files
+*.csa
+*.csc
+*.csr

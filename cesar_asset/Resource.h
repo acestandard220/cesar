@@ -1,6 +1,7 @@
 #pragma once
 #include "../cesar_core/cesar_core.h"
 #include "../cesar_core/Core/UUID.h"
+#include "../cesar_core/Core/Filespace.h"
 #include <concepts>
 
 namespace cesar {
@@ -32,6 +33,7 @@ namespace cesar {
 	    
 	    	const ResourceType& GetResourceType()const { return resource_type; }
 	    	const std::string& GetResourceName()const { return name; }
+			const filespace::filepath& GetCookedPath()const { return cooked_path; }
 
 			void Use() { ref_count++; }
 			void Unuse() {
@@ -43,6 +45,7 @@ namespace cesar {
 	    private:
 			friend class ResourceCache;
 	    	std::string name;
+			filespace::filepath cooked_path;
 
 	    	ResourceType resource_type;
 			UUID uuid;

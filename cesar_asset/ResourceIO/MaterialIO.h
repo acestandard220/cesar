@@ -28,6 +28,14 @@ namespace cesar
 		}
 	};
 
+	// CesarAssetHeader | MaterialData | Unique_Map_Count | [ImagePath.Size] | ImagePaths
+	struct MaterialAssetHeader : public CesarAssetHeader
+	{
+		MaterialData material_data;
+		Uint32 unique_map_count;
+		Uint32 pad;
+	};
+
 	class MaterialIO :public IResourceIO
 	{
 	public:
@@ -43,9 +51,10 @@ namespace cesar
 		virtual void SaveToDisk(const ResourceLoadDesc& load_desc, void* resource) override;
 
 	private:
-		MaterialData* LoadMaterialFromMtl(const std::string& mtlPath, const std::string& materialName);
-		MaterialData* LoadGlbGltfMaterial(MaterialLoadDesc* load_desc);
-		MaterialData* LoadAssimpMaterial(MaterialLoadDesc* load_desc);
+		std::unique_ptr<Material> LoadNative(MaterialLoadDesc* load_desc);
+		std::unique_ptr<Material> LoadMaterialFromMtl(MaterialLoadDesc* load_desc);
+		std::unique_ptr<Material> LoadGlbGltfMaterial(MaterialLoadDesc* load_desc);
+		std::unique_ptr<Material> LoadAssimpMaterial(MaterialLoadDesc* load_desc);
 	};
 
 }

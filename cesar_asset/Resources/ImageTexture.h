@@ -5,6 +5,10 @@
 #include "../../cesar_render_core/OfflineContext.h"
 
 namespace cesar {
+	enum class MapType
+	{
+		Albedo, Normal, AO, Roughness, Metallic
+	};
 
 	enum class ImageTextureFormat
 	{

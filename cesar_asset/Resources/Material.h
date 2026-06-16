@@ -60,6 +60,12 @@ namespace cesar {
 	struct Material : public Resource
 	{
 		MaterialData* material_data = nullptr;
+
+		ImageTexture* albedo_map;
+		ImageTexture* normal_map;
+		ImageTexture* ao_map;
+		ImageTexture* roughness_map;
+		ImageTexture* metallic_map;
 	};
 
 	template<>struct ResourceTypeTrait<Material> { static constexpr ResourceType type = ResourceType::Material; };

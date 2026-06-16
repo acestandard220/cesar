@@ -200,6 +200,8 @@ namespace cesar {
 		context->GenerateMips(image_texture->gpu_texture.get(), image_texture->srv_index);
 
         stbi_image_free(data);
+
+        SaveToDisk(*load_desc, image_texture.get());
         return image_texture;
     }
 
@@ -275,6 +277,8 @@ namespace cesar {
         context->GenerateMips(image_texture->gpu_texture.get(), image_texture->srv_index);
 
         stbi_image_free(data->data);
+
+        SaveToDisk(*load_desc, image_texture.get());
         return image_texture;
     }
 

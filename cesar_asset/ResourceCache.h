@@ -119,11 +119,12 @@ namespace cesar
 
 				LOG_DEBUG("Resource loaded successfully");
 				auto* ret = static_cast<T*>(Register(resource, load_desc));
-				io->SaveToDisk(load_desc, ret);
 				return ret;
 			}
 
 			const filespace::filepath& GetAssetsPath()const;
+
+			ImageTexture* GetDefaultTexture(MapType type);
 
 			ImageTexture* GetDefaultInvalidTexture() const;
 			ImageTexture* GetDefaultWhiteTexture() const;
@@ -149,6 +150,8 @@ namespace cesar
 				if (!load_desc.uuid) {
 					load_desc.uuid = CESAR_GEN_UUID;
 				}
+
+				resource->cooked_path = load_desc.file_path;
 
 				resource->name = load_desc.file_path.stem().string();
 				resource->uuid = load_desc.uuid;

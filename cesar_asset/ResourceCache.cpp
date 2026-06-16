@@ -55,6 +55,24 @@ namespace cesar
 		return assets_path;
 	}
 
+	ImageTexture* ResourceCache::GetDefaultTexture(MapType type)
+	{
+		switch (type)
+		{
+		    case cesar::MapType::Albedo:
+		    	return default_invalid_texture;
+		    case cesar::MapType::Normal:
+		    	return default_normal_texture;
+		    case cesar::MapType::AO:
+		    	return default_white_texture;
+		    case cesar::MapType::Roughness:
+		    	return default_white_texture;
+		    case cesar::MapType::Metallic:
+		    	return default_black_texture;
+			default: return default_invalid_texture;
+		}
+	}
+
 	ImageTexture* ResourceCache::GetDefaultInvalidTexture() const { return default_invalid_texture; }
 	ImageTexture* ResourceCache::GetDefaultWhiteTexture()   const { return default_white_texture; }
 	ImageTexture* ResourceCache::GetDefaultBlackTexture()   const { return default_black_texture; }

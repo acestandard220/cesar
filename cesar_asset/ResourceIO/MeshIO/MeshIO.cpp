@@ -139,6 +139,8 @@ namespace cesar {
         mesh_resource->meshlet_triangle_count = meshlet_triangles.size();
         mesh_resource->meshlet_vertex_count = meshlet_vertices.size();
 
+
+        SaveToDisk(load_desc, mesh_resource.get());
         return mesh_resource;
     }
 
@@ -518,7 +520,7 @@ namespace cesar {
                         material_load_desc.flags = MaterialLoadFlags::LoadFromGlb_Gltf;
                         material_load_desc.payload = &data;
                         material_load_desc.no_path = true;
-                        material_load_desc.file_path = material_name;
+                        material_load_desc.file_path = std::format("{}", material_name.c_str());
                         Material* material = resource_cache->LoadResource<Material>(material_load_desc);
                         MemoryBlock<MaterialData> mtl_block(material->material_data, 1);
                         submesh_materials[submesh_index] = material_allocator->GetIndex(mtl_block);

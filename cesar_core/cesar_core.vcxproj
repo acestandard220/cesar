@@ -235,6 +235,7 @@
     <ClInclude Include="Core\Filespace.h" />
     <ClInclude Include="Core\FileWatcher.h" />
     <ClInclude Include="Core\Hash.h" />
+    <ClInclude Include="Core\ThreadPool.h" />
     <ClInclude Include="Core\Log.h" />
     <ClInclude Include="Core\Types.h" />
     <ClInclude Include="Core\Utilities.h" />

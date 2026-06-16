@@ -69,6 +69,7 @@ namespace cesar {
         output.write(reinterpret_cast<char*>(asset_subresources.data()), static_cast<std::streamsize>(CESAR_SIZEOF_BUFFER(Subresource, asset_subresources.size())));
         output.write(reinterpret_cast<char*>(data),                      static_cast<std::streamsize>(data_buffer->GetSize()));
 
+        delete data_buffer; //this should be handled properly
         output.close();
     }
 

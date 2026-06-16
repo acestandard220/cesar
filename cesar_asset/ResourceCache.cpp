@@ -125,21 +125,41 @@ namespace cesar
 
 	void ResourceCache::LoadDefaultResources()
 	{
-		ImageLoadDesc load_desc{};
-		load_desc.file_path = "D:\\Project\\cesar\\cesar\\resources\\Default Textures\\invalid.png";
-		load_desc.type = ResourceType::ImageTexture;
-		load_desc.flags |= ImageLoadFlags::FlipUV;
-		load_desc.flags |= ImageLoadFlags::GenerateMips;
-		default_invalid_texture = LoadResource<ImageTexture>(load_desc);
+		{
+			ImageLoadDesc load_desc{};
+			load_desc.file_path = "D:\\Project\\cesar\\cesar\\resources\\Default Textures\\invalid.png";
+			load_desc.type = ResourceType::ImageTexture;
+			load_desc.flags |= ImageLoadFlags::FlipUV;
+			load_desc.flags |= ImageLoadFlags::GenerateMips;
+			default_invalid_texture = LoadResource<ImageTexture>(load_desc);
+		}
 		
-		load_desc.file_path   = "D:\\Project\\cesar\\cesar\\resources\\Default Textures\\white.png";
-		default_white_texture = LoadResource<ImageTexture>(load_desc);
+		{
+			ImageLoadDesc load_desc{};
+			load_desc.type = ResourceType::ImageTexture;
+			load_desc.flags |= ImageLoadFlags::FlipUV;
+			load_desc.flags |= ImageLoadFlags::GenerateMips;
+			load_desc.file_path = "D:\\Project\\cesar\\cesar\\resources\\Default Textures\\white.png";
+			default_white_texture = LoadResource<ImageTexture>(load_desc);
+		}
 		
-		load_desc.file_path   = "D:\\Project\\cesar\\cesar\\resources\\Default Textures\\black.png";
-		default_black_texture = LoadResource<ImageTexture>(load_desc);
+		{
+			ImageLoadDesc load_desc{};
+			load_desc.type = ResourceType::ImageTexture;
+			load_desc.flags |= ImageLoadFlags::FlipUV;
+			load_desc.flags |= ImageLoadFlags::GenerateMips;
+			load_desc.file_path = "D:\\Project\\cesar\\cesar\\resources\\Default Textures\\black.png";
+			default_black_texture = LoadResource<ImageTexture>(load_desc);
+		}
 
-		load_desc.file_path    = "D:\\Project\\cesar\\cesar\\resources\\Default Textures\\normal.png";
-		default_normal_texture = LoadResource<ImageTexture>(load_desc);
+		{
+			ImageLoadDesc load_desc{};
+			load_desc.type = ResourceType::ImageTexture;
+			load_desc.flags |= ImageLoadFlags::FlipUV;
+			load_desc.flags |= ImageLoadFlags::GenerateMips;
+			load_desc.file_path = "D:\\Project\\cesar\\cesar\\resources\\Default Textures\\normal.png";
+			default_normal_texture = LoadResource<ImageTexture>(load_desc);
+		}
 
 	}
 }

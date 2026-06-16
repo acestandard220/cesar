@@ -109,6 +109,9 @@ namespace cesar
 
 				if (IsCached(load_desc.file_path))
 					load_desc.is_cooked = true;
+				else
+					load_desc.is_cooked = false;
+
 
 				IResourceIO* io = GetResourceIO(load_desc.type);
 				std::unique_ptr<Resource> resource = io->LoadFromFile(load_desc);

@@ -308,8 +308,6 @@ namespace cesar
         return material_resource;
     }
 
-
-
     std::unique_ptr<Material> MaterialIO::LoadGlbGltfMaterial(MaterialLoadDesc* material_load_desc)
     {
         ZoneScopedN("MaterialIO::LoadGlbGltfMaterial")
@@ -384,6 +382,11 @@ namespace cesar
                 material_resource->albedo_map = invalid_texture_d;
             }
         }
+        else {
+            auto invalid_texture_d = resource_cache->GetDefaultInvalidTexture();
+            material_data.albedo.map_index = invalid_texture_d->srv_index;
+            material_resource->albedo_map = invalid_texture_d;
+        }
 
         if (material->normalTexture.has_value())
         {
@@ -399,6 +402,11 @@ namespace cesar
                 material_data.normal.map_index = normal_mapD->srv_index;
                 material_resource->normal_map = normal_mapD;
             }
+        }
+        else {
+            auto normal_mapD = resource_cache->GetDefaultNormalTexture();
+            material_data.normal.map_index = normal_mapD->srv_index;
+            material_resource->normal_map = normal_mapD;
         }
 
         auto* white_texture = resource_cache->GetDefaultWhiteTexture();
@@ -417,6 +425,10 @@ namespace cesar
                 material_data.ao.map_index = white_texture->srv_index;
                 material_resource->ao_map = white_texture;
             }
+        }
+        else {
+            material_data.ao.map_index = white_texture->srv_index;
+            material_resource->ao_map = white_texture;
         }
 
         if (material->pbrData.metallicRoughnessTexture.has_value())
@@ -440,6 +452,12 @@ namespace cesar
                 material_resource->metallic_map = black_texture;
                 material_resource->roughness_map = white_texture;
             }
+        }
+        else {
+            material_data.metallic.map_index = black_texture->srv_index;
+            material_data.roughness.map_index = white_texture->srv_index;
+            material_resource->metallic_map = black_texture;
+            material_resource->roughness_map = white_texture;
         }
 
         auto material_allocator = resource_cache->GetMaterialAllocator();

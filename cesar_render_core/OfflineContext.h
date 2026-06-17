@@ -12,8 +12,16 @@ namespace cesar
 		OfflineContext(GPUContext* gpu_context);
 		~OfflineContext();
 
-		std::unique_ptr<Texture> CreateTexture(const void* data, const TextureDesc& desc, const Char* name);
-		std::unique_ptr<Texture> CreateTexture(const void* data, Uint64 byte_size,Subresource* subresources, Uint32 subresource_count, const TextureDesc& desc, const Char* name);
+		void Begin();
+		void End();
+
+		std::unique_ptr<Texture> CreatePersistentTexture(const TextureDesc& desc, const Char* name);
+
+		Buffer* CreateReadbackBuffer(Uint32 element_count, const Char* name);
+		Buffer* CreateUploadbuffer(Uint32 element_count,   const Char* name);
+
+		void UploadTextureData(Buffer* data, Texture* texture);
+		void UploadTextureData(Buffer* data, Uint64 byte_size, Subresource* subresources, Uint32 subresource_count, Texture* texture);
 		void GenerateMips(Texture* texture, Uint32 srv_index);
 
 		Buffer* GetTextureSubRegionPixels(Texture* texture, const TextureViewDesc& view_desc);

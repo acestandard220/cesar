@@ -21,72 +21,67 @@ namespace cesar
 	
 	}
 
-	std::unique_ptr<Texture> OfflineContext::CreateTexture(const void* data, const TextureDesc& desc, const Char* name) {
-		const Uint64 byte_size = desc.width * desc.height * GetFormatStride(desc.format);
-
-		auto texture = gpu_context->CreateTexture(desc, name);
-		auto buffer = gpu_context->CreateBuffer(UploadBufferDesc<Uint8>(byte_size));
-		buffer->Upload<Uint8>(std::span<Uint8>((Uint8*)(data), byte_size));
-
+	void OfflineContext::Begin()
+	{
 		fence->Wait(fence_value);
-
 		gfx_cmd_list->Begin();
+	}
 
-		gfx_cmd_list->BufferBarrier(buffer.get(), ResourceState::Common, ResourceState::CopySrc);
-		gfx_cmd_list->FlushBarriers();
-
-		gfx_cmd_list->CopyBufferToTexture(buffer.get(),0,0, texture.get(), false);
-
-		gfx_cmd_list->TextureBarrier(texture.get(), ResourceState::CopyDst, ResourceState::ComputeSRV);
-		gfx_cmd_list->BufferBarrier(buffer.get(), ResourceState::CopySrc, ResourceState::Common);
-
-		gfx_cmd_list->FlushBarriers();
+	void OfflineContext::End()
+	{
 		gfx_cmd_list->End();
 
 		gfx_cmd_list->Signal(fence.get(), ++fence_value);
 		gfx_cmd_list->Submit();
-
-		return texture;
 	}
 
-	std::unique_ptr<Texture> OfflineContext::CreateTexture(const void* data, Uint64 byte_size, Subresource* subresources, Uint32 subresource_count, const TextureDesc& desc, const Char* name) {
-		auto texture = gpu_context->CreateTexture(desc, name);
-		auto buffer = gpu_context->CreateBuffer(UploadBufferDesc<Uint8>(byte_size));
-		buffer->Upload<Uint8>(std::span<Uint8>((Uint8*)(data), byte_size));
+	std::unique_ptr<Texture> OfflineContext::CreatePersistentTexture(const TextureDesc& desc, const Char* name)
+	{
+		return gpu_context->CreateTexture(desc, name);
+	}
 
-		fence->Wait(fence_value);
+	Buffer* OfflineContext::CreateReadbackBuffer(Uint32 element_count, const Char* name)
+	{
+		return gpu_context->CreateReadbackBuffer<Uint8>(element_count, name);
+	}
 
-		gfx_cmd_list->Begin();
+	Buffer* OfflineContext::CreateUploadbuffer(Uint32 element_count, const Char* name)
+	{
+		return new Buffer(gpu_context, UploadBufferDesc<Uint8>(element_count), name);
+	}
 
-		gfx_cmd_list->BufferBarrier(buffer.get(), ResourceState::Common, ResourceState::CopySrc);
+	void OfflineContext::UploadTextureData(Buffer* buffer, Texture* texture) {
+		gfx_cmd_list->BufferBarrier(buffer, ResourceState::Common, ResourceState::CopySrc);
+		gfx_cmd_list->FlushBarriers();
+
+		gfx_cmd_list->CopyBufferToTexture(buffer,0,0, texture, false);
+
+		gfx_cmd_list->TextureBarrier(texture, ResourceState::CopyDst, ResourceState::ComputeSRV);
+		gfx_cmd_list->BufferBarrier(buffer, ResourceState::CopySrc, ResourceState::Common);
+
+		gfx_cmd_list->FlushBarriers();
+	}
+
+	void OfflineContext::UploadTextureData(Buffer* buffer, Uint64 byte_size, Subresource* subresources, Uint32 subresource_count, Texture* texture) {
+		gfx_cmd_list->BufferBarrier(buffer, ResourceState::Common, ResourceState::CopySrc);
 		gfx_cmd_list->FlushBarriers();
 
 		for (Uint32 i = 0; i < subresource_count; i++)
 		{
-			gfx_cmd_list->CopyBufferToTexture(buffer.get(), subresources[i].offset, i, texture.get(), true);
+			gfx_cmd_list->CopyBufferToTexture(buffer, subresources[i].offset, i, texture, true);
 		}
 
-		gfx_cmd_list->TextureBarrier(texture.get(), ResourceState::CopyDst, ResourceState::ComputeSRV);
-		gfx_cmd_list->BufferBarrier(buffer.get(), ResourceState::CopySrc, ResourceState::Common);
+		gfx_cmd_list->TextureBarrier(texture, ResourceState::CopyDst, ResourceState::ComputeSRV);
+		gfx_cmd_list->BufferBarrier(buffer, ResourceState::CopySrc, ResourceState::Common);
 
 		gfx_cmd_list->FlushBarriers();
-		gfx_cmd_list->End();
-
-		gfx_cmd_list->Signal(fence.get(), ++fence_value);
-		gfx_cmd_list->Submit();
-
-		return texture;
 	}
 	
 	void OfflineContext::GenerateMips(Texture* texture, Uint32 srv_index)
 	{
-		fence->Wait(fence_value);
-
 		CommandList::CommandListExecuteContext execute_context{};
 		execute_context.descriptor_heap = gpu_context->GetGPUDescriptorHeap();
 		execute_context.root_signature  = gpu_context->GetGlobalRootSignature();
-
-		gfx_cmd_list->Begin(execute_context);
 
 		struct Constants
 		{
@@ -123,10 +118,6 @@ namespace cesar
 
 		gfx_cmd_list->TextureBarrier(texture, ResourceState::ComputeSRV, ResourceState::PixelSRV, {});
 		gfx_cmd_list->FlushBarriers();
-
-		gfx_cmd_list->End();
-		gfx_cmd_list->Signal(fence.get(), ++fence_value);
-		gfx_cmd_list->Submit();
 	}
 
 	//Probably move to Texture.h

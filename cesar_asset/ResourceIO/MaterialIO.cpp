@@ -1,5 +1,6 @@
 #include "MaterialIO.h"
 #include "../ResourceCache.h"
+#include "../../cesar_core/Core/ThreadPool.h"
 
 #include <tinyobj/tiny_obj_loader.h>
 #include <fastgltf/types.hpp>
@@ -217,6 +218,13 @@ namespace cesar
             }
         }
 
+        if (!HasFlag(load_desc->flags, MaterialLoadFlags::LoadFromMeshIO))
+        {
+            gThreadPool.SubmitJob([&]() {
+                resource_cache->texture_loader->ExecuteTextureCreateJobs();
+            });
+        }
+
         return material_resource;
     }
 
@@ -304,7 +312,14 @@ namespace cesar
         CopyToMemoryBlock(material_data_block, &data);
 
         material_resource->material_data = material_data_block.data();
-        SaveToDisk(*load_desc, material_resource.get());
+
+        if (!HasFlag(load_desc->flags, MaterialLoadFlags::LoadFromMeshIO))
+        {
+            gThreadPool.SubmitJob([&]() {
+                resource_cache->texture_loader->ExecuteAllJobs();
+             });
+        }
+
         return material_resource;
     }
 
@@ -466,7 +481,13 @@ namespace cesar
 
         material_resource->material_data = material_block.data();
 
-        SaveToDisk(*material_load_desc, material_resource.get());
+        if (!HasFlag(material_load_desc->flags, MaterialLoadFlags::LoadFromMeshIO))
+        {
+            gThreadPool.SubmitJob([&]() {
+                resource_cache->texture_loader->ExecuteAllJobs();
+            });
+        }
+
         return material_resource;
     }
 

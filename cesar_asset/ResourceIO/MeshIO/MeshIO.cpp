@@ -1,6 +1,7 @@
 #include "MeshIO.h"
 #include "../../../cesar_core/Core/MathConstants.h"
 #include "../../ResourceCache.h"
+#include "../../../cesar_core/Core/ThreadPool.h"
 
 #include <fastgltf/core.hpp>
 #include <fastgltf/types.hpp>
@@ -18,12 +19,12 @@ namespace cesar {
 
         std::unique_ptr<Mesh> mesh_resource = std::make_unique<Mesh>();
 
-        LinearAllocator<SubMeshData>* submesh_data_allocator = resource_cache->GetMeshAllocator();
-        LinearAllocator<Vertex>*   vertex_allocator    = resource_cache->GetVertexAllocator();
-        LinearAllocator<Uint32>*   index_allocator     = resource_cache->GetIndexAllocator();
-        LinearAllocator<Meshlet>* meshlet_allocator = resource_cache->GetMeshletAllocator();
-        LinearAllocator<Uint32>* meshlet_vertex_allocator = resource_cache->GetMeshletVertexAllocator();
-        LinearAllocator<Uint32>* meshlet_triangle_allocator = resource_cache->GetMeshletTriangleAllocator();
+        LinearAllocator<SubMeshData>* submesh_data_allocator     = resource_cache->GetMeshAllocator();
+        LinearAllocator<Vertex>*      vertex_allocator           = resource_cache->GetVertexAllocator();
+        LinearAllocator<Uint32>*      index_allocator            = resource_cache->GetIndexAllocator();
+        LinearAllocator<Meshlet>*     meshlet_allocator          = resource_cache->GetMeshletAllocator();
+        LinearAllocator<Uint32>*      meshlet_vertex_allocator   = resource_cache->GetMeshletVertexAllocator();
+        LinearAllocator<Uint32>*      meshlet_triangle_allocator = resource_cache->GetMeshletTriangleAllocator();
 
         mesh_resource->vertex_start           = vertex_allocator->GetOffset();
         mesh_resource->index_start            = index_allocator->GetOffset();
@@ -38,8 +39,8 @@ namespace cesar {
         std::vector<SubMeshData> submesh_data;
 
         std::vector<Meshlet> meshlets;
-        std::vector<Uint32> meshlet_vertices;
-        std::vector<Uint32> meshlet_triangles;
+        std::vector<Uint32>  meshlet_vertices;
+        std::vector<Uint32>  meshlet_triangles;
 
         const std::string file_extension = load_desc.file_path.extension().string();
         if (load_desc.is_cooked) {
@@ -102,6 +103,10 @@ namespace cesar {
                 ReadFileData(mesh_resource->model_matrixes.data(), header.submesh_matrixes_start, header.submesh_count);
             }
 
+            gThreadPool.SubmitJob([&]() {
+                resource_cache->texture_loader->ExecuteAllJobs();
+            });
+
             return mesh_resource;
         }
         else if (file_extension == ".gltf" || file_extension == ".glb") {
@@ -139,8 +144,6 @@ namespace cesar {
         mesh_resource->meshlet_triangle_count = meshlet_triangles.size();
         mesh_resource->meshlet_vertex_count = meshlet_vertices.size();
 
-
-        SaveToDisk(load_desc, mesh_resource.get());
         return mesh_resource;
     }
 
@@ -517,7 +520,7 @@ namespace cesar {
                             .index = static_cast<Uint32>(gltf_material_idx)
                         };
                         MaterialLoadDesc material_load_desc{};
-                        material_load_desc.flags = MaterialLoadFlags::LoadFromGlb_Gltf;
+                        material_load_desc.flags = MaterialLoadFlags::LoadFromGlb_Gltf | MaterialLoadFlags::LoadFromMeshIO;
                         material_load_desc.payload = &data;
                         material_load_desc.no_path = true;
                         material_load_desc.file_path = std::format("{}", material_name.c_str());
@@ -531,6 +534,10 @@ namespace cesar {
             }
             mmesh_index++;
         }
+
+        gThreadPool.SubmitJob([&]() {
+            resource_cache->texture_loader->ExecuteAllJobs();
+        });
     }
 
     DirectX::XMMATRIX GetWorldTransform(aiNode* node)

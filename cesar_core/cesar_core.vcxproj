@@ -214,6 +214,7 @@
     <ClCompile Include="Allocator\LinearAllocator.cpp" />
     <ClCompile Include="cesar_core.cpp" />
     <ClCompile Include="Core\MathConstants.h" />
+    <ClCompile Include="Core\ThreadPool.cpp" />
     <ClCompile Include="Core\UUID.cpp" />
     <ClCompile Include="Event\Input.cpp" />
     <ClCompile Include="pch.cpp">

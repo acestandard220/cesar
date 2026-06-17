@@ -258,6 +258,7 @@
     <ClInclude Include="Resources\Material.h" />
     <ClInclude Include="Resources\Mesh.h" />
     <ClInclude Include="ResourceIO\ResourceIO.h" />
+    <ClInclude Include="TextureLoadManager.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

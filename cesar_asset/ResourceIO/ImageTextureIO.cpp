@@ -101,18 +101,18 @@ namespace cesar {
         std::vector<Subresource> asset_subresources(header.mip_count * header.array_size);
         input.read(reinterpret_cast<char*>(asset_subresources.data()), static_cast<std::streamsize>(CESAR_SIZEOF_BUFFER(Subresource, asset_subresources.size())));
 
-        OfflineContext* offline_context = resource_cache->offline_context;
+        OfflineContext* context = resource_cache->offline_context;
 
         image_texture->width = header.width;
         image_texture->height = header.height;
+        image_texture->srv_index = 0;
 
         TextureDesc texture_desc{};
         texture_desc.type  = header.tex_type;
         texture_desc.usage = ResourceUsage::Default;
-
         texture_desc.format = header.format;
 
-        const Uint32 max_mip_count = GetMipCount(header.width, header.height);
+        const Uint32 max_mip_count = header.mip_count;
 
         texture_desc.height       = header.height;
         texture_desc.width        = header.width;
@@ -122,14 +122,28 @@ namespace cesar {
         texture_desc.misc_flag    = header.misc_flag;
         texture_desc.intial_state = ResourceState::CopyDst;
 
-        void* data = malloc(header.copyable_size);
-        input.read(reinterpret_cast<char*>(data), header.copyable_size);
+        Char* data = (Char*)malloc(header.copyable_size);
+        input.read(data, header.copyable_size);
 
-        image_texture->gpu_texture = offline_context->CreateTexture(data, header.copyable_size,asset_subresources.data(),
-            asset_subresources.size(), texture_desc, image_load_desc.file_path.stem().string().c_str());
-        image_texture->srv_index = offline_context->AllocateBindlessTextureSRV(image_texture->gpu_texture.get());
+        const auto name = load_desc->file_path.string();
+        image_texture->gpu_texture = context->CreatePersistentTexture(texture_desc, name.c_str());
+        image_texture->srv_index   = context->AllocateBindlessTextureSRV(image_texture->gpu_texture.get());
+
+        auto upload_buffer = context->CreateReadbackBuffer(header.copyable_size, name.c_str());
+        upload_buffer->Upload(std::span<Uint8>((Uint8*)data, header.copyable_size));
+
+        TextureLoadManager::TextureLoadJob load_job{};
+        load_job.data              = upload_buffer;
+        load_job.desc              = texture_desc;
+        load_job.image_texture     = image_texture.get();
+        load_job.is_cooked         = true;
+        load_job.size              = header.copyable_size;
+        load_job.subresources      = asset_subresources.data();
+        load_job.subresource_count = asset_subresources.size();
+        resource_cache->texture_loader->SubmitLoadJob(load_job);
 
         free(data);
+
         return image_texture;
     }
 
@@ -166,6 +180,7 @@ namespace cesar {
         image_texture->width  = width;
         image_texture->height = height;
         image_texture->format = GetImageTextureFormat(nChannel, bpc);
+        image_texture->srv_index = 0;
         load_desc->uuid = CESAR_INVALID_UUID;
 
         OfflineContext* context = resource_cache->offline_context;
@@ -196,13 +211,28 @@ namespace cesar {
         texture_desc.misc_flag = TextureMiscFlag::SRGB;
         texture_desc.intial_state = ResourceState::CopyDst;
 
-        image_texture->gpu_texture = context->CreateTexture(data, texture_desc, load_desc->file_path.stem().string().c_str());
+        auto name = load_desc->file_path.string();
+        image_texture->gpu_texture = context->CreatePersistentTexture(texture_desc, name.c_str());
         image_texture->srv_index   = context->AllocateBindlessTextureSRV(image_texture->gpu_texture.get());
-		context->GenerateMips(image_texture->gpu_texture.get(), image_texture->srv_index);
 
-        stbi_image_free(data);
+        const Uint64 byte_size = width * height * GetFormatStride(texture_desc.format);
+        auto upload_buffer = context->CreateUploadbuffer(byte_size, name.c_str());
+        upload_buffer->Upload(std::span<Uint8>((Uint8*)data, byte_size));
 
-        SaveToDisk(*load_desc, image_texture.get());
+        TextureLoadManager::TextureLoadJob load_job{};
+        load_job.data = upload_buffer;
+        load_job.desc = texture_desc;
+        load_job.image_texture = image_texture.get();
+        load_job.is_cooked = false;
+        resource_cache->texture_loader->SubmitLoadJob(load_job);
+
+        TextureLoadManager::MipGenerationJob mip_job{};
+        mip_job.desc = texture_desc;
+        mip_job.image_texture = image_texture.get();
+        resource_cache->texture_loader->SubmitMipGenJob(mip_job);
+
+        free(data);
+
         return image_texture;
     }
 
@@ -217,6 +247,7 @@ namespace cesar {
         std::unique_ptr<ImageTexture> image_texture = std::make_unique<ImageTexture>();
 
 		_data_* data = reinterpret_cast<_data_*>(load_desc->payload);
+        void* pixel_data = nullptr;
 
         Int32 width, height, nChannel, bpc;
         stbi_set_flip_vertically_on_load(HasFlag(load_desc->flags, ImageLoadFlags::FlipUV));
@@ -224,25 +255,26 @@ namespace cesar {
 		Bool is16Bit = false;
         if (stbi_is_16_bit_from_memory(static_cast<const stbi_uc*>(data->data), data->size))
         {
-            data->data = stbi_load_16_from_memory(static_cast<const stbi_uc*>(data->data), data->size, &width, &height, &nChannel, 4);
+            pixel_data = stbi_load_16_from_memory(static_cast<const stbi_uc*>(data->data), data->size, &width, &height, &nChannel, 4);
 			bpc = 16;
             is16Bit = true;
         }
         else
         {
-            data->data = stbi_load_from_memory(static_cast<const stbi_uc*>(data->data), data->size, &width, &height, &nChannel, 4);
+            pixel_data = stbi_load_from_memory(static_cast<const stbi_uc*>(data->data), data->size, &width, &height, &nChannel, 4);
 			bpc = 8;
 			is16Bit = false;
         }
 
-        if (data == nullptr) {
+        if (pixel_data == nullptr) {
             return nullptr;
         }
 
         nChannel = 4;
-        image_texture->width = width;
+        image_texture->width  = width;
         image_texture->height = height;
         image_texture->format = GetImageTextureFormat(nChannel, bpc);
+        image_texture->srv_index = 0;
         load_desc->uuid = CESAR_INVALID_UUID;
 
         OfflineContext* context = resource_cache->offline_context;
@@ -273,13 +305,28 @@ namespace cesar {
         texture_desc.misc_flag = TextureMiscFlag::SRGB;
         texture_desc.intial_state = ResourceState::CopyDst;
 
-        image_texture->gpu_texture = context->CreateTexture(data->data, texture_desc,load_desc->file_path.stem().string().c_str());
+        const auto name = load_desc->file_path.string();
+        image_texture->gpu_texture = context->CreatePersistentTexture(texture_desc, name.c_str());
         image_texture->srv_index = context->AllocateBindlessTextureSRV(image_texture->gpu_texture.get());
-        context->GenerateMips(image_texture->gpu_texture.get(), image_texture->srv_index);
 
-        stbi_image_free(data->data);
+        const Uint64 byte_size = width * height * GetFormatStride(texture_desc.format);
+        auto upload_buffer = context->CreateUploadbuffer(byte_size, name.c_str());
+        upload_buffer->Upload(std::span<Uint8>((Uint8*)pixel_data, byte_size));
 
-        SaveToDisk(*load_desc, image_texture.get());
+        TextureLoadManager::TextureLoadJob load_job{};
+        load_job.data = upload_buffer;
+        load_job.desc = texture_desc;
+        load_job.image_texture = image_texture.get();
+        load_job.is_cooked = false;
+        resource_cache->texture_loader->SubmitLoadJob(load_job);
+
+        TextureLoadManager::MipGenerationJob mip_job{};
+        mip_job.desc = texture_desc;
+        mip_job.image_texture = image_texture.get();
+        resource_cache->texture_loader->SubmitMipGenJob(mip_job);
+
+        free(pixel_data);
+
         return image_texture;
     }
 

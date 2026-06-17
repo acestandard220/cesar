@@ -1,5 +1,6 @@
 #include "Engine.h"
 #include "../../cesar_core/Event/Input.h"
+#include "../../cesar_core/Core/ThreadPool.h"
 
 namespace cesar
 {
@@ -16,9 +17,9 @@ namespace cesar
 
 		//Possible Cross Depp.
 		scene = std::make_shared<Scene>(window, resource_cache.get());
-		scene->AddMeshEntity("Z:\\Models\\Bistro\\Bistro_v5_2\\Bistro.glb");
+		//scene->AddMeshEntity("Z:\\Models\\Bistro\\Bistro_v5_2\\Bistro.glb");
 		//scene->AddMeshEntity("Z:\\Models\\EmeraldSquare\\EmeraldSquare_v4_1\\EmeraldDay.glb");
-		//scene->AddMeshEntity("D:\\Project\\cesar\\cesar\\resources\\Backpack1k.glb");
+		scene->AddMeshEntity("D:\\Project\\cesar\\cesar\\resources\\Backpack1k.glb");
 		scene->AddLightEntity("Point Light");
 
 		renderer = std::make_unique<Renderer>(window, render_context.get(),scene.get());
@@ -27,7 +28,9 @@ namespace cesar
 	}
 
 	Engine::~Engine()
-	{}
+	{
+		gThreadPool.Shutdown();
+	}
 	
 	void Engine::Begin()
 	{

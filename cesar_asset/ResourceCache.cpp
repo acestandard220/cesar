@@ -15,6 +15,8 @@ namespace cesar
 		if (!InitializeAllocators())
 			return;
 
+		texture_loader = std::make_unique<TextureLoadManager>(offline_context);
+
 		resource_io[static_cast<Uint32>(ResourceType::ImageTexture)] = std::make_unique<ImageTextureIO>(this);	
 		resource_io[static_cast<Uint32>(ResourceType::Mesh)] = std::make_unique<MeshIO>(this);
 		resource_io[static_cast<Uint32>(ResourceType::Material)] = std::make_unique<MaterialIO>(this);
@@ -131,6 +133,9 @@ namespace cesar
 			load_desc.type = ResourceType::ImageTexture;
 			load_desc.flags |= ImageLoadFlags::FlipUV;
 			load_desc.flags |= ImageLoadFlags::GenerateMips;
+			load_desc.payload = nullptr;
+			load_desc.is_cooked = false;
+			load_desc.no_path = false;
 			default_invalid_texture = LoadResource<ImageTexture>(load_desc);
 		}
 		
@@ -140,6 +145,9 @@ namespace cesar
 			load_desc.flags |= ImageLoadFlags::FlipUV;
 			load_desc.flags |= ImageLoadFlags::GenerateMips;
 			load_desc.file_path = "D:\\Project\\cesar\\cesar\\resources\\Default Textures\\white.png";
+			load_desc.payload = nullptr;
+			load_desc.is_cooked = false;
+			load_desc.no_path = false;
 			default_white_texture = LoadResource<ImageTexture>(load_desc);
 		}
 		
@@ -149,6 +157,9 @@ namespace cesar
 			load_desc.flags |= ImageLoadFlags::FlipUV;
 			load_desc.flags |= ImageLoadFlags::GenerateMips;
 			load_desc.file_path = "D:\\Project\\cesar\\cesar\\resources\\Default Textures\\black.png";
+			load_desc.payload = nullptr;
+			load_desc.is_cooked = false;
+			load_desc.no_path = false;
 			default_black_texture = LoadResource<ImageTexture>(load_desc);
 		}
 
@@ -158,6 +169,9 @@ namespace cesar
 			load_desc.flags |= ImageLoadFlags::FlipUV;
 			load_desc.flags |= ImageLoadFlags::GenerateMips;
 			load_desc.file_path = "D:\\Project\\cesar\\cesar\\resources\\Default Textures\\normal.png";
+			load_desc.payload = nullptr;
+			load_desc.is_cooked = false;
+			load_desc.no_path = false;
 			default_normal_texture = LoadResource<ImageTexture>(load_desc);
 		}
 

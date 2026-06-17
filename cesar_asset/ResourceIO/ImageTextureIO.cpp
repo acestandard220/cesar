@@ -125,22 +125,18 @@ namespace cesar {
         Char* data = (Char*)malloc(header.copyable_size);
         input.read(data, header.copyable_size);
 
-        const auto name = load_desc->file_path.string();
+        const auto name = load_desc->file_path.stem().string();
         image_texture->gpu_texture = context->CreatePersistentTexture(texture_desc, name.c_str());
         image_texture->srv_index   = context->AllocateBindlessTextureSRV(image_texture->gpu_texture.get());
 
         auto upload_buffer = context->CreateReadbackBuffer(header.copyable_size, name.c_str());
         upload_buffer->Upload(std::span<Uint8>((Uint8*)data, header.copyable_size));
 
-        TextureLoadManager::TextureLoadJob load_job{};
-        load_job.data              = upload_buffer;
-        load_job.desc              = texture_desc;
-        load_job.image_texture     = image_texture.get();
-        load_job.is_cooked         = true;
-        load_job.size              = header.copyable_size;
-        load_job.subresources      = asset_subresources.data();
-        load_job.subresource_count = asset_subresources.size();
-        resource_cache->texture_loader->SubmitLoadJob(load_job);
+        auto im_tex = image_texture.get();
+
+        resource_cache->texture_loader->Submit([context, upload_buffer, im_tex](){
+            context->UploadTextureData(upload_buffer, im_tex->gpu_texture.get());
+        });
 
         free(data);
 
@@ -211,7 +207,7 @@ namespace cesar {
         texture_desc.misc_flag = TextureMiscFlag::SRGB;
         texture_desc.intial_state = ResourceState::CopyDst;
 
-        auto name = load_desc->file_path.string();
+        const auto name = load_desc->file_path.stem().string();
         image_texture->gpu_texture = context->CreatePersistentTexture(texture_desc, name.c_str());
         image_texture->srv_index   = context->AllocateBindlessTextureSRV(image_texture->gpu_texture.get());
 
@@ -219,17 +215,12 @@ namespace cesar {
         auto upload_buffer = context->CreateUploadbuffer(byte_size, name.c_str());
         upload_buffer->Upload(std::span<Uint8>((Uint8*)data, byte_size));
 
-        TextureLoadManager::TextureLoadJob load_job{};
-        load_job.data = upload_buffer;
-        load_job.desc = texture_desc;
-        load_job.image_texture = image_texture.get();
-        load_job.is_cooked = false;
-        resource_cache->texture_loader->SubmitLoadJob(load_job);
+        auto im_tex = image_texture.get();
 
-        TextureLoadManager::MipGenerationJob mip_job{};
-        mip_job.desc = texture_desc;
-        mip_job.image_texture = image_texture.get();
-        resource_cache->texture_loader->SubmitMipGenJob(mip_job);
+        resource_cache->texture_loader->Submit([context, upload_buffer, im_tex]() {
+            context->UploadTextureData(upload_buffer, im_tex->gpu_texture.get());
+            context->GenerateMips(im_tex->gpu_texture.get(), im_tex->srv_index);
+        });
 
         free(data);
 
@@ -305,7 +296,7 @@ namespace cesar {
         texture_desc.misc_flag = TextureMiscFlag::SRGB;
         texture_desc.intial_state = ResourceState::CopyDst;
 
-        const auto name = load_desc->file_path.string();
+        const auto name = load_desc->file_path.stem().string();
         image_texture->gpu_texture = context->CreatePersistentTexture(texture_desc, name.c_str());
         image_texture->srv_index = context->AllocateBindlessTextureSRV(image_texture->gpu_texture.get());
 
@@ -313,17 +304,12 @@ namespace cesar {
         auto upload_buffer = context->CreateUploadbuffer(byte_size, name.c_str());
         upload_buffer->Upload(std::span<Uint8>((Uint8*)pixel_data, byte_size));
 
-        TextureLoadManager::TextureLoadJob load_job{};
-        load_job.data = upload_buffer;
-        load_job.desc = texture_desc;
-        load_job.image_texture = image_texture.get();
-        load_job.is_cooked = false;
-        resource_cache->texture_loader->SubmitLoadJob(load_job);
+        auto im_tex = image_texture.get();
 
-        TextureLoadManager::MipGenerationJob mip_job{};
-        mip_job.desc = texture_desc;
-        mip_job.image_texture = image_texture.get();
-        resource_cache->texture_loader->SubmitMipGenJob(mip_job);
+        resource_cache->texture_loader->Submit([context, upload_buffer, im_tex]() {
+            context->UploadTextureData(upload_buffer, im_tex->gpu_texture.get());
+            context->GenerateMips(im_tex->gpu_texture.get(), im_tex->srv_index);
+        });
 
         free(pixel_data);
 

@@ -123,7 +123,7 @@ namespace cesar
 				LOG_DEBUG("Resource loaded successfully");
 				auto* ret = static_cast<T*>(Register(resource, load_desc));
 				if(!load_desc.is_cooked)
-					//Suspended for now. Saving Cache is not optimized
+					////Suspended for now. Saving Cache is not optimized
 					//io->SaveToDisk(load_desc, ret); 
 
 				return ret;
@@ -190,7 +190,7 @@ namespace cesar
 			std::unique_ptr<LinearAllocator<Uint32>> meshlet_vertices;
 			std::unique_ptr<LinearAllocator<Uint32>>  meshlet_triangles;
 
-			std::unique_ptr<TextureLoadManager> texture_loader;
+			std::unique_ptr<TextureJobManager> texture_loader;
 		private:
 			std::unordered_map<std::filesystem::path, UUID> path_uuid_map;
 			std::array<std::unordered_map<UUID, std::unique_ptr<Resource>>, static_cast<Uint32>(ResourceType::Unknown)> resources;

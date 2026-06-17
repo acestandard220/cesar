@@ -15,7 +15,7 @@ namespace cesar
 		if (!InitializeAllocators())
 			return;
 
-		texture_loader = std::make_unique<TextureLoadManager>(offline_context);
+		texture_loader = std::make_unique<TextureJobManager>(offline_context);
 
 		resource_io[static_cast<Uint32>(ResourceType::ImageTexture)] = std::make_unique<ImageTextureIO>(this);	
 		resource_io[static_cast<Uint32>(ResourceType::Mesh)] = std::make_unique<MeshIO>(this);

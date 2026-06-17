@@ -62,7 +62,7 @@ namespace cesar
 		gfx_cmd_list->FlushBarriers();
 	}
 
-	void OfflineContext::UploadTextureData(Buffer* buffer, Uint64 byte_size, Subresource* subresources, Uint32 subresource_count, Texture* texture) {
+	void OfflineContext::UploadTextureData(Buffer* buffer, Subresource* subresources, Uint32 subresource_count, Texture* texture) {
 		gfx_cmd_list->BufferBarrier(buffer, ResourceState::Common, ResourceState::CopySrc);
 		gfx_cmd_list->FlushBarriers();
 
@@ -79,10 +79,6 @@ namespace cesar
 	
 	void OfflineContext::GenerateMips(Texture* texture, Uint32 srv_index)
 	{
-		CommandList::CommandListExecuteContext execute_context{};
-		execute_context.descriptor_heap = gpu_context->GetGPUDescriptorHeap();
-		execute_context.root_signature  = gpu_context->GetGlobalRootSignature();
-
 		struct Constants
 		{
 			Uint32 src_texture_idx;
@@ -93,10 +89,11 @@ namespace cesar
 			.src_texture_idx = srv_index
 		};
 
+	    gfx_cmd_list->SetPipelineState(generate_mips_pso.get());
+		
 		for (Uint32 i = 1; i < texture->GetDesc().mips; i++)
 		{
 			Descriptor descriptor = gpu_context->CreateTextureUAV(texture, { .mip_levels = 1, .mip = i, .array_size = 1, .slice = 0 }, false, true);
-			gfx_cmd_list->SetPipelineState(generate_mips_pso.get());
 
 			constants.src_texture_idx = srv_index + (i - 1);
 			constants.dst_texture_idx = descriptor.index;
@@ -147,14 +144,6 @@ namespace cesar
 
 	Buffer* OfflineContext::GetTextureSubRegionPixels(Texture* texture, const TextureViewDesc& view_desc)
 	{
-		fence->Wait(fence_value);
-
-		CommandList::CommandListExecuteContext execute_context{};
-		execute_context.descriptor_heap = gpu_context->GetGPUDescriptorHeap();
-		execute_context.root_signature = gpu_context->GetGlobalRootSignature();
-
-		gfx_cmd_list->Begin(execute_context);
-
 		TextureDesc texture_desc = texture->GetDesc();
 		Buffer* buffer = gpu_context->CreateReadbackBuffer<Float>(texture_desc.width * texture_desc.height);
 
@@ -170,25 +159,11 @@ namespace cesar
 		gfx_cmd_list->TextureBarrier(texture, ResourceState::CopySrc, ResourceState::PixelSRV, {});
 		gfx_cmd_list->FlushBarriers();
 
-		gfx_cmd_list->End();
-		gfx_cmd_list->Signal(fence.get(), ++fence_value);
-		gfx_cmd_list->Submit();
-
-		fence->Wait(fence_value);
-
 		return buffer;
 	}
 
 	Buffer* OfflineContext::GetTexturePixels(Texture* texture)
 	{
-		fence->Wait(fence_value);
-
-		CommandList::CommandListExecuteContext execute_context{};
-		execute_context.descriptor_heap = gpu_context->GetGPUDescriptorHeap();
-		execute_context.root_signature = gpu_context->GetGlobalRootSignature();
-
-		gfx_cmd_list->Begin(execute_context);
-
 		TextureDesc texture_desc = texture->GetDesc();
 		Buffer* buffer = gpu_context->CreateReadbackBuffer<Float>(texture->GetTextureCopyableSize());
 
@@ -205,12 +180,6 @@ namespace cesar
 
 		gfx_cmd_list->TextureBarrier(texture, ResourceState::CopySrc, ResourceState::PixelSRV, {});
 		gfx_cmd_list->FlushBarriers();
-
-		gfx_cmd_list->End();
-		gfx_cmd_list->Signal(fence.get(), ++fence_value);
-		gfx_cmd_list->Submit();
-
-		fence->Wait(fence_value);
 
 		return buffer;
 	}

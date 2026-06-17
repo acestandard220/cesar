@@ -104,7 +104,7 @@ namespace cesar {
             }
 
             gThreadPool.SubmitJob([&]() {
-                resource_cache->texture_loader->ExecuteAllJobs();
+                resource_cache->texture_loader->ExecuteAll();
             });
 
             return mesh_resource;
@@ -536,7 +536,7 @@ namespace cesar {
         }
 
         gThreadPool.SubmitJob([&]() {
-            resource_cache->texture_loader->ExecuteAllJobs();
+            resource_cache->texture_loader->ExecuteAll();
         });
     }
 

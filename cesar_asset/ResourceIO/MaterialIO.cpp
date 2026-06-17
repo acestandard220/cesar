@@ -221,7 +221,7 @@ namespace cesar
         if (!HasFlag(load_desc->flags, MaterialLoadFlags::LoadFromMeshIO))
         {
             gThreadPool.SubmitJob([&]() {
-                resource_cache->texture_loader->ExecuteTextureCreateJobs();
+                resource_cache->texture_loader->ExecuteAll();
             });
         }
 
@@ -316,7 +316,7 @@ namespace cesar
         if (!HasFlag(load_desc->flags, MaterialLoadFlags::LoadFromMeshIO))
         {
             gThreadPool.SubmitJob([&]() {
-                resource_cache->texture_loader->ExecuteAllJobs();
+                resource_cache->texture_loader->ExecuteAll();
              });
         }
 
@@ -484,7 +484,7 @@ namespace cesar
         if (!HasFlag(material_load_desc->flags, MaterialLoadFlags::LoadFromMeshIO))
         {
             gThreadPool.SubmitJob([&]() {
-                resource_cache->texture_loader->ExecuteAllJobs();
+                resource_cache->texture_loader->ExecuteAll();
             });
         }
 

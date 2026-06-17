@@ -238,6 +238,7 @@
     <ClCompile Include="Resource.cpp" />
     <ClCompile Include="ResourceCache.cpp" />
     <ClCompile Include="ResourceIO\ImageTextureIO.cpp" />
+    <ClCompile Include="TextureLoadManager.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\cesar_core\cesar_core.vcxproj">

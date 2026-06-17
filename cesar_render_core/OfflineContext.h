@@ -21,7 +21,7 @@ namespace cesar
 		Buffer* CreateUploadbuffer(Uint32 element_count,   const Char* name);
 
 		void UploadTextureData(Buffer* data, Texture* texture);
-		void UploadTextureData(Buffer* data, Uint64 byte_size, Subresource* subresources, Uint32 subresource_count, Texture* texture);
+		void UploadTextureData(Buffer* data, Subresource* subresources, Uint32 subresource_count, Texture* texture);
 		void GenerateMips(Texture* texture, Uint32 srv_index);
 
 		Buffer* GetTextureSubRegionPixels(Texture* texture, const TextureViewDesc& view_desc);

@@ -28,7 +28,7 @@ namespace cesar {
 
 	Renderer::~Renderer()
 	{
-
+		render_context->WaitAll();
 	}
 
 	void Renderer::NewFrame()

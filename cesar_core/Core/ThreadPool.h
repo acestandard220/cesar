@@ -14,12 +14,12 @@ namespace cesar
 			const Uint32 max_thread_count = std::thread::hardware_concurrency();
 			for (Uint32 i = 0; i < max_thread_count; i++)
 			{
-				threads.emplace_back(std::thread(ThreadPool::ThreadLoop, this));
+				threads.emplace_back(std::thread(&ThreadPool::ThreadLoop, this));
 			}
 		}
 
 		template <class F>
-		auto Submit(F&& f) -> std::future<std::invoke_result_t<F>>
+		auto SubmitJob(F&& f) -> std::future<std::invoke_result_t<F>>
 		{
 			using R = std::invoke_result_t<F>;
 
@@ -35,7 +35,7 @@ namespace cesar
 			return fut;
 		}
 
-		void SubmitQueue(std::function<void()>& new_job)
+		void SubmitJob(std::function<void()>& new_job)
 		{
 			{
 				std::unique_lock lock(queue_mutex); //Just making sure main thread is the only one accessing the jobs pool at this moment
@@ -57,6 +57,13 @@ namespace cesar
 			}
 			threads.clear();
 		}
+
+		static ThreadPool& GetThreadPool()
+		{
+			static ThreadPool pool;
+			return pool;
+		}
+
 
 	private:
 		void ThreadLoop()
@@ -83,5 +90,7 @@ namespace cesar
 		Bool done = false;
 
 	};
+
+#define gThreadPool ThreadPool::GetThreadPool()
 
 }

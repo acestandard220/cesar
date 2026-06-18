@@ -65,11 +65,9 @@ namespace cesar
 
             auto msg = std::vformat(fmt, std::make_format_args(args...));
 
-            std::println("{}[{}] {}:{} — {}{}",
+            std::println("{}[{}] {}{}",
                 detail::LevelToColor(level),
                 detail::LevelToString(level),
-                loc.file_name(),
-                loc.line(),
                 msg,
                 detail::ResetColor);
         }

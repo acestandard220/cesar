@@ -27,6 +27,19 @@ namespace cesar
 			std::lock_guard lock(generic_mutex);
 			generic_jobs.emplace_back(job);
 		}
+
+		/// <summary>
+		/// This function calls ExecuteAll() on the job queue, Submits the new job & Immediately executes 
+		/// This function guarantees GPU completion. It forces a Wait()
+		/// </summary>
+		/// <param name="job"></param>
+		void ExecuteImmediate(const std::function<void()>& job)
+		{
+			ExecuteAll();
+			Submit(job);
+			ExecuteAll();
+			context->Wait();
+		}
 		
 		void ExecuteAll();
 

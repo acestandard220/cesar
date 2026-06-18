@@ -3,6 +3,7 @@
 #include <stb/stb_image.h>
 #include <stb/stb_image_write.h>
 #include "../cesar_render_core/OfflineContext.h"
+#include "../../cesar_core/Core/ThreadPool.h"
 
 using namespace cesar;
 namespace cesar {
@@ -22,57 +23,69 @@ namespace cesar {
 
     void ImageTextureIO::SaveToDisk(const ResourceLoadDesc& load_desc, void* resource)
     {
-        return;
-
         ImageTexture* image_texture = static_cast<ImageTexture*>(resource);
-        Texture* gpu_texture        = image_texture->gpu_texture.get();
+        Texture* gpu_texture = image_texture->gpu_texture.get();
 
         OfflineContext* offline_context = resource_cache->offline_context;
+        ResourceCache* cache = resource_cache;
 
-        Buffer* data_buffer = offline_context->GetTexturePixels(gpu_texture);
-        void* data          = data_buffer->GetPersistentPointer();
-        
-        const TextureDesc& desc = image_texture->gpu_texture->GetDesc();
+        const filespace::filepath cooked_path = cache->GetCookedAssetPath(load_desc.file_path);
+        const TextureDesc desc = gpu_texture->GetDesc();
 
         ImageAssetHeader header{};
-        header.version   = 1;
-        header.uuid      = image_texture->GetUUID();
-        header.type      = ResourceType::ImageTexture;
+        header.version = 1;
+        header.uuid = image_texture->GetUUID();
+        header.type = ResourceType::ImageTexture;
         header.ref_count = image_texture->GetRefCount();
-
-        header.width         = image_texture->width;
-        header.height        = image_texture->height;
+        header.width = image_texture->width;
+        header.height = image_texture->height;
         header.copyable_size = gpu_texture->GetTextureCopyableSize();
-        header.mip_count     = desc.mips ;
-        header.array_size    = desc.array_size;
-        header.format        = desc.format;
-        header.tex_type      = desc.type;
-        header.misc_flag     = desc.misc_flag;
+        header.mip_count = desc.mips;
+        header.array_size = desc.array_size;
+        header.format = desc.format;
+        header.tex_type = desc.type;
+        header.misc_flag = desc.misc_flag;
 
         const Uint32 subresource_count = gpu_texture->GetSubresourceCount();
         std::vector<Subresource> asset_subresources(subresource_count);
         gpu_texture->GetTextureCopyableSubresources(asset_subresources);
 
-        const auto cooked_path = resource_cache->GetCookedAssetPath(load_desc.file_path);
-        std::ofstream output(cooked_path, std::ios::binary | std::ios::out);
+        gThreadPool.SubmitJob([cache, offline_context, gpu_texture, header, cooked_path,
+            asset_subresources = std::move(asset_subresources)]() mutable
+            {
+                Buffer* data_buffer = nullptr;
 
-        if (!output) {
-            LOG_ERROR("Failed to save asset to disk.");
-            return;
-        }
+                cache->texture_loader->ExecuteImmediate([&]() {
+                    data_buffer = offline_context->GetTexturePixels(gpu_texture);
+                    });
 
-        constexpr std::size_t base_size  = CESAR_SIZEOF(CesarAssetHeader);
-        constexpr std::size_t total_size = CESAR_SIZEOF(ImageAssetHeader);
+                if (!data_buffer) {
+                    LOG_ERROR("Failed to get texture pixels.");
+                    return;
+                }
 
-        const char* header_bytes = reinterpret_cast<const char*>(&header);
-        output.write(header_bytes,             static_cast<std::streamsize>(base_size));
-        output.write(header_bytes + base_size, static_cast<std::streamsize>(total_size - base_size));
-        
-        output.write(reinterpret_cast<char*>(asset_subresources.data()), static_cast<std::streamsize>(CESAR_SIZEOF_BUFFER(Subresource, asset_subresources.size())));
-        output.write(reinterpret_cast<char*>(data),                      static_cast<std::streamsize>(data_buffer->GetSize()));
+                void* data = data_buffer->GetPersistentPointer();
 
-        delete data_buffer; //this should be handled properly
-        output.close();
+                std::ofstream output(cooked_path, std::ios::binary | std::ios::out);
+                if (!output) {
+                    LOG_ERROR("Failed to save asset to disk.");
+                    delete data_buffer;
+                    return;
+                }
+
+                constexpr std::size_t base_size = CESAR_SIZEOF(CesarAssetHeader);
+                constexpr std::size_t total_size = CESAR_SIZEOF(ImageAssetHeader);
+
+                const char* header_bytes = reinterpret_cast<const char*>(&header);
+                output.write(header_bytes, static_cast<std::streamsize>(base_size));
+                output.write(header_bytes + base_size, static_cast<std::streamsize>(total_size - base_size));
+                output.write(reinterpret_cast<const char*>(asset_subresources.data()),
+                    static_cast<std::streamsize>(CESAR_SIZEOF_BUFFER(Subresource, asset_subresources.size())));
+                output.write(reinterpret_cast<const char*>(data),
+                    static_cast<std::streamsize>(data_buffer->GetSize()));
+
+                delete data_buffer;
+            });
     }
 
     //TODO: This Load path assumes non cube textures

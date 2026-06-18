@@ -144,7 +144,7 @@ namespace cesar {
         image_texture->gpu_texture = context->CreatePersistentTexture(texture_desc, name.c_str());
         image_texture->srv_index   = context->AllocateBindlessTextureSRV(image_texture->gpu_texture.get());
 
-        auto upload_buffer = context->CreateReadbackBuffer(header.copyable_size, name.c_str());
+        Buffer* upload_buffer = context->CreateUploadbuffer(header.copyable_size, name.c_str());
         upload_buffer->Upload(std::span<Uint8>((Uint8*)data, header.copyable_size));
 
         auto im_tex = image_texture.get();
@@ -154,6 +154,7 @@ namespace cesar {
         });
 
         free(data);
+        delete upload_buffer;
 
         return image_texture;
     }
@@ -227,7 +228,7 @@ namespace cesar {
         image_texture->srv_index   = context->AllocateBindlessTextureSRV(image_texture->gpu_texture.get());
 
         const Uint64 byte_size = width * height * GetFormatStride(texture_desc.format);
-        auto upload_buffer = context->CreateUploadbuffer(byte_size, name.c_str());
+        Buffer* upload_buffer = context->CreateUploadbuffer(byte_size, name.c_str());
         upload_buffer->Upload(std::span<Uint8>((Uint8*)data, byte_size));
 
         auto im_tex = image_texture.get();
@@ -238,6 +239,7 @@ namespace cesar {
         });
 
         free(data);
+        delete upload_buffer;
 
         return image_texture;
     }
@@ -316,7 +318,7 @@ namespace cesar {
         image_texture->srv_index = context->AllocateBindlessTextureSRV(image_texture->gpu_texture.get());
 
         const Uint64 byte_size = width * height * GetFormatStride(texture_desc.format);
-        auto upload_buffer = context->CreateUploadbuffer(byte_size, name.c_str());
+        Buffer* upload_buffer = context->CreateUploadbuffer(byte_size, name.c_str());
         upload_buffer->Upload(std::span<Uint8>((Uint8*)pixel_data, byte_size));
 
         auto im_tex = image_texture.get();
@@ -327,6 +329,7 @@ namespace cesar {
         });
 
         free(pixel_data);
+        delete upload_buffer;
 
         return image_texture;
     }

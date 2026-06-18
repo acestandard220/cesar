@@ -22,6 +22,8 @@ namespace cesar {
 
     void ImageTextureIO::SaveToDisk(const ResourceLoadDesc& load_desc, void* resource)
     {
+        return;
+
         ImageTexture* image_texture = static_cast<ImageTexture*>(resource);
         Texture* gpu_texture        = image_texture->gpu_texture.get();
 

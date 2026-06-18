@@ -117,6 +117,8 @@ namespace cesar
 
     std::unique_ptr<Material> MaterialIO::LoadNative(MaterialLoadDesc* load_desc)
     {
+        LOG_DEBUG("LOADING CACHED MATERIAL_RESOURCE");
+
         std::unique_ptr<Material> material_resource = std::make_unique<Material>();
 
         MaterialAssetHeader header;
@@ -230,6 +232,8 @@ namespace cesar
 
     std::unique_ptr<Material> MaterialIO::LoadMaterialFromMtl(MaterialLoadDesc* load_desc)
     {
+        LOG_DEBUG("LOADING NON-NATIVE MATERIAL RESOURCE");
+
         std::unique_ptr<Material> material_resource = std::make_unique<Material>();
 
         std::vector<tinyobj::material_t> materials;
@@ -326,6 +330,7 @@ namespace cesar
     std::unique_ptr<Material> MaterialIO::LoadGlbGltfMaterial(MaterialLoadDesc* material_load_desc)
     {
         ZoneScopedN("MaterialIO::LoadGlbGltfMaterial")
+        LOG_DEBUG("LOADING NON-NATIVE MATERIAL RESOURCE");
 
         std::unique_ptr<Material> material_resource = std::make_unique<Material>();
 

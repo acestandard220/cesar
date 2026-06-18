@@ -97,13 +97,13 @@ namespace cesar
 				UUID uuid = IsLoaded(load_desc.file_path);
 
 				if (uuid) {
-					LOG_WARN("Resource has already been loaded.");
+					LOG_WARN("RESOURCE HAS ALREADY BEEN LOADED");
 					return static_cast<T*>(resources[static_cast<Uint32>(load_desc.type)][uuid].get());
 				}
 
 				if (!std::filesystem::exists(load_desc.file_path) && !load_desc.no_path)
 				{
-					LOG_ERROR("Specified path does not exist.");
+					LOG_ERROR("SPECIFIED RESOURCE PATH DOES NOT EXIST");
 					return nullptr;
 				}
 
@@ -116,15 +116,17 @@ namespace cesar
 				IResourceIO* io = GetResourceIO(load_desc.type);
 				std::unique_ptr<Resource> resource = io->LoadFromFile(load_desc);
 				if (!resource) {
-					LOG_ERROR("Failed to load resource.");
+					LOG_ERROR("FAILED TO LOAD RESOURCE");
 					return nullptr;
 				}
 
-				LOG_DEBUG("Resource loaded successfully");
 				auto* ret = static_cast<T*>(Register(resource, load_desc));
-				if(!load_desc.is_cooked)
-					////Suspended for now. Saving Cache is not optimized
-					//io->SaveToDisk(load_desc, ret); 
+				LOG_INFO("RESOURCE LOADED SUCCESSFULLY. ({})", ret->GetResourceName().c_str());
+				if (!load_desc.is_cooked)
+				{
+					io->SaveToDisk(load_desc, ret);
+					LOG_DEBUG("RESOURCE CACHED SUCCESSFULLY");
+				}
 
 				return ret;
 			}

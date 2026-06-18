@@ -47,6 +47,7 @@ namespace cesar {
             ZoneScopedN("MeshIO::LoadNativeMeshFile")
 
             {
+                LOG_DEBUG("LOADING CACHED MESH RESOURCE");
 
                 std::ifstream input(load_desc.file_path, std::ios::binary);
                 if (!input.is_open()) {
@@ -244,6 +245,8 @@ namespace cesar {
 
     void MeshIO::OptimizeMesh(std::vector<SubMeshData>& submeshes, std::vector<Vertex>& vertices, std::vector<Uint32>& indices)
     {
+        LOG_DEBUG("  OPTIMIZING MESH");
+
         for (const auto& submesh : submeshes)
         {
             std::span submesh_vertices(vertices.data() + submesh.vertex_start, submesh.vertex_count);
@@ -266,6 +269,7 @@ namespace cesar {
         std::vector<Meshlet>& meshlets, std::vector<Uint32>& meshlet_vertices, std::vector<Uint32>& meshlet_triangles)
     {
         ZoneScopedN("MeshIO::GenerateMeshlets")
+        LOG_DEBUG("  GENERATING MESHLET");
 
         Uint32 total_meshlet_count = 0;
         for (auto& submesh : submeshes)
@@ -343,6 +347,7 @@ namespace cesar {
         std::vector<SubMeshData>& submesh_data, Mesh* mesh)
     {
         ZoneScopedN("MeshIO::LoadFastGLTF")
+        LOG_DEBUG("LOADING NON-NATIVE MESH RESOURCE");
 
         MeshLoadDesc mesh_load_desc = static_cast<MeshLoadDesc>(load_desc);
         fastgltf::Parser parser;

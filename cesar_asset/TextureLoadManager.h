@@ -44,6 +44,7 @@ namespace cesar
 		void ExecuteAll();
 
 	private:
+		std::mutex cmd_list_mutex;
 		std::mutex generic_mutex;
 		std::vector<std::function<void()>> generic_jobs;
 

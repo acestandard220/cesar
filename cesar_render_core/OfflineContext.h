@@ -15,6 +15,8 @@ namespace cesar
 		void Begin();
 		void End();
 
+		void Wait();
+
 		std::unique_ptr<Texture> CreatePersistentTexture(const TextureDesc& desc, const Char* name);
 
 		Buffer* CreateReadbackBuffer(Uint32 element_count, const Char* name);

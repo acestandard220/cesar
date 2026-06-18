@@ -23,7 +23,7 @@ namespace cesar
 
 	void OfflineContext::Begin()
 	{
-		fence->Wait(fence_value);
+		Wait();
 		gfx_cmd_list->Begin();
 	}
 
@@ -33,6 +33,11 @@ namespace cesar
 
 		gfx_cmd_list->Signal(fence.get(), ++fence_value);
 		gfx_cmd_list->Submit();
+	}
+
+	void OfflineContext::Wait()
+	{
+		fence->Wait(fence_value);
 	}
 
 	std::unique_ptr<Texture> OfflineContext::CreatePersistentTexture(const TextureDesc& desc, const Char* name)

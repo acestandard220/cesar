@@ -104,10 +104,6 @@ namespace cesar {
                 ReadFileData(mesh_resource->model_matrixes.data(), header.submesh_matrixes_start, header.submesh_count);
             }
 
-            gThreadPool.SubmitJob([&]() {
-                resource_cache->texture_loader->ExecuteAll();
-            });
-
             return mesh_resource;
         }
         else if (file_extension == ".gltf" || file_extension == ".glb") {
@@ -539,10 +535,6 @@ namespace cesar {
             }
             mmesh_index++;
         }
-
-        gThreadPool.SubmitJob([&]() {
-            resource_cache->texture_loader->ExecuteAll();
-        });
     }
 
     DirectX::XMMATRIX GetWorldTransform(aiNode* node)

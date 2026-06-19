@@ -48,8 +48,9 @@ namespace cesar {
 			filespace::filepath cooked_path;
 
 	    	ResourceType resource_type;
-			UUID uuid;
 			Uint32 ref_count = 0;
+			UUID uuid;
+
 	};
 
 

@@ -10,6 +10,7 @@ namespace cesar
 	/// </summary>
 	class TextureJobManager
 	{
+		using Job = std::function<void()>;
 	public:
 		TextureJobManager(OfflineContext* context)
 			:context(context)
@@ -22,31 +23,24 @@ namespace cesar
 			
 		}
 
-		void Submit(const std::function<void()>& job)
-		{
-			std::lock_guard lock(generic_mutex);
-			generic_jobs.emplace_back(job);
-		}
+		void Wait();
+
+		void Submit(const Job& job);
 
 		/// <summary>
 		/// This function calls ExecuteAll() on the job queue, Submits the new job & Immediately executes 
 		/// This function guarantees GPU completion. It forces a Wait()
 		/// </summary>
 		/// <param name="job"></param>
-		void ExecuteImmediate(const std::function<void()>& job)
-		{
-			ExecuteAll();
-			Submit(job);
-			ExecuteAll();
-			context->Wait();
-		}
-		
+		void ExecuteImmediate(const Job& job);
+
 		void ExecuteAll();
 
 	private:
 		std::mutex cmd_list_mutex;
 		std::mutex generic_mutex;
-		std::vector<std::function<void()>> generic_jobs;
+
+		std::vector<Job> generic_jobs;
 
 		OfflineContext* context;
 	};

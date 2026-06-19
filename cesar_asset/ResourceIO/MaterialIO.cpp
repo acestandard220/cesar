@@ -11,6 +11,20 @@
 
 namespace cesar
 {
+    static void LoadImageTexturesAsync(TextureJobManager* loader, Material* material, MaterialLoadDesc* load_desc)
+    {
+        gThreadPool.SubmitJob([&]() {
+            loader->ExecuteAll();
+            loader->Wait();
+
+            delete material->albedo_map->data;
+            delete material->normal_map->data;
+            delete material->ao_map->data;
+            delete material->roughness_map->data;
+            delete material->metallic_map->data;
+        });
+    }
+
 	std::unique_ptr<Resource> MaterialIO::LoadFromFile(ResourceLoadDesc& load_desc)
 	{
         MaterialLoadDesc* mtl_load_desc = (MaterialLoadDesc*)(&load_desc);
@@ -220,12 +234,7 @@ namespace cesar
             }
         }
 
-        if (!HasFlag(load_desc->flags, MaterialLoadFlags::LoadFromMeshIO))
-        {
-            gThreadPool.SubmitJob([&]() {
-                resource_cache->texture_loader->ExecuteAll();
-            });
-        }
+        LoadImageTexturesAsync(resource_cache->texture_loader.get(), material_resource.get(), load_desc);
 
         return material_resource;
     }
@@ -317,12 +326,7 @@ namespace cesar
 
         material_resource->material_data = material_data_block.data();
 
-        if (!HasFlag(load_desc->flags, MaterialLoadFlags::LoadFromMeshIO))
-        {
-            gThreadPool.SubmitJob([&]() {
-                resource_cache->texture_loader->ExecuteAll();
-             });
-        }
+        LoadImageTexturesAsync(resource_cache->texture_loader.get(), material_resource.get(), load_desc);
 
         return material_resource;
     }
@@ -486,12 +490,7 @@ namespace cesar
 
         material_resource->material_data = material_block.data();
 
-        if (!HasFlag(material_load_desc->flags, MaterialLoadFlags::LoadFromMeshIO))
-        {
-            gThreadPool.SubmitJob([&]() {
-                resource_cache->texture_loader->ExecuteAll();
-            });
-        }
+        LoadImageTexturesAsync(resource_cache->texture_loader.get(), material_resource.get(), material_load_desc);
 
         return material_resource;
     }

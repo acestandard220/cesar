@@ -8,6 +8,26 @@
 using namespace cesar;
 namespace cesar {
 
+    static void UploadTextureData(OfflineContext*  context, TextureJobManager* loader, ImageLoadDesc* load_desc, Buffer* upload_buffer, ImageTexture* im_tex, Bool gen_mips)
+    {
+        if (HasFlag(load_desc->flags, ImageLoadFlags::LoadFromMaterial))
+        {
+            loader->Submit([context, upload_buffer, im_tex, gen_mips]() {
+                context->UploadTextureData(upload_buffer, im_tex->gpu_texture.get());
+                if(gen_mips)
+                    context->GenerateMips(im_tex->gpu_texture.get(), im_tex->srv_index);
+            });
+        }
+        else {
+            loader->ExecuteImmediate([context, upload_buffer, im_tex, gen_mips]() {
+                context->UploadTextureData(upload_buffer, im_tex->gpu_texture.get());
+                if (gen_mips)
+                    context->GenerateMips(im_tex->gpu_texture.get(), im_tex->srv_index);
+            });
+            delete upload_buffer;
+        }
+    }
+
 	std::unique_ptr<Resource> ImageTextureIO::LoadFromFile(ResourceLoadDesc& load_desc)
 	{
 		ImageLoadDesc* image_load_desc = static_cast<ImageLoadDesc*>(&load_desc);
@@ -148,13 +168,19 @@ namespace cesar {
         upload_buffer->Upload(std::span<Uint8>((Uint8*)data, header.copyable_size));
 
         auto im_tex = image_texture.get();
+        im_tex->data = upload_buffer;
 
-        resource_cache->texture_loader->Submit([context, upload_buffer, im_tex](){
-            context->UploadTextureData(upload_buffer, im_tex->gpu_texture.get());
-        });
+        auto loader = resource_cache->texture_loader.get();
+        UploadTextureData(context, loader, load_desc, upload_buffer, image_texture.get(), false);
+
+        //loader->Submit([context, upload_buffer, im_tex](){
+        //    context->UploadTextureData(upload_buffer, im_tex->gpu_texture.get());
+        //});
+        //loader->AddPostJob([upload_buffer]() {
+        //    delete upload_buffer;
+        //});
 
         free(data);
-        delete upload_buffer;
 
         return image_texture;
     }
@@ -191,7 +217,6 @@ namespace cesar {
         nChannel = 4;
         image_texture->width  = width;
         image_texture->height = height;
-        image_texture->format = GetImageTextureFormat(nChannel, bpc);
         image_texture->srv_index = 0;
         load_desc->uuid = CESAR_INVALID_UUID;
 
@@ -232,14 +257,22 @@ namespace cesar {
         upload_buffer->Upload(std::span<Uint8>((Uint8*)data, byte_size));
 
         auto im_tex = image_texture.get();
+        im_tex->data = upload_buffer;
 
-        resource_cache->texture_loader->Submit([context, upload_buffer, im_tex]() {
-            context->UploadTextureData(upload_buffer, im_tex->gpu_texture.get());
-            context->GenerateMips(im_tex->gpu_texture.get(), im_tex->srv_index);
-        });
+        auto loader = resource_cache->texture_loader.get();
+
+        UploadTextureData(context, loader, load_desc, upload_buffer, image_texture.get(), true);
+
+        //loader->Submit([context, upload_buffer, im_tex]() {
+        //    context->UploadTextureData(upload_buffer, im_tex->gpu_texture.get());
+        //    context->GenerateMips(im_tex->gpu_texture.get(), im_tex->srv_index);
+        //});
+
+        //loader->AddPostJob([upload_buffer]() {
+        //    delete upload_buffer;
+        //});
 
         free(data);
-        delete upload_buffer;
 
         return image_texture;
     }
@@ -281,7 +314,6 @@ namespace cesar {
         nChannel = 4;
         image_texture->width  = width;
         image_texture->height = height;
-        image_texture->format = GetImageTextureFormat(nChannel, bpc);
         image_texture->srv_index = 0;
         load_desc->uuid = CESAR_INVALID_UUID;
 
@@ -322,15 +354,20 @@ namespace cesar {
         upload_buffer->Upload(std::span<Uint8>((Uint8*)pixel_data, byte_size));
 
         auto im_tex = image_texture.get();
+        im_tex->data = upload_buffer;
 
-        resource_cache->texture_loader->Submit([context, upload_buffer, im_tex]() {
-            context->UploadTextureData(upload_buffer, im_tex->gpu_texture.get());
-            context->GenerateMips(im_tex->gpu_texture.get(), im_tex->srv_index);
-        });
+        auto loader = resource_cache->texture_loader.get();
+        UploadTextureData(context, loader, load_desc, upload_buffer, image_texture.get(), true);
+
+        //loader->Submit([context, upload_buffer, im_tex]() {
+        //    context->UploadTextureData(upload_buffer, im_tex->gpu_texture.get());
+        //    context->GenerateMips(im_tex->gpu_texture.get(), im_tex->srv_index);
+        //});
+        //loader->AddPostJob([upload_buffer]() {
+        //    delete upload_buffer;
+        //});
 
         free(pixel_data);
-        delete upload_buffer;
-
         return image_texture;
     }
 

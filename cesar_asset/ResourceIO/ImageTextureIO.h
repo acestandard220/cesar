@@ -12,10 +12,12 @@ namespace cesar {
 	enum class ImageLoadFlags : Int32
 	{
 		None = 0,
-		FlipUV = 1 << 0,
-		GenerateMips = 1 << 1,
+		FlipUV = BIT(1),
+		GenerateMips = BIT(2),
 
-		LoadFromMemory = 1 << 2,
+		LoadFromMemory = BIT(3),
+		LoadFromMaterial = BIT(4)
+
 
 		//NormalMap = 1<<3,
 		//AlbedoMap =1<<4,

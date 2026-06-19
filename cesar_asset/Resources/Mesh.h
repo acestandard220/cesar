@@ -74,6 +74,7 @@ namespace cesar {
 		Uint32 pad02[2];
 	};
 
+	class Material;
 	struct Mesh : public Resource
 	{
 		Uint32 vertex_start;
@@ -98,7 +99,8 @@ namespace cesar {
 
 		std::vector<Matrix> model_matrixes;
 		std::vector<std::string> submesh_names;
-		std::vector<Uint32> default_materials; //Per-submesh //Indexed with submesh_id
+		std::vector<Uint32> material_data_index; //Per-submesh //Indexed with submesh_id
+		std::vector<Material*> submesh_materials;
 	};
 
 	template<> struct ResourceTypeTrait<Mesh> { static constexpr ResourceType type = ResourceType::Mesh; };

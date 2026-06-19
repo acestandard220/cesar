@@ -22,14 +22,19 @@
 #include <string>
 #include <future>
 #include <thread>
+#include <ranges>
 #include <iomanip>
 #include <fstream>
 #include <sstream>
+#include <numeric>
+#include <utility>
 #include <algorithm>
 #include <functional>
 #include <filesystem>
 #include <unordered_set>
 #include <unordered_map>
+
+
 
 #include <Tracy/tracy/Tracy.hpp>
 

@@ -10,21 +10,24 @@ namespace cesar {
 
     static void UploadTextureData(OfflineContext*  context, TextureJobManager* loader, ImageLoadDesc* load_desc, Buffer* upload_buffer, ImageTexture* im_tex, Bool gen_mips)
     {
+        Texture* texture = im_tex->gpu_texture.get();
+        Uint32 srv_index = im_tex->srv_index;
         if (HasFlag(load_desc->flags, ImageLoadFlags::LoadFromMaterial))
         {
-            loader->Submit([context, upload_buffer, im_tex, gen_mips]() {
-                context->UploadTextureData(upload_buffer, im_tex->gpu_texture.get());
+            loader->Submit([context, upload_buffer, texture, srv_index, gen_mips]() {
+                context->UploadTextureData(upload_buffer, texture);
                 if(gen_mips)
-                    context->GenerateMips(im_tex->gpu_texture.get(), im_tex->srv_index);
+                    context->GenerateMips(texture, srv_index);
             });
         }
         else {
-            loader->ExecuteImmediate([context, upload_buffer, im_tex, gen_mips]() {
-                context->UploadTextureData(upload_buffer, im_tex->gpu_texture.get());
+            loader->ExecuteImmediate([context, upload_buffer, texture, srv_index, gen_mips]() {
+                context->UploadTextureData(upload_buffer, texture);
                 if (gen_mips)
-                    context->GenerateMips(im_tex->gpu_texture.get(), im_tex->srv_index);
+                    context->GenerateMips(texture, srv_index);
             });
             delete upload_buffer;
+            im_tex->data = nullptr;
         }
     }
 

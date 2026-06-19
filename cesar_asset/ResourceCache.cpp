@@ -175,5 +175,6 @@ namespace cesar
 			default_normal_texture = LoadResource<ImageTexture>(load_desc);
 		}
 
+		texture_loader->ExecuteAll();
 	}
 }

@@ -94,13 +94,6 @@ namespace cesar
 			T* LoadResource(ResourceLoadDesc& load_desc) {
 				ZoneScopedN("ResourceCache::LoadResource")
 
-				UUID uuid = IsLoaded(load_desc.file_path);
-
-				if (uuid) {
-					LOG_WARN("RESOURCE HAS ALREADY BEEN LOADED");
-					return static_cast<T*>(resources[static_cast<Uint32>(load_desc.type)][uuid].get());
-				}
-
 				if (!std::filesystem::exists(load_desc.file_path) && !load_desc.no_path)
 				{
 					LOG_ERROR("SPECIFIED RESOURCE PATH DOES NOT EXIST");
@@ -111,6 +104,13 @@ namespace cesar
 					load_desc.is_cooked = true;
 				else
 					load_desc.is_cooked = false;
+
+				UUID uuid = IsLoaded(load_desc.file_path);
+
+				if (uuid) {
+					LOG_WARN("RESOURCE HAS ALREADY BEEN LOADED");
+					return static_cast<T*>(resources[static_cast<Uint32>(load_desc.type)][uuid].get());
+				}
 
 
 				IResourceIO* io = GetResourceIO(load_desc.type);

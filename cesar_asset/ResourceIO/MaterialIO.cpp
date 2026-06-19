@@ -11,17 +11,28 @@
 
 namespace cesar
 {
+    static void __safe_del(void* ptr)
+    {
+        if (ptr)
+            delete ptr;
+    }
     static void LoadImageTexturesAsync(TextureJobManager* loader, Material* material, MaterialLoadDesc* load_desc)
     {
-        gThreadPool.SubmitJob([&]() {
+        gThreadPool.SubmitJob([loader, material]() {
             loader->ExecuteAll();
             loader->Wait();
 
-            delete material->albedo_map->data;
-            delete material->normal_map->data;
-            delete material->ao_map->data;
-            delete material->roughness_map->data;
-            delete material->metallic_map->data;
+            __safe_del(material->albedo_map->data);
+            material->albedo_map->data = nullptr;
+            __safe_del(material->normal_map->data);
+            material->normal_map->data = nullptr;
+            __safe_del(material->ao_map->data);
+            material->ao_map->data        = nullptr;
+            __safe_del(material->roughness_map->data);
+            material->roughness_map->data = nullptr;
+            __safe_del(material->metallic_map->data);
+            material->metallic_map->data  = nullptr;
+
         });
     }
 
@@ -189,48 +200,71 @@ namespace cesar
 
             //Load And Set Material Images
             {
-                ImageLoadDesc image_load_desc{};
-                image_load_desc.flags = ImageLoadFlags::FlipUV | ImageLoadFlags::GenerateMips;
-                image_load_desc.file_path = filespace::filepath(albedo_path.begin(), albedo_path.end());
-                ImageTexture* _texture = resource_cache->LoadResource<ImageTexture>(image_load_desc);
-
-                if (_texture == nullptr)
                 {
-                    _texture = resource_cache->GetDefaultInvalidTexture();
-                }
-                material_data.albedo.map_index = _texture->srv_index;
+                    ImageLoadDesc image_load_desc{};
+                    image_load_desc.flags = ImageLoadFlags::FlipUV | ImageLoadFlags::GenerateMips | ImageLoadFlags::LoadFromMaterial;
+                    image_load_desc.file_path = filespace::filepath(albedo_path.begin(), albedo_path.end());
+                    ImageTexture* _texture = resource_cache->LoadResource<ImageTexture>(image_load_desc);
 
-                image_load_desc.file_path = filespace::filepath(normal_path.begin(), normal_path.end());
-                _texture = resource_cache->LoadResource<ImageTexture>(image_load_desc);
-                if (_texture == nullptr)
-                {
-                    _texture = resource_cache->GetDefaultNormalTexture();
+                    if (_texture == nullptr)
+                    {
+                        _texture = resource_cache->GetDefaultInvalidTexture();
+                    }
+                    material_data.albedo.map_index = _texture->srv_index;
+                    material_resource->albedo_map = _texture;
                 }
-                material_data.normal.map_index = _texture->srv_index;
 
-                image_load_desc.file_path = filespace::filepath(ao_path.begin(), ao_path.end());
-                _texture = resource_cache->LoadResource<ImageTexture>(image_load_desc);
-                if (_texture == nullptr)
                 {
-                    _texture = resource_cache->GetDefaultWhiteTexture();
+                    ImageLoadDesc image_load_desc{};
+                    image_load_desc.flags = ImageLoadFlags::FlipUV | ImageLoadFlags::GenerateMips | ImageLoadFlags::LoadFromMaterial;
+                    image_load_desc.file_path = filespace::filepath(normal_path.begin(), normal_path.end());
+                    ImageTexture* _texture = resource_cache->LoadResource<ImageTexture>(image_load_desc);
+                    if (_texture == nullptr)
+                    {
+                        _texture = resource_cache->GetDefaultNormalTexture();
+                    }
+                    material_resource->normal_map = _texture;
+                    material_data.normal.map_index = _texture->srv_index;
                 }
-                material_data.ao.map_index = _texture->srv_index;
 
-                image_load_desc.file_path = filespace::filepath(roughness_path.begin(), roughness_path.end());
-                _texture = resource_cache->LoadResource<ImageTexture>(image_load_desc);
-                if (_texture == nullptr)
                 {
-                    _texture = resource_cache->GetDefaultWhiteTexture();
+                    ImageLoadDesc image_load_desc{};
+                    image_load_desc.flags = ImageLoadFlags::FlipUV | ImageLoadFlags::GenerateMips | ImageLoadFlags::LoadFromMaterial;
+                    image_load_desc.file_path = filespace::filepath(ao_path.begin(), ao_path.end());
+                    ImageTexture* _texture = resource_cache->LoadResource<ImageTexture>(image_load_desc);
+                    if (_texture == nullptr)
+                    {
+                        _texture = resource_cache->GetDefaultWhiteTexture();
+                    }
+                    material_resource->ao_map = _texture;
+                    material_data.ao.map_index = _texture->srv_index;
                 }
-                material_data.roughness.map_index = _texture->srv_index;
 
-                image_load_desc.file_path = filespace::filepath(metallic_path.begin(), metallic_path.end());
-                _texture = resource_cache->LoadResource<ImageTexture>(image_load_desc);
-                if (_texture == nullptr)
                 {
-                    _texture = resource_cache->GetDefaultBlackTexture();
+                    ImageLoadDesc image_load_desc{};
+                    image_load_desc.flags = ImageLoadFlags::FlipUV | ImageLoadFlags::GenerateMips | ImageLoadFlags::LoadFromMaterial;
+                    image_load_desc.file_path = filespace::filepath(roughness_path.begin(), roughness_path.end());
+                    ImageTexture* _texture = resource_cache->LoadResource<ImageTexture>(image_load_desc);
+                    if (_texture == nullptr)
+                    {
+                        _texture = resource_cache->GetDefaultWhiteTexture();
+                    }
+                    material_resource->roughness_map = _texture;
+                    material_data.roughness.map_index = _texture->srv_index;
                 }
-                material_data.metallic.map_index = _texture->srv_index;
+
+                {
+                    ImageLoadDesc image_load_desc{};
+                    image_load_desc.flags = ImageLoadFlags::FlipUV | ImageLoadFlags::GenerateMips | ImageLoadFlags::LoadFromMaterial;
+                    image_load_desc.file_path = filespace::filepath(metallic_path.begin(), metallic_path.end());
+                    ImageTexture* _texture = resource_cache->LoadResource<ImageTexture>(image_load_desc);
+                    if (_texture == nullptr)
+                    {
+                        _texture = resource_cache->GetDefaultBlackTexture();
+                    }
+                    material_resource->metallic_map = _texture;
+                    material_data.metallic.map_index = _texture->srv_index;
+                }
             }
         }
 
@@ -258,7 +292,7 @@ namespace cesar
 		
         ImageLoadDesc image_load_desc{};
 		image_load_desc.file_path = m.diffuse_texname;
-		image_load_desc.flags = ImageLoadFlags::FlipUV | ImageLoadFlags::GenerateMips;
+		image_load_desc.flags = ImageLoadFlags::FlipUV | ImageLoadFlags::GenerateMips | ImageLoadFlags::LoadFromMaterial;
 		ImageTexture* diffuse_texture = resource_cache->LoadResource<ImageTexture>(image_load_desc); 
         if (diffuse_texture == nullptr) {
 			LOG_ERROR("Failed to load diffuse texture for material - {}", m.diffuse_texname.c_str());
@@ -391,11 +425,13 @@ namespace cesar
                 material->pbrData.baseColorFactor[3]
         };
 
+        auto image_load_flags = ImageLoadFlags::FlipUV | ImageLoadFlags::GenerateMips |
+                                ImageLoadFlags::LoadFromMemory | ImageLoadFlags::LoadFromMaterial;
         // Base color
         if (material->pbrData.baseColorTexture.has_value())
         {
             auto& info = pbr_info.baseColorTexture.value();
-            if (auto* tex = load_texture(info.textureIndex, ImageLoadFlags::FlipUV | ImageLoadFlags::GenerateMips | ImageLoadFlags::LoadFromMemory))
+            if (auto* tex = load_texture(info.textureIndex, image_load_flags))
             {
                 material_data.albedo.map_index = tex->srv_index;
                 material_resource->albedo_map = tex;
@@ -416,7 +452,7 @@ namespace cesar
         {
             auto& info = material->normalTexture.value();
             material_data.normal.normal_strength = info.scale;
-            if (auto* tex = load_texture(info.textureIndex, ImageLoadFlags::FlipUV | ImageLoadFlags::GenerateMips | ImageLoadFlags::LoadFromMemory))
+            if (auto* tex = load_texture(info.textureIndex, image_load_flags))
             {
                 material_data.normal.map_index = tex->srv_index;
                 material_resource->normal_map = tex;
@@ -441,7 +477,7 @@ namespace cesar
             material_data.ao.ao_strength = info.strength;
             material_data.ao.channel = ImageTextureChannel::R;
 
-            if (auto* tex = load_texture(info.textureIndex, ImageLoadFlags::FlipUV | ImageLoadFlags::GenerateMips | ImageLoadFlags::LoadFromMemory)) {
+            if (auto* tex = load_texture(info.textureIndex, image_load_flags)) {
                 material_data.ao.map_index = tex->srv_index;
                 material_resource->ao_map = tex;
             }
@@ -463,7 +499,7 @@ namespace cesar
 
             material_data.roughness.roughness_strength = material->pbrData.roughnessFactor;
             material_data.roughness.channel = ImageTextureChannel::G;
-            if (auto* tex = load_texture(info.textureIndex, ImageLoadFlags::FlipUV | ImageLoadFlags::GenerateMips | ImageLoadFlags::LoadFromMemory))
+            if (auto* tex = load_texture(info.textureIndex, image_load_flags))
             {
                 material_data.metallic.map_index  = tex->srv_index;
                 material_data.roughness.map_index = tex->srv_index;

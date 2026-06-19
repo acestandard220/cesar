@@ -26,10 +26,10 @@ namespace cesar
 		MeshLoadFlags load_flags;
 	};
 
-	// | Vertices | Indices | SubmeshDatas | Meshlets | MeshletTriangles | MeshletVertices | ModelMatrix  
+	// | Vertices | Indices | SubmeshDatas | Meshlets | MeshletTriangles | MeshletVertices | ModelMatrix | NameCounts | Names | SubmeshMaterialIndex | MaterialNameCharCounts | MaterialNames
 	struct MeshAssetHeader : public CesarAssetHeader
 	{
-		//These are the .casset file fields not the global buffer fields
+		//These are the .csa file fields not the global buffer fields
 		Uint64 vertex_count;
 		Uint64 vertex_start;
 
@@ -48,9 +48,17 @@ namespace cesar
 		Uint64 meshlet_triangle_start;
 		Uint64 meshlet_triangle_count;
 
-		Uint64 submesh_names_start;
 		Uint64 submesh_matrixes_start;
+
+		Uint64 submesh_names_char_counts_start;
+		Uint64 submesh_names_start;
+		Uint64 submesh_names_char_count;
+
+		Uint64 submesh_material_index_start;
+		Uint64 submesh_material_names_char_counts_start;
 		Uint64 submesh_material_start;
+		Uint64 submesh_material_name_char_count;
+		Uint64 unique_material_count;
 
 		Matrix model_matrix;
 	};

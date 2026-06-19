@@ -11,11 +11,6 @@
 #include "PipelineState.h"
 #include "CommandSignature.h"
 
-#include <ranges>
-#include <algorithm>
-#include <utility>
-#include <vector>
-
 namespace cesar
 {
 

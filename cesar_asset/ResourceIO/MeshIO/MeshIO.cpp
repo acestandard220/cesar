@@ -77,7 +77,7 @@ namespace cesar {
 
                     mesh_resource->submesh_names.resize(header.submesh_count);
                     mesh_resource->model_matrixes.resize(header.submesh_count);
-                    mesh_resource->default_materials.resize(header.submesh_count);
+                    mesh_resource->material_data_index.resize(header.submesh_count);
 
                     mesh_resource->submesh_data_count     = submesh_data_block.size();
                     mesh_resource->vertex_count           = vertex_block.size();
@@ -102,6 +102,67 @@ namespace cesar {
                 ReadFileData(meshlet_vertice_block.data(),  header.meshlet_vertex_start,   header.meshlet_vertex_count);
                 ReadFileData(meshlet_triangle_block.data(), header.meshlet_triangle_start, header.meshlet_triangle_count);
                 ReadFileData(mesh_resource->model_matrixes.data(), header.submesh_matrixes_start, header.submesh_count);
+
+                std::vector<Char> submesh_name_chars(header.submesh_names_char_count);
+                std::vector<Uint32> submesh_names_char_counts(header.submesh_count);
+
+                ReadFileData(submesh_names_char_counts.data(), header.submesh_names_char_counts_start, header.submesh_count);
+                ReadFileData(submesh_name_chars.data(), header.submesh_names_start, header.submesh_names_char_count);
+
+                mesh_resource->submesh_names.resize(header.submesh_count);
+
+                Uint32 char_offset = 0;
+                for (Uint32 i = 0; i < header.submesh_count; i++)
+                {
+                    const auto start = submesh_name_chars.data() + char_offset;
+                    const auto count = submesh_names_char_counts[i];
+                    MemoryBlock submesh_name_span(start, count);
+                    mesh_resource->submesh_names[i] = std::string(submesh_name_span.begin(), submesh_name_span.end());
+                    char_offset += count;
+                }
+
+                std::vector<Uint32> submesh_material_indexes(header.submesh_count);
+                std::vector<Uint32> submesh_material_names_char_counts(header.unique_material_count);
+                std::vector<Char>   submesh_material_paths(header.submesh_material_name_char_count);
+                ReadFileData(submesh_material_indexes.data(), header.submesh_material_index_start, header.submesh_count);
+                ReadFileData(submesh_material_names_char_counts.data(), header.submesh_material_names_char_counts_start, header.unique_material_count);
+                ReadFileData(submesh_material_paths.data(), header.submesh_material_start, header.submesh_material_name_char_count);
+                
+                std::vector<std::string> unique_submesh_material(header.unique_material_count);
+                Uint32 mtl_char_offset = 0;
+                for (Uint32 i = 0; i < header.unique_material_count; i++)
+                {
+                    const auto start = submesh_material_paths.data() + mtl_char_offset;
+                    const auto count = submesh_material_names_char_counts[i];
+                    MemoryBlock mtl_name_span(start, count);
+                    unique_submesh_material[i] = std::string(mtl_name_span.begin(), mtl_name_span.end());
+                    mtl_char_offset += count;
+                }
+
+                auto& submesh_materials =  mesh_resource->submesh_materials;
+                auto& submesh_materials_indexes = mesh_resource->material_data_index;
+                submesh_materials_indexes.resize(header.submesh_count);
+                submesh_materials.resize(header.submesh_count);
+
+                auto material_allocator = resource_cache->GetMaterialAllocator();
+
+                if (HasFlag(static_cast<MeshLoadDesc>(load_desc).load_flags, MeshLoadFlags::LoadMeshMaterials));
+                {
+                    for (Uint32 i = 0; i < header.submesh_count; i++)
+                    {
+                        
+                        MaterialLoadDesc material_load_desc{};
+                        material_load_desc.flags = MaterialLoadFlags::LoadFromMeshIO;
+                        material_load_desc.no_path = true;
+                        material_load_desc.file_path = std::format("{}", unique_submesh_material[submesh_material_indexes[i]]);
+                        Material* material = resource_cache->LoadResource<Material>(material_load_desc);
+                        MemoryBlock<MaterialData> mtl_block(material->material_data, 1);
+                        submesh_materials_indexes[i] = material_allocator->GetIndex(mtl_block);
+                        submesh_materials[i] = material;
+                    }
+
+                }
+
             }
 
             return mesh_resource;
@@ -170,9 +231,76 @@ namespace cesar {
         header.meshlet_triangle_start = header.meshlet_vertex_start + CESAR_SIZEOF_BUFFER(Uint32, header.meshlet_vertex_count);
         header.meshlet_triangle_count = mesh_resource->meshlet_triangle_count;
 
-        header.submesh_matrixes_start = header.meshlet_triangle_start + CESAR_SIZEOF_BUFFER(Uint32, header.meshlet_triangle_count);
-        header.submesh_names_start = header.submesh_matrixes_start + CESAR_SIZEOF_BUFFER(Matrix, header.submesh_count);
+        header.submesh_matrixes_start          = header.meshlet_triangle_start + CESAR_SIZEOF_BUFFER(Uint32, header.meshlet_triangle_count);
+        header.submesh_names_char_counts_start = header.submesh_matrixes_start + CESAR_SIZEOF_BUFFER(Matrix, header.submesh_count);
+        header.submesh_names_start             = header.submesh_names_char_counts_start + CESAR_SIZEOF_BUFFER(Uint32, header.submesh_count);
 
+        header.submesh_names_char_count = 0;
+
+        std::vector<Uint32> submesh_name_char_counts;
+        submesh_name_char_counts.reserve(header.submesh_count);
+
+        for (const auto& name : mesh_resource->submesh_names)
+        {
+            const Uint64 current_length = name.size();
+            header.submesh_names_char_count += static_cast<Uint64>(current_length);
+            submesh_name_char_counts.push_back(current_length);
+        }
+        header.submesh_material_index_start = header.submesh_names_start + header.submesh_names_char_count;
+        header.submesh_material_names_char_counts_start = header.submesh_material_index_start + CESAR_SIZEOF_BUFFER(Uint32, header.submesh_count);
+
+        std::vector<Uint32> map_map;
+        std::vector<Uint32> unqiue_map;
+
+        std::vector<std::string> cooked_material_paths;
+        {
+            for (const auto& mtl : mesh_resource->submesh_materials)
+            {
+                cooked_material_paths.push_back(mtl->GetCookedPath().string());
+            }
+
+            std::unordered_map<std::filesystem::path, uint32_t> path_to_unique;
+
+            map_map.reserve(cooked_material_paths.size());
+
+            for (uint32_t i = 0; i < cooked_material_paths.size(); ++i)
+            {
+                const auto& path = cooked_material_paths[i];
+
+                auto it = path_to_unique.find(path);
+
+                if (it == path_to_unique.end())
+                {
+                    uint32_t unique_index =
+                        static_cast<uint32_t>(unqiue_map.size());
+
+                    path_to_unique.emplace(path, unique_index);
+
+                    unqiue_map.push_back(i);
+                    map_map.push_back(unique_index);
+                }
+                else
+                {
+                    map_map.push_back(it->second);
+                }
+            }
+        }
+
+        header.submesh_material_start = header.submesh_material_names_char_counts_start + CESAR_SIZEOF_BUFFER(Uint32, static_cast<Uint32>(unqiue_map.size()));
+
+        header.submesh_material_name_char_count = 0;
+        std::vector<Uint32> submesh_material_name_char_counts;
+        submesh_material_name_char_counts.reserve(header.submesh_count);
+
+        header.submesh_material_name_char_count = 0;
+        for (Uint32 unique_idx : unqiue_map)
+        {
+            const Uint64 current_length = cooked_material_paths[unique_idx].size();
+            header.submesh_material_name_char_count += current_length;
+            submesh_material_name_char_counts.push_back(static_cast<Uint32>(current_length));
+        }
+
+        header.unique_material_count = static_cast<Uint64>(unqiue_map.size());
         header.model_matrix = mesh_resource->model_matrix;
 
         const auto cooked_path = resource_cache->GetCookedAssetPath(load_desc.file_path);
@@ -233,7 +361,27 @@ namespace cesar {
         }
         
         {
-            output.write(reinterpret_cast<char*>(mesh_resource->model_matrixes.data()), CESAR_SIZEOF(Matrix) * header.submesh_count);
+            output.write(reinterpret_cast<const char*>(mesh_resource->model_matrixes.data()), CESAR_SIZEOF(Matrix) * header.submesh_count);
+
+            const std::string submesh_names_char = std::accumulate(mesh_resource->submesh_names.begin(), mesh_resource->submesh_names.end(),
+                std::string(), [](std::string a, const std::string& b) {
+                    a += b;
+                    return a;
+            });
+
+            output.write(reinterpret_cast<const char*>(submesh_name_char_counts.data()), CESAR_SIZEOF_BUFFER(Uint32, header.submesh_count));
+            output.write(reinterpret_cast<const char*>(submesh_names_char.data()), header.submesh_names_char_count);
+
+            output.write(reinterpret_cast<const Char*>(map_map.data()), CESAR_SIZEOF_BUFFER(Uint32, map_map.size()));
+            output.write(reinterpret_cast<const Char*>(submesh_material_name_char_counts.data()), CESAR_SIZEOF_BUFFER(Uint32, submesh_material_name_char_counts.size()));
+            
+            std::string submesh_material_names_chars;
+            for (Uint32 i = 0; i < unqiue_map.size(); i++)
+            {
+                submesh_material_names_chars += cooked_material_paths[i];
+            }
+
+            output.write(reinterpret_cast<const Char*>(submesh_material_names_chars.data()), header.submesh_material_name_char_count);
         }
 
         output.close();
@@ -372,13 +520,15 @@ namespace cesar {
 
         submesh_data.resize(submesh_count);
 
-        auto& submesh_names     = mesh->submesh_names;
-        auto& submesh_materials = mesh->default_materials;
-        auto& submesh_matrixes  = mesh->model_matrixes;
+        auto& submesh_names             = mesh->submesh_names;
+        auto& submesh_materials_indexes = mesh->material_data_index;
+        auto& submesh_matrixes          = mesh->model_matrixes;
+        auto& submesh_materials         = mesh->submesh_materials;
 
         submesh_names.resize(submesh_count);
-        submesh_materials.resize(submesh_count);
+        submesh_materials_indexes.resize(submesh_count);
         submesh_matrixes.resize(submesh_count);
+        submesh_materials.resize(submesh_count);
 
         Uint32 submesh_index = 0;
 
@@ -499,7 +649,7 @@ namespace cesar {
 
                 submesh.bounding_box = sm_bounding_box;
                 submesh_names[submesh_index] = std::format("{}_{}", mesh.name, primitive_index++);
-                submesh_materials[submesh_index] = 0;
+                submesh_materials[submesh_index] = 0; //Todo: this is nullptr change to point to default mtl
                 submesh_matrixes[submesh_index] = mesh_world_matrixes[mmesh_index];
 
         
@@ -527,7 +677,8 @@ namespace cesar {
                         material_load_desc.file_path = std::format("{}", material_name.c_str());
                         Material* material = resource_cache->LoadResource<Material>(material_load_desc);
                         MemoryBlock<MaterialData> mtl_block(material->material_data, 1);
-                        submesh_materials[submesh_index] = material_allocator->GetIndex(mtl_block);
+                        submesh_materials_indexes[submesh_index] = material_allocator->GetIndex(mtl_block);
+                        submesh_materials[submesh_index] = material;
                     }
 
                 }

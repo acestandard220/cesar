@@ -33,7 +33,8 @@ namespace cesar
 			}
 
 			filespace::filepath GetCookedAssetPath(const filespace::filepath& raw_path)const {
-				
+				ZoneScopedN("ResourceCache::GetCookedAssetPath")
+
 				filespace::filepath new_path = raw_path;
 				if (filespace::IsChild(assets_path, raw_path))
 				{

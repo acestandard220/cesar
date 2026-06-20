@@ -207,6 +207,8 @@ namespace cesar {
 
     void MeshIO::SaveToDisk(const ResourceLoadDesc& load_desc, void* resource)
     {
+        ZoneScopedN("MeshO::SaveToDisk")
+
         Mesh* mesh_resource = static_cast<Mesh*>(resource);
         MeshAssetHeader header{};
         header.version = 1;
@@ -376,9 +378,9 @@ namespace cesar {
             output.write(reinterpret_cast<const Char*>(submesh_material_name_char_counts.data()), CESAR_SIZEOF_BUFFER(Uint32, submesh_material_name_char_counts.size()));
             
             std::string submesh_material_names_chars;
-            for (Uint32 i = 0; i < unqiue_map.size(); i++)
+            for (Uint32 unique_idx : unqiue_map)
             {
-                submesh_material_names_chars += cooked_material_paths[i];
+                submesh_material_names_chars += cooked_material_paths[unique_idx];
             }
 
             output.write(reinterpret_cast<const Char*>(submesh_material_names_chars.data()), header.submesh_material_name_char_count);
@@ -649,7 +651,6 @@ namespace cesar {
 
                 submesh.bounding_box = sm_bounding_box;
                 submesh_names[submesh_index] = std::format("{}_{}", mesh.name, primitive_index++);
-                submesh_materials[submesh_index] = 0; //Todo: this is nullptr change to point to default mtl
                 submesh_matrixes[submesh_index] = mesh_world_matrixes[mmesh_index];
 
         
@@ -679,6 +680,10 @@ namespace cesar {
                         MemoryBlock<MaterialData> mtl_block(material->material_data, 1);
                         submesh_materials_indexes[submesh_index] = material_allocator->GetIndex(mtl_block);
                         submesh_materials[submesh_index] = material;
+                    }
+                    else {
+                        submesh_materials[submesh_index];
+                        submesh_materials_indexes[submesh_index];
                     }
 
                 }

@@ -10,6 +10,8 @@ namespace cesar {
 
     static void UploadTextureData(OfflineContext*  context, TextureJobManager* loader, ImageLoadDesc* load_desc, Buffer* upload_buffer, ImageTexture* im_tex, Bool gen_mips)
     {
+        ZoneScopedN("ImageTextureIO::UploadTextureData")
+
         Texture* texture = im_tex->gpu_texture.get();
         Uint32 srv_index = im_tex->srv_index;
         if (HasFlag(load_desc->flags, ImageLoadFlags::LoadFromMaterial))
@@ -46,6 +48,8 @@ namespace cesar {
 
     void ImageTextureIO::SaveToDisk(const ResourceLoadDesc& load_desc, void* resource)
     {
+        ZoneScopedN("ImageTextureIO::SaveToDisk")
+
         ImageTexture* image_texture = static_cast<ImageTexture*>(resource);
         Texture* gpu_texture = image_texture->gpu_texture.get();
 
@@ -114,7 +118,7 @@ namespace cesar {
     //TODO: This Load path assumes non cube textures
     std::unique_ptr<Resource> ImageTextureIO::LoadNative(ImageLoadDesc* load_desc)
     {
-        ZoneScopedN("ImageTextureIO::LoadFromFileNative")
+        ZoneScopedN("ImageTextureIO::LoadNative")
 
         ImageLoadDesc image_load_desc = static_cast<ImageLoadDesc>(*load_desc);
 
@@ -175,13 +179,6 @@ namespace cesar {
 
         auto loader = resource_cache->texture_loader.get();
         UploadTextureData(context, loader, load_desc, upload_buffer, image_texture.get(), false);
-
-        //loader->Submit([context, upload_buffer, im_tex](){
-        //    context->UploadTextureData(upload_buffer, im_tex->gpu_texture.get());
-        //});
-        //loader->AddPostJob([upload_buffer]() {
-        //    delete upload_buffer;
-        //});
 
         free(data);
 
@@ -266,15 +263,6 @@ namespace cesar {
 
         UploadTextureData(context, loader, load_desc, upload_buffer, image_texture.get(), true);
 
-        //loader->Submit([context, upload_buffer, im_tex]() {
-        //    context->UploadTextureData(upload_buffer, im_tex->gpu_texture.get());
-        //    context->GenerateMips(im_tex->gpu_texture.get(), im_tex->srv_index);
-        //});
-
-        //loader->AddPostJob([upload_buffer]() {
-        //    delete upload_buffer;
-        //});
-
         free(data);
 
         return image_texture;
@@ -282,6 +270,8 @@ namespace cesar {
 
     std::unique_ptr<Resource> ImageTextureIO::LoadFromMemory(ImageLoadDesc* load_desc)
     {
+        ZoneScopedN("ImageTextureIO::LoadFromMemory")
+
 		struct _data_
 		{
 			void* data;
@@ -361,14 +351,6 @@ namespace cesar {
 
         auto loader = resource_cache->texture_loader.get();
         UploadTextureData(context, loader, load_desc, upload_buffer, image_texture.get(), true);
-
-        //loader->Submit([context, upload_buffer, im_tex]() {
-        //    context->UploadTextureData(upload_buffer, im_tex->gpu_texture.get());
-        //    context->GenerateMips(im_tex->gpu_texture.get(), im_tex->srv_index);
-        //});
-        //loader->AddPostJob([upload_buffer]() {
-        //    delete upload_buffer;
-        //});
 
         free(pixel_data);
         return image_texture;

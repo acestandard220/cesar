@@ -8,6 +8,8 @@ namespace cesar
 	ImageTexture* default_white_texture   = nullptr;
 	ImageTexture* default_black_texture   = nullptr;
 	ImageTexture* default_normal_texture  = nullptr;
+	
+	Material* default_material = nullptr;
 
 	ResourceCache::ResourceCache(OfflineContext* offline_context, const filespace::filepath& asset_path)
 		:offline_context(offline_context), assets_path(asset_path)

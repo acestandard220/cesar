@@ -11,28 +11,24 @@
 
 namespace cesar
 {
-    static void __safe_del(void* ptr)
-    {
-        if (ptr)
-            delete ptr;
-    }
     static void LoadImageTexturesAsync(TextureJobManager* loader, Material* material, MaterialLoadDesc* load_desc)
     {
         gThreadPool.SubmitJob([loader, material]() {
+            ZoneScopedN("LoadImageTexturesAsync")
+
             loader->ExecuteAll();
             loader->Wait();
 
-            __safe_del(material->albedo_map->data);
+            delete material->albedo_map->data;
             material->albedo_map->data = nullptr;
-            __safe_del(material->normal_map->data);
+            delete material->normal_map->data;
             material->normal_map->data = nullptr;
-            __safe_del(material->ao_map->data);
+            delete material->ao_map->data;
             material->ao_map->data        = nullptr;
-            __safe_del(material->roughness_map->data);
+            delete material->roughness_map->data;
             material->roughness_map->data = nullptr;
-            __safe_del(material->metallic_map->data);
+            delete material->metallic_map->data;
             material->metallic_map->data  = nullptr;
-
         });
     }
 
@@ -53,6 +49,8 @@ namespace cesar
 
     void MaterialIO::SaveToDisk(const ResourceLoadDesc& load_desc, void* resource)
     {
+        ZoneScopedN("MaterialIO::SaveToDisk")
+
         Material* material_resource = static_cast<Material*>(resource);
         MaterialLoadDesc* mtl_load_desc = (MaterialLoadDesc*)(&load_desc);
 
@@ -142,6 +140,8 @@ namespace cesar
 
     std::unique_ptr<Material> MaterialIO::LoadNative(MaterialLoadDesc* load_desc)
     {
+        ZoneScopedN("MaterialIO::LoadNative")
+
         LOG_DEBUG("LOADING CACHED MATERIAL_RESOURCE");
 
         std::unique_ptr<Material> material_resource = std::make_unique<Material>();
@@ -199,10 +199,12 @@ namespace cesar
             const auto metallic_path = GetMapPath(material_data.metallic.map_index);
 
             //Load And Set Material Images
+
+            ImageLoadFlags flags = ImageLoadFlags::LoadFromMemory | ImageLoadFlags::FlipUV | ImageLoadFlags::GenerateMips | ImageLoadFlags::LoadFromMaterial;
             {
                 {
                     ImageLoadDesc image_load_desc{};
-                    image_load_desc.flags = ImageLoadFlags::FlipUV | ImageLoadFlags::GenerateMips | ImageLoadFlags::LoadFromMaterial;
+                    image_load_desc.flags = flags;
                     image_load_desc.file_path = filespace::filepath(albedo_path.begin(), albedo_path.end());
                     ImageTexture* _texture = resource_cache->LoadResource<ImageTexture>(image_load_desc);
 
@@ -216,7 +218,7 @@ namespace cesar
 
                 {
                     ImageLoadDesc image_load_desc{};
-                    image_load_desc.flags = ImageLoadFlags::FlipUV | ImageLoadFlags::GenerateMips | ImageLoadFlags::LoadFromMaterial;
+                    image_load_desc.flags = flags;
                     image_load_desc.file_path = filespace::filepath(normal_path.begin(), normal_path.end());
                     ImageTexture* _texture = resource_cache->LoadResource<ImageTexture>(image_load_desc);
                     if (_texture == nullptr)
@@ -229,7 +231,7 @@ namespace cesar
 
                 {
                     ImageLoadDesc image_load_desc{};
-                    image_load_desc.flags = ImageLoadFlags::FlipUV | ImageLoadFlags::GenerateMips | ImageLoadFlags::LoadFromMaterial;
+                    image_load_desc.flags = flags;
                     image_load_desc.file_path = filespace::filepath(ao_path.begin(), ao_path.end());
                     ImageTexture* _texture = resource_cache->LoadResource<ImageTexture>(image_load_desc);
                     if (_texture == nullptr)
@@ -242,7 +244,7 @@ namespace cesar
 
                 {
                     ImageLoadDesc image_load_desc{};
-                    image_load_desc.flags = ImageLoadFlags::FlipUV | ImageLoadFlags::GenerateMips | ImageLoadFlags::LoadFromMaterial;
+                    image_load_desc.flags = flags;
                     image_load_desc.file_path = filespace::filepath(roughness_path.begin(), roughness_path.end());
                     ImageTexture* _texture = resource_cache->LoadResource<ImageTexture>(image_load_desc);
                     if (_texture == nullptr)
@@ -255,7 +257,7 @@ namespace cesar
 
                 {
                     ImageLoadDesc image_load_desc{};
-                    image_load_desc.flags = ImageLoadFlags::FlipUV | ImageLoadFlags::GenerateMips | ImageLoadFlags::LoadFromMaterial;
+                    image_load_desc.flags = flags;
                     image_load_desc.file_path = filespace::filepath(metallic_path.begin(), metallic_path.end());
                     ImageTexture* _texture = resource_cache->LoadResource<ImageTexture>(image_load_desc);
                     if (_texture == nullptr)
@@ -275,6 +277,8 @@ namespace cesar
 
     std::unique_ptr<Material> MaterialIO::LoadMaterialFromMtl(MaterialLoadDesc* load_desc)
     {
+        ZoneScopedN("MaterialIO::LoadFromMTL")
+
         LOG_DEBUG("LOADING NON-NATIVE MATERIAL RESOURCE");
 
         std::unique_ptr<Material> material_resource = std::make_unique<Material>();

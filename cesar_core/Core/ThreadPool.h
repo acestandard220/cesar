@@ -68,19 +68,22 @@ namespace cesar
 	private:
 		void ThreadLoop()
 		{
-			std::function<void()> job;
+			while (true)
 			{
-				std::unique_lock lock(queue_mutex);
-				mutex_condition.wait(lock, [this]() {
-					return !jobs.empty() || done;
-					});
+				std::function<void()> job;
+				{
+					std::unique_lock lock(queue_mutex);
+					mutex_condition.wait(lock, [this]() {
+						return !jobs.empty() || done;
+						});
 
-				if (done)
-					return;
-				job = jobs.back();
-				jobs.pop_back();
+					if (done)
+						return;
+					job = jobs.back();
+					jobs.pop_back();
+				}
+				job();
 			}
-			job();
 		}
 	private:
 		std::vector<std::function<void()>> jobs;

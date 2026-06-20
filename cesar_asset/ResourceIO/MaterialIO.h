@@ -12,9 +12,8 @@ namespace cesar
 	{
 		None             = 0,
 		LoadFromMeshIO   = BIT(1),
-		LoadFromMtl      = BIT(2),
-		LoadFromGlb_Gltf = BIT(3),
-		LoadFromFBX      = BIT(4)
+		LoadFromGlb_Gltf = BIT(2),
+		LoadFromFBX      = BIT(3)
 	};
 	CESAR_ENABLE_ENUM_OPS(MaterialLoadFlags);
 
@@ -52,7 +51,6 @@ namespace cesar
 
 	private:
 		std::unique_ptr<Material> LoadNative(MaterialLoadDesc* load_desc);
-		std::unique_ptr<Material> LoadMaterialFromMtl(MaterialLoadDesc* load_desc);
 		std::unique_ptr<Material> LoadGlbGltfMaterial(MaterialLoadDesc* load_desc);
 		std::unique_ptr<Material> LoadAssimpMaterial(MaterialLoadDesc* load_desc);
 	};

@@ -35,14 +35,9 @@ namespace cesar
 	std::unique_ptr<Resource> MaterialIO::LoadFromFile(ResourceLoadDesc& load_desc)
 	{
         MaterialLoadDesc* mtl_load_desc = (MaterialLoadDesc*)(&load_desc);
-        if (load_desc.is_cooked)
-        {
+        if (load_desc.is_cooked){
             return LoadNative(mtl_load_desc);
-        }
-        if (HasFlag(mtl_load_desc->flags, MaterialLoadFlags::LoadFromMtl)) {
-			return LoadMaterialFromMtl(mtl_load_desc);
-        }
-        else if (HasFlag(mtl_load_desc->flags, MaterialLoadFlags::LoadFromGlb_Gltf)) {
+        }else if (HasFlag(mtl_load_desc->flags, MaterialLoadFlags::LoadFromGlb_Gltf)) {
             return LoadGlbGltfMaterial(mtl_load_desc);
         }
 	}
@@ -136,7 +131,6 @@ namespace cesar
 
         output.close();
     }
-
 
     std::unique_ptr<Material> MaterialIO::LoadNative(MaterialLoadDesc* load_desc)
     {
@@ -269,100 +263,6 @@ namespace cesar
                 }
             }
         }
-
-        LoadImageTexturesAsync(resource_cache->texture_loader.get(), material_resource.get(), load_desc);
-
-        return material_resource;
-    }
-
-    std::unique_ptr<Material> MaterialIO::LoadMaterialFromMtl(MaterialLoadDesc* load_desc)
-    {
-        ZoneScopedN("MaterialIO::LoadFromMTL")
-
-        LOG_DEBUG("LOADING NON-NATIVE MATERIAL RESOURCE");
-
-        std::unique_ptr<Material> material_resource = std::make_unique<Material>();
-
-        std::vector<tinyobj::material_t> materials;
-        std::map<std::string, int> matMap;
-        std::ifstream mtlStream(load_desc->file_path.string());
-
-        std::string warn, err;
-        tinyobj::LoadMtl(&matMap, &materials, &mtlStream, &warn, &err);
-
-        const tinyobj::material_t& m = materials[0];
-        MaterialData data{};
-       
-		
-        ImageLoadDesc image_load_desc{};
-		image_load_desc.file_path = m.diffuse_texname;
-		image_load_desc.flags = ImageLoadFlags::FlipUV | ImageLoadFlags::GenerateMips | ImageLoadFlags::LoadFromMaterial;
-		ImageTexture* diffuse_texture = resource_cache->LoadResource<ImageTexture>(image_load_desc); 
-        if (diffuse_texture == nullptr) {
-			LOG_ERROR("Failed to load diffuse texture for material - {}", m.diffuse_texname.c_str());
-			LOG_ERROR("Using default invalid texture.");
-			diffuse_texture = resource_cache->GetDefaultInvalidTexture();
-            material_resource->albedo_map = diffuse_texture;
-        }
-        material_resource->albedo_map = diffuse_texture;
-        data.albedo.map_index = diffuse_texture->srv_index; 
-        data.albedo.color = { m.diffuse[0], m.diffuse[1], m.diffuse[2], m.dissolve };
-
-		image_load_desc.file_path = m.bump_texname;
-		ImageTexture* normal_texture = resource_cache->LoadResource<ImageTexture>(image_load_desc);
-        if (normal_texture == nullptr) {
-			LOG_ERROR("Failed to load default normal texture.");
-			LOG_ERROR("Using default Normal texture.");
-            normal_texture = resource_cache->GetDefaultNormalTexture();
-            material_resource->albedo_map = normal_texture;
-        }
-        material_resource->albedo_map = normal_texture;
-		data.normal.map_index = normal_texture->srv_index; 
-        data.normal.normal_strength = 1.0f; 
-
-		image_load_desc.file_path = m.ambient_texname;
-		ImageTexture* ao_texture = resource_cache->LoadResource<ImageTexture>(image_load_desc);
-        if (ao_texture == nullptr) {
-			LOG_ERROR("Failed to load default ambient occlusion texture.");
-			LOG_ERROR("Using default Ambient Occlusion texture.");
-			ao_texture = resource_cache->GetDefaultWhiteTexture();
-            material_resource->albedo_map = ao_texture;
-        }
-        material_resource->albedo_map = ao_texture;
-		data.ao.map_index = ao_texture->srv_index;
-        data.ao.ao_strength = 1.0f;
-
-		image_load_desc.file_path = m.metallic_texname; 
-		ImageTexture* metallic_texture = resource_cache->LoadResource<ImageTexture>(image_load_desc);
-        if (metallic_texture == nullptr) {
-			LOG_ERROR("Failed to load metallic texture for material - {}", m.metallic_texname.c_str());
-			LOG_ERROR("Using default metallic texture.");
-			metallic_texture = resource_cache->GetDefaultBlackTexture();
-            material_resource->albedo_map = metallic_texture;
-        }
-        material_resource->albedo_map = metallic_texture;
-        data.metallic.map_index = metallic_texture->srv_index;
-        data.metallic.metallic_strength = m.metallic;
-
-        image_load_desc.file_path = m.roughness_texname;
-		ImageTexture* roughness_texture = resource_cache->LoadResource<ImageTexture>(image_load_desc);
-        if (roughness_texture == nullptr) {
-			LOG_ERROR("Failed to load roughness texture for material - {}", m.roughness_texname.c_str());
-			LOG_ERROR("Using Roughness texture.");
-			roughness_texture = resource_cache->GetDefaultWhiteTexture();
-            material_resource->albedo_map = roughness_texture;
-        }
-        material_resource->albedo_map = roughness_texture;
-        data.roughness.roughness_strength = m.roughness;
-		data.roughness.map_index = roughness_texture->srv_index;
-
-        data.map_scale = { 1.0f, 1.0f };
-
-        LinearAllocator<MaterialData>* material_data_allocator = resource_cache->GetMaterialAllocator();
-        MemoryBlock<MaterialData> material_data_block = material_data_allocator->Allocate(1);
-        CopyToMemoryBlock(material_data_block, &data);
-
-        material_resource->material_data = material_data_block.data();
 
         LoadImageTexturesAsync(resource_cache->texture_loader.get(), material_resource.get(), load_desc);
 

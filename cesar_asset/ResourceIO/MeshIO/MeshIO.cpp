@@ -146,7 +146,8 @@ namespace cesar {
 
                 auto material_allocator = resource_cache->GetMaterialAllocator();
 
-                if (HasFlag(static_cast<MeshLoadDesc>(load_desc).load_flags, MeshLoadFlags::LoadMeshMaterials));
+                MeshLoadDesc& mesh_load_desc = static_cast<MeshLoadDesc&>(load_desc);
+                if (HasFlag(mesh_load_desc.load_flags, MeshLoadFlags::LoadMeshMaterials))
                 {
                     for (Uint32 i = 0; i < header.submesh_count; i++)
                     {
@@ -658,7 +659,8 @@ namespace cesar {
                 submesh_matrixes[submesh_index] = mesh_world_matrixes[mmesh_index];
 
         
-                if (HasFlag(mesh_load_desc.load_flags, MeshLoadFlags::LoadMeshMaterials));
+                MeshLoadDesc& mesh_load_desc = static_cast<MeshLoadDesc&>(load_desc);
+                if (HasFlag(mesh_load_desc.load_flags, MeshLoadFlags::LoadMeshMaterials))
                 {
                     if (primitive.materialIndex.has_value())
                     {

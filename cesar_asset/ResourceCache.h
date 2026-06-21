@@ -123,6 +123,9 @@ namespace cesar
 
 				auto* ret = static_cast<T*>(Register(resource, load_desc));
 				LOG_INFO("RESOURCE LOADED SUCCESSFULLY. ({})", ret->GetResourceName().c_str());
+				if (!load_desc.no_path)
+					SaveResource<T>(ret);
+
 				return ret;
 			}
 

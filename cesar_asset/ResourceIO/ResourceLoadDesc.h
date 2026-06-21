@@ -9,7 +9,7 @@ namespace cesar
 		UUID uuid = CESAR_INVALID_UUID;
 		filespace::filepath file_path;
 		ResourceType type;
-		Bool no_path;
+		Bool no_path;        //Set When resource is loaded from the loading of another
 		Bool is_cooked = false;
 		void* payload = nullptr;
 	};

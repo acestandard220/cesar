@@ -159,6 +159,10 @@ namespace cesar {
                         MemoryBlock<MaterialData> mtl_block(material->material_data, 1);
                         submesh_materials_indexes[i] = material_allocator->GetIndex(mtl_block);
                         submesh_materials[i] = material;
+
+                        gThreadPool.SubmitJob([this, material]() {
+                            resource_cache->SaveResource<Material>(material);
+                        });
                     }
 
                 }
@@ -205,14 +209,14 @@ namespace cesar {
         return mesh_resource;
     }
 
-    void MeshIO::SaveToDisk(const ResourceLoadDesc& load_desc, void* resource)
+    void MeshIO::SaveToDisk(const ResourceSaveDesc& save_desc, void* resource)
     {
         ZoneScopedN("MeshO::SaveToDisk")
 
         Mesh* mesh_resource = static_cast<Mesh*>(resource);
         MeshAssetHeader header{};
         header.version = 1;
-        header.uuid = load_desc.uuid;
+        header.uuid = save_desc.uuid;
         header.type = ResourceType::Mesh;
     
         header.vertex_start = CESAR_SIZEOF(MeshAssetHeader);
@@ -305,7 +309,7 @@ namespace cesar {
         header.unique_material_count = static_cast<Uint64>(unqiue_map.size());
         header.model_matrix = mesh_resource->model_matrix;
 
-        const auto cooked_path = resource_cache->GetCookedAssetPath(load_desc.file_path);
+        const auto cooked_path = resource_cache->GetCookedAssetPath(save_desc.save_path);
         std::ofstream output(cooked_path, std::ios::binary | std::ios::out);
 
         if (!output) {
@@ -680,6 +684,10 @@ namespace cesar {
                         MemoryBlock<MaterialData> mtl_block(material->material_data, 1);
                         submesh_materials_indexes[submesh_index] = material_allocator->GetIndex(mtl_block);
                         submesh_materials[submesh_index] = material;
+
+                        gThreadPool.SubmitJob([this, material]() {
+                            resource_cache->SaveResource<Material>(material);
+                            });
                     }
                     else {
                         submesh_materials[submesh_index];

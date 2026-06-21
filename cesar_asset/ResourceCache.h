@@ -123,13 +123,23 @@ namespace cesar
 
 				auto* ret = static_cast<T*>(Register(resource, load_desc));
 				LOG_INFO("RESOURCE LOADED SUCCESSFULLY. ({})", ret->GetResourceName().c_str());
-				if (!load_desc.is_cooked)
-				{
-					io->SaveToDisk(load_desc, ret);
-					LOG_DEBUG("RESOURCE CACHED SUCCESSFULLY");
-				}
-
 				return ret;
+			}
+
+			template<IsResourceType T>
+			void SaveResource(Resource* resource)
+			{
+				filespace::filepath cooked_path = resource->GetCookedPath();
+				if (IsCached(cooked_path))
+					return;
+
+				ResourceSaveDesc save_desc{};
+				save_desc.save_path = cooked_path;
+				save_desc.type = ResourceTypeTrait<T>::type;
+				save_desc.uuid = resource->GetUUID();
+
+				IResourceIO* io = GetResourceIO(save_desc.type);
+				io->SaveToDisk(save_desc, resource);
 			}
 
 			const filespace::filepath& GetAssetsPath()const;

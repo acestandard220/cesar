@@ -82,7 +82,7 @@ namespace cesar
 		virtual ~MeshIO() = default;
 
 		virtual std::unique_ptr<Resource> LoadFromFile(ResourceLoadDesc& load_desc) override;
-		virtual void SaveToDisk(const ResourceLoadDesc& load_desc, void* mesh_resource) override;
+		virtual void SaveToDisk(const ResourceSaveDesc& save_desc, void* mesh_resource) override;
 
 
 	private:

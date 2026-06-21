@@ -38,7 +38,7 @@ namespace cesar {
 	    	virtual ~IResourceIO() = default;
 	    
 	    	virtual std::unique_ptr<Resource> LoadFromFile(ResourceLoadDesc& load_desc) = 0;
-	    	virtual void SaveToDisk(const ResourceLoadDesc& load_desc, void* resource) = 0;
+	    	virtual void SaveToDisk(const ResourceSaveDesc& save_desc, void* resource) = 0;
 	protected:
 		ResourceCache* resource_cache = nullptr;
 	};

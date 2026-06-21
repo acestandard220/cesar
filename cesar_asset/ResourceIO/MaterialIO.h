@@ -47,7 +47,7 @@ namespace cesar
 		virtual ~MaterialIO() = default;
 
 		virtual std::unique_ptr<Resource> LoadFromFile(ResourceLoadDesc& load_desc) override;
-		virtual void SaveToDisk(const ResourceLoadDesc& load_desc, void* resource) override;
+		virtual void SaveToDisk(const ResourceSaveDesc& save_desc, void* resource) override;
 
 	private:
 		std::unique_ptr<Material> LoadNative(MaterialLoadDesc* load_desc);

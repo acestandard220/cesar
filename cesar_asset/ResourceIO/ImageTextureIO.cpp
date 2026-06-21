@@ -46,7 +46,7 @@ namespace cesar {
             return LoadFromMemory(image_load_desc); 
 	}
 
-    void ImageTextureIO::SaveToDisk(const ResourceLoadDesc& load_desc, void* resource)
+    void ImageTextureIO::SaveToDisk(const ResourceSaveDesc& save_desc, void* resource)
     {
         ZoneScopedN("ImageTextureIO::SaveToDisk")
 
@@ -56,7 +56,7 @@ namespace cesar {
         OfflineContext* offline_context = resource_cache->offline_context;
         ResourceCache* cache = resource_cache;
 
-        const filespace::filepath cooked_path = cache->GetCookedAssetPath(load_desc.file_path);
+        const filespace::filepath cooked_path = cache->GetCookedAssetPath(save_desc.save_path);
         const TextureDesc desc = gpu_texture->GetDesc();
 
         ImageAssetHeader header{};
@@ -77,48 +77,46 @@ namespace cesar {
         std::vector<Subresource> asset_subresources(subresource_count);
         gpu_texture->GetTextureCopyableSubresources(asset_subresources);
 
-        gThreadPool.SubmitJob([cache, offline_context, gpu_texture, header, cooked_path,
-            asset_subresources = std::move(asset_subresources)]() mutable
-            {
-                Buffer* data_buffer = nullptr;
+        Buffer* data_buffer = nullptr;
 
-                cache->texture_loader->ExecuteImmediate([&]() {
-                    data_buffer = offline_context->GetTexturePixels(gpu_texture);
-                    });
-
-                if (!data_buffer) {
-                    LOG_ERROR("Failed to get texture pixels.");
-                    return;
-                }
-
-                void* data = data_buffer->GetPersistentPointer();
-
-                std::ofstream output(cooked_path, std::ios::binary | std::ios::out);
-                if (!output) {
-                    LOG_ERROR("Failed to save asset to disk.");
-                    delete data_buffer;
-                    return;
-                }
-
-                constexpr std::size_t base_size = CESAR_SIZEOF(CesarAssetHeader);
-                constexpr std::size_t total_size = CESAR_SIZEOF(ImageAssetHeader);
-
-                const char* header_bytes = reinterpret_cast<const char*>(&header);
-                output.write(header_bytes, static_cast<std::streamsize>(base_size));
-                output.write(header_bytes + base_size, static_cast<std::streamsize>(total_size - base_size));
-                output.write(reinterpret_cast<const char*>(asset_subresources.data()),
-                    static_cast<std::streamsize>(CESAR_SIZEOF_BUFFER(Subresource, asset_subresources.size())));
-                output.write(reinterpret_cast<const char*>(data),
-                    static_cast<std::streamsize>(data_buffer->GetSize()));
-
-                delete data_buffer;
+        cache->texture_loader->ExecuteImmediate([&]() {
+            data_buffer = offline_context->GetTexturePixels(gpu_texture);
             });
+
+        if (!data_buffer) {
+            LOG_ERROR("Failed to get texture pixels.");
+            return;
+        }
+
+        void* data = data_buffer->GetPersistentPointer();
+
+        std::ofstream output(cooked_path, std::ios::binary | std::ios::out);
+        if (!output) {
+            LOG_ERROR("Failed to save asset to disk.");
+            delete data_buffer;
+            return;
+        }
+
+        constexpr std::size_t base_size = CESAR_SIZEOF(CesarAssetHeader);
+        constexpr std::size_t total_size = CESAR_SIZEOF(ImageAssetHeader);
+
+        const char* header_bytes = reinterpret_cast<const char*>(&header);
+        output.write(header_bytes, static_cast<std::streamsize>(base_size));
+        output.write(header_bytes + base_size, static_cast<std::streamsize>(total_size - base_size));
+        output.write(reinterpret_cast<const char*>(asset_subresources.data()),
+            static_cast<std::streamsize>(CESAR_SIZEOF_BUFFER(Subresource, asset_subresources.size())));
+        output.write(reinterpret_cast<const char*>(data),
+            static_cast<std::streamsize>(data_buffer->GetSize()));
+
+        delete data_buffer;
     }
 
     //TODO: This Load path assumes non cube textures
     std::unique_ptr<Resource> ImageTextureIO::LoadNative(ImageLoadDesc* load_desc)
     {
         ZoneScopedN("ImageTextureIO::LoadNative")
+
+            LOG_DEBUG("LOADING CACHED IMAGE TEXTURE RESOURECE");
 
         ImageLoadDesc image_load_desc = static_cast<ImageLoadDesc>(*load_desc);
 
@@ -188,6 +186,9 @@ namespace cesar {
     std::unique_ptr<Resource> ImageTextureIO::LoadFromFileNonNative(ImageLoadDesc* load_desc)
     {
         ZoneScopedN("ImageTextureIO::LoadFromFileNonNative")
+
+        LOG_DEBUG("LOADING NON NATIVE IMAGE TEXTURE RESOURECE");
+
 
         ImageLoadDesc image_load_desc = static_cast<ImageLoadDesc>(*load_desc);
 
@@ -271,6 +272,8 @@ namespace cesar {
     std::unique_ptr<Resource> ImageTextureIO::LoadFromMemory(ImageLoadDesc* load_desc)
     {
         ZoneScopedN("ImageTextureIO::LoadFromMemory")
+
+        LOG_DEBUG("LOADING IMAGE TEXTURE RESOURECE FROM MEMORY");
 
 		struct _data_
 		{

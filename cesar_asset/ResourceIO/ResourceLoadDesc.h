@@ -7,11 +7,18 @@ namespace cesar
 	struct _declspec(dllexport) ResourceLoadDesc
 	{
 		UUID uuid = CESAR_INVALID_UUID;
-		std::filesystem::path file_path;
+		filespace::filepath file_path;
 		ResourceType type;
 		Bool no_path;
 		Bool is_cooked = false;
 		void* payload = nullptr;
+	};
+
+	struct __declspec(dllexport) ResourceSaveDesc
+	{
+		UUID uuid = CESAR_INVALID_UUID;
+		filespace::filepath save_path;
+		ResourceType type;
 	};
 
 	template<typename T>

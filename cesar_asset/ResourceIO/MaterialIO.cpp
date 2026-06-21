@@ -11,14 +11,20 @@
 
 namespace cesar
 {
-    static void LoadImageTexturesAsync(TextureJobManager* loader, Material* material, MaterialLoadDesc* load_desc)
+    static void LoadImageTexturesAsync(ResourceCache* resource_cache, TextureJobManager* loader, Material* material, MaterialLoadDesc* load_desc)
     {
-        gThreadPool.SubmitJob([loader, material]() {
+        gThreadPool.SubmitJob([resource_cache, loader, material]() {
             ZoneScopedN("LoadImageTexturesAsync")
 
             loader->ExecuteAll();
             loader->Wait();
-
+            
+            resource_cache->SaveResource<ImageTexture>(material->albedo_map);
+            resource_cache->SaveResource<ImageTexture>(material->normal_map);
+            resource_cache->SaveResource<ImageTexture>(material->ao_map);
+            resource_cache->SaveResource<ImageTexture>(material->roughness_map);
+            resource_cache->SaveResource<ImageTexture>(material->metallic_map);
+            
             delete material->albedo_map->data;
             material->albedo_map->data = nullptr;
             delete material->normal_map->data;
@@ -42,12 +48,12 @@ namespace cesar
         }
 	}
 
-    void MaterialIO::SaveToDisk(const ResourceLoadDesc& load_desc, void* resource)
+    void MaterialIO::SaveToDisk(const ResourceSaveDesc& save_desc, void* resource)
     {
-        ZoneScopedN("MaterialIO::SaveToDisk")
+        ZoneScopedN("MaterialIO::SaveToDisk");
 
         Material* material_resource = static_cast<Material*>(resource);
-        MaterialLoadDesc* mtl_load_desc = (MaterialLoadDesc*)(&load_desc);
+        MaterialLoadDesc* mtl_load_desc = (MaterialLoadDesc*)(&save_desc);
 
         MaterialAssetHeader header{};
         header.uuid = material_resource->GetUUID();
@@ -57,7 +63,7 @@ namespace cesar
 
         header.material_data = *material_resource->material_data;
 
-        const auto cooked_path = resource_cache->GetCookedAssetPath(load_desc.file_path);
+        const auto cooked_path = resource_cache->GetCookedAssetPath(save_desc.save_path);
         std::ofstream output(cooked_path, std::ios::binary | std::ios::out);
 
         if (!output) {
@@ -136,7 +142,7 @@ namespace cesar
     {
         ZoneScopedN("MaterialIO::LoadNative")
 
-        LOG_DEBUG("LOADING CACHED MATERIAL_RESOURCE");
+        LOG_DEBUG("LOADING CACHED MATERIAL RESOURCE");
 
         std::unique_ptr<Material> material_resource = std::make_unique<Material>();
 
@@ -264,11 +270,11 @@ namespace cesar
             }
         }
 
-        LoadImageTexturesAsync(resource_cache->texture_loader.get(), material_resource.get(), load_desc);
+        LoadImageTexturesAsync(resource_cache, resource_cache->texture_loader.get(), material_resource.get(), load_desc);
 
         return material_resource;
     }
-
+    
     std::unique_ptr<Material> MaterialIO::LoadGlbGltfMaterial(MaterialLoadDesc* material_load_desc)
     {
         ZoneScopedN("MaterialIO::LoadGlbGltfMaterial")
@@ -430,7 +436,7 @@ namespace cesar
 
         material_resource->material_data = material_block.data();
 
-        LoadImageTexturesAsync(resource_cache->texture_loader.get(), material_resource.get(), material_load_desc);
+        LoadImageTexturesAsync(resource_cache, resource_cache->texture_loader.get(), material_resource.get(), material_load_desc);
 
         return material_resource;
     }
